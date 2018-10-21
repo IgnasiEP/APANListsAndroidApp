@@ -1,5 +1,7 @@
 package com.example.ignasi94.backtrackingsimple;
 
+import java.util.List;
+
 public class Dog {
     //Private Variables
     int id;
@@ -32,5 +34,24 @@ public class Dog {
     public Dog(String name, int idCage, int age, String link, Boolean special, Short walktype, String observations)
     {
         this(0,name,idCage,age,link,special,walktype,observations);
+    }
+
+    public boolean HasInteriorPartner(List<Dog> dogs)
+    {
+        //Si el perro ya es interior nos ahorramos hacer el bucle
+        if(this.walktype == Constants.WT_INTERIOR)
+        {
+            return true;
+        }
+
+        for(int i = 0; i < dogs.size(); ++i)
+        {
+            Dog iDog = dogs.get(i);
+            if(this.idCage == iDog.idCage && this.id != iDog.id && iDog.walktype == Constants.WT_INTERIOR)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

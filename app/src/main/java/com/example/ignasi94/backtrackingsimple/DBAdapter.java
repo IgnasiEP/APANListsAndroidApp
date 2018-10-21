@@ -56,7 +56,7 @@ public class DBAdapter{
             {
                 walkType = 2;
             }
-            Dog dog = new Dog(name,cage,age,link,special,walkType,observations);
+            Dog dog = new Dog(id,name,cage,age,link,special,walkType,observations);
             dogs.add(dog);
         }
         return dogs;
