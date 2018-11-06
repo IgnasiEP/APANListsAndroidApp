@@ -1,11 +1,6 @@
 package com.example.ignasi94.backtrackingsimple;
 
-
-import org.jgrapht.*;
-import org.jgrapht.graph.*;
-import org.jgrapht.alg.KruskalMinimumSpanningTree;
-
-import java.util.List;
+import org.jgrapht.graph.DefaultUndirectedWeightedGraph;
 import java.util.Set;
 import java.util.TreeSet;
 

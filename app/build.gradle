@@ -16,6 +16,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -25,12 +29,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'org.javabits.jgrapht:jgrapht-core:0.9.3'
-    implementation 'org.jgrapht:jgrapht-jdk1.5:0.7.3'
-    implementation 'org.jgrapht:jgrapht-dist:1.2.0'
-    implementation 'org.jgrapht:jgrapht:1.2.0'
-    implementation 'org.jgrapht:jgrapht-demo:1.2.0'
-    implementation 'org.jgrapht:jgrapht-guava:1.2.0'
-    implementation 'org.jgrapht:jgrapht-ext:1.2.0'
-    implementation 'org.jgrapht:jgrapht-io:1.2.0'
+    implementation 'com.io7m.jgrapht:jgrapht:1.2.1-MODULARIZED'
+    implementation 'com.io7m.jgrapht:jgrapht-core:1.2.1-MODULARIZED'
+    implementation 'org.eclipse.ecf:org.apache.log4j:1.2.15.v201012070815'
 }
