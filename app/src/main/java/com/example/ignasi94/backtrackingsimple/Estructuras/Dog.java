@@ -1,17 +1,19 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.Estructuras;
+
+import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
 import java.util.List;
 
 public class Dog {
     //Private Variables
-    int id;
-    String name;
-    int idCage;
-    int age;
-    String link;
-    Boolean special;
-    Short walktype;
-    String observations;
+    public int id;
+    public String name;
+    public int idCage;
+    public int age;
+    public String link;
+    public Boolean special;
+    public Short walktype;
+    public String observations;
     //How to safe images
 
 

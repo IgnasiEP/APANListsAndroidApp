@@ -1,4 +1,4 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.Utils;
 
 public final class Constants {
     public static String CAGE_ZONE_XENILES = "XENILES";

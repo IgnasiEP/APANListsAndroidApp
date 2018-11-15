@@ -1,18 +1,18 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.Algorithm;
 
-import android.util.Log;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Grafo.DogGraph;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Grafo.EdgeDog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
+import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
-import org.apache.log4j.LogManager;
-import org.w3c.dom.DOMImplementation;
-
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 public class Algorithm {
 
@@ -24,6 +24,7 @@ public class Algorithm {
     public ArrayList<ArrayList<Dog>> nCleanDomain;
     public ArrayList<Dog> nWalkDomain;
     public ArrayList<Cage> cages;
+    public DogGraph dogGraph;
     public final Logger Log = Logger.getLogger("Logger");
     public FileHandler fh;
 
@@ -40,6 +41,7 @@ public class Algorithm {
         this.cages = (ArrayList) cages;
         listDogsPerCage = new ArrayList<ArrayList<Dog>>();
         this.CreateListDogsPerCage(dogs,cages);
+        this.dogGraph = CreateDogsGraph(dogs,cages, nPaseos);
         //Solución paseos
         //   V1  V2  V3  V4
         //P1
@@ -61,22 +63,27 @@ public class Algorithm {
         this.Backtracking(0,0,0,nPaseos,volunteers.size(),dogs.size());
     }
 
-    public DogGraph CreateDogsGraph(List<Dog> dogs, List<Cage> cages) {
-        DogGraph dogGraph = new DogGraph();
+    //Creación del grafo.
+    //Este grafo relaciona los distintos perros. Estas relacionas tienen un peso:
+    //Relación incompatible
+    //Relación compatible
+    //Relación con un perro de su misma jaula
+    public DogGraph CreateDogsGraph(List<Dog> dogs, List<Cage> cages, int npaseos) {
+        DogGraph dogGraph = new DogGraph(dogs.size());
 
         //Vertices
         for (int i = 0; i < dogs.size(); ++i) {
-            dogGraph.addVertex((VertexDog) dogs.get(i));
+            dogGraph.addVertex(dogs.get(i));
         }
 
         //Aristas
         for (int i = 0; i < dogs.size(); ++i) {
-            VertexDog iDog = (VertexDog) dogs.get(i);
+            Dog iDog = dogs.get(i);
             boolean hasInterioriDog = iDog.HasInteriorPartner(dogs);
-            for (int j = i + 1; j < dogs.size(); ++i) {
-                VertexDog jDog = (VertexDog) dogs.get(j);
+            for (int j = i + 1; j < dogs.size(); ++j) {
+                Dog jDog = dogs.get(j);
                 if (iDog.idCage == jDog.idCage) {
-                    EdgeDog edge = new EdgeDog(iDog,jDog,Constants.EDGE_SAME_CAGE_VALUE);
+                    EdgeDog edge = new EdgeDog(iDog,jDog, Constants.EDGE_SAME_CAGE_VALUE);
                     dogGraph.addEdge(iDog, jDog, edge);
                 } else {
                     if (hasInterioriDog && jDog.HasInteriorPartner(dogs)) {
@@ -336,6 +343,7 @@ public class Algorithm {
         }
         else
         {
+            //Comprobamos si caben todos los perros de la jaula en el paseo
             ArrayList<Integer> cagesValidated = new ArrayList<Integer>();
             int totalDogsiRow = 0;
             for(int i = 0; i < this.walksTable[0].length; i++) {
@@ -348,10 +356,18 @@ public class Algorithm {
                     }
                 }
             }
-            if(totalDogsiRow > nVolunteers)
+            //Si los perros exteriores que comparten jaula con el interior asignado a limpieza ya estan asignados
+            if(cleanTable.get(irow).size() > 0 && cagesValidated.contains(cleanTable.get(irow).get(0).idCage) && totalDogsiRow > nVolunteers)
             {
                 return false;
             }
+            //Si no estan asignados
+            else if(cleanTable.get(irow).size() > 0 && this.CleanOnlyContainsInteriors(irow) && !cagesValidated.contains(cleanTable.get(irow).get(0).idCage)
+                    &&  totalDogsiRow + this.GetExteriorDogs(cleanTable.get(irow).get(0).idCage) > nVolunteers)
+            {
+                return false;
+            }
+
             Dog assigned = this.walksTable[irow][icolumn];
             //Comprobar que si hay perros interiores estos estan asignados, en caso que no return false
             for (int j = 0; j < this.listDogsPerCage.get(assigned.idCage).size(); ++j)
@@ -371,12 +387,14 @@ public class Algorithm {
         boolean remove = false;
         if(!emptyDomain) {
             if (iClean == irow) {
+                //Eliminamos de los dominios de limpieza los perros asignados
                 for (int i = iClean + 1; i < this.cleanDomains.size(); ++i) {
                     this.cleanDomains.get(i).remove(this.cleanTable.get(iClean));
                 }
                 for(int j = 0; j < this.cleanTable.get(iClean).size(); ++j)
                 {
                     Dog dog = this.cleanTable.get(iClean).get(j);
+                    //Si el perro asignado a la limpieza es exterior si elimina de los dominios de paseo
                     if(dog.walktype == Constants.WT_EXTERIOR)
                     {
                         for (int i = 0; i < this.walksDomains.size(); ++i) {
@@ -396,6 +414,7 @@ public class Algorithm {
                     }
                 }
             } else {
+                //Eliminamos de los posteriores dominios de paseo todos los perros de la jaula asignada
                 int added = this.GetExteriorDogs(this.walksTable[irow][icolumn].idCage);
                 for (int i = 0; i < this.walksDomains.size(); ++i) {
                     for (int j = 0; j < this.walksDomains.get(0).size(); ++j) {
@@ -409,12 +428,37 @@ public class Algorithm {
                         }
                     }
                 }
-                //Remove assigned dogs for CleanDomains
+                //Se quita la jaula asignada de los dominios de limpieza posteriores
                 ArrayList<Dog> dogsInCage = this.listDogsPerCage.get(this.walksTable[irow][icolumn].idCage);
                 for (int i = iClean; i < this.cleanDomains.size(); ++i) {
                     if(this.cleanDomains.get(i).contains(dogsInCage))
                     {
                         this.cleanDomains.get(i).remove(dogsInCage);
+                    }
+                }
+                //Eliminamos de los dominios de este paseo todos los perros incompatibles al asignado
+                Dog assigned = this.walksTable[irow][icolumn];
+                LinkedList<EdgeDog> edges = dogGraph.edgesOf(assigned);
+                for(int i = icolumn; i < this.walksDomains.get(irow).size(); i++)
+                {
+                    for (EdgeDog edge : edges) {
+                        if(edge.weight == Constants.EDGE_INCOMPATIBLE_VALUE)
+                        {
+                            if(edge.v1.id == assigned.id)
+                            {
+                                if(walksDomains.get(irow).get(icolumn).contains(edge.v2))
+                                {
+                                    walksDomains.get(irow).get(icolumn).remove(edge.v2);
+                                }
+                            }
+                            else
+                            {
+                                if(walksDomains.get(irow).get(icolumn).contains(edge.v1))
+                                {
+                                    walksDomains.get(irow).get(icolumn).remove(edge.v1);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -423,6 +467,8 @@ public class Algorithm {
 
     public void AssignCageFriends(int iClean, int irow, int icolumn, boolean emptyDomain)
     {
+        //Una vez asignado un perro y validado correctamente se asignan a las siguientes posiciones del paseo
+        //sus compañeros exteriores
         if(iClean > irow && !emptyDomain)
         {
             Dog assigned = this.walksTable[irow][icolumn];
@@ -473,11 +519,12 @@ public class Algorithm {
             this.cleanDomains.get(i).addAll(cleanDomain);
         }
     }
-    //Walkdomains[irow][icolumn] = Tots els gossos - gossos ja al walkTable + gos de la walkTable[irow-1][nVolunteers-1]
-    //gos de la walkTable[irow-1][nVolunteers-1] afegir a la resta de dominis on no hi ha gos assignat
+
     public void ReassignWalkDomain(int lastRow, int lastColumn, int irow,int icolumn, int nPaseos, int nVolunteers)
     {
-        int dogsInCage = GetExteriorDogs(this.walksTable[lastRow][lastColumn - 1].idCage);
+        int dogsInCage = GetExteriorDogs(this.walksTable[lastRow][lastColumn].idCage);
+        //walkDomain seran todos los perros no asignados (sólo se eliminan los asignados no tenemos que tratar
+        //los incompatibles que hemos eliminado en UpdateDomain)
         ArrayList<Dog> walkDomain = (ArrayList<Dog>) this.nWalkDomain.clone();
         for (int i = 0; i <= lastRow; ++i) {
             for (int j = 0; j < nVolunteers; ++j) {
@@ -575,66 +622,28 @@ public class Algorithm {
         return null;
     }
 
-    public Dog GetFirstExterior(int idCage)
-    {
+    public Dog GetFirstExterior(int idCage) {
         ArrayList<Dog> dogs = this.listDogsPerCage.get(idCage);
-        for(int j = 0; j < dogs.size(); ++j)
-        {
+        for (int j = 0; j < dogs.size(); ++j) {
             Dog dog = dogs.get(j);
-            if(dog.walktype == Constants.WT_EXTERIOR)
-            {
+            if (dog.walktype == Constants.WT_EXTERIOR) {
                 return dog;
             }
         }
         return null;
     }
 
-    public int Selection(VertexDog vertexDog, DogGraph dogGraph, List<Cage> cages, ArrayList<ArrayList<Dog>> walksSolution, ArrayList<ArrayList<Dog>> cleanSolution) {
-        //Buscamos uno de los perros que se encuentran en una de las jaula de xeniles que comparten
-        /*Set<VertexDog> vertexs = dogGraph.vertexSet();
-        Set<Integer> sameCageWeight = new TreeSet<Integer>();
-        sameCageWeight.add(3);
-
-        VertexDog maxDegreeVertex = new VertexDog();
-        int maxDegree = 0;
-        for(VertexDog dog : vertexs)
+    private boolean CleanOnlyContainsInteriors (int irow)
+    {
+        ArrayList<Dog> dogs = this.cleanTable.get(irow);
+        for(int i = 0; i < dogs.size(); ++i)
         {
-            if(!dog.assigned)
+            Dog dog  = dogs.get(i);
+            if(dog.walktype == Constants.WT_EXTERIOR)
             {
-                Cage cage = new Cage();
-                for(int i = 0; i < 0; ++i)
-                {
-                    cage = cages.get(i);
-                    if(cage.id == dog.idCage)
-                    {
-                        break;
-                    }
-                }
-                if(XenilesAssigned() || (!XenilesAssigned() && cage.zone == Constants.CAGE_ZONE_XENILES))
-                {
-                    Set<Double> edges = dogGraph.edgesOf(dog);
-                    edges.retainAll(new HashSet<Integer>());
-                    int degree3 = edges.size();
-                    if (degree3 > maxDegree) {
-                        maxDegree = degree3;
-                        maxDegreeVertex = dog;
-                    }
-                }
+                return false;
             }
         }
-        return maxDegreeVertex;*/
-        int paseo = 0;
-        if (vertexDog.walktype == Constants.WT_INTERIOR) {
-            paseo = vertexDog.cleandomain.get(0);
-            cleanSolution.get(paseo).add(vertexDog);
-            vertexDog.cleandomain.remove(0);
-            vertexDog.assigned = true;
-        } else if (vertexDog.walktype == Constants.WT_EXTERIOR) {
-            paseo = vertexDog.walkdomain.get(0);
-            walksSolution.get(paseo).add(vertexDog);
-            vertexDog.walkdomain.remove(0);
-            vertexDog.assigned = true;
-        }
-        return paseo;
+        return true;
     }
 }

@@ -1,12 +1,19 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.BBDD;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
+import com.example.ignasi94.backtrackingsimple.Utils.Constants;
+
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
 
 public class DBAdapter{
@@ -15,6 +22,18 @@ public class DBAdapter{
     public DBAdapter(Context context)
     {
         dbHandler = new DBHandler(context);
+    }
+
+    public Dictionary<Integer,Dog> getAllDogsDictionary()
+    {
+        Dictionary<Integer,Dog> dogsDictionary = new Hashtable<Integer, Dog>();
+        List<Dog> dogs = getAllDogs();
+        for(int i = 0; i < dogs.size(); ++i)
+        {
+            Dog dog = dogs.get(i);
+            dogsDictionary.put(dog.id,dog);
+        }
+        return dogsDictionary;
     }
 
     public List<Dog> getAllDogs()
@@ -81,24 +100,38 @@ public class DBAdapter{
         return cages;
     }
 
-    public List<Volunteer> getAllVolunteers()
-    {
+    public List<Volunteer> getAllVolunteers() {
         List<Volunteer> volunteers = new ArrayList<Volunteer>();
         SQLiteDatabase db = dbHandler.getWritableDatabase();
         String[] columns = {dbHandler.KEY_VOLUNTEER_NAME, dbHandler.KEY_VOLUNTEER_PHONE, dbHandler.KEY_VOLUNTEER_DAY, dbHandler.KEY_VOLUNTEER_OBSERVATIONS};
-        Cursor cursor =db.query(dbHandler.TABLE_VOLUNTEERS,columns,null, null,null,null,null);
-        StringBuffer buffer= new StringBuffer();
-        while (cursor.moveToNext())
-        {
+        Cursor cursor = db.query(dbHandler.TABLE_VOLUNTEERS, columns, null, null, null, null, null);
+        StringBuffer buffer = new StringBuffer();
+        while (cursor.moveToNext()) {
             String name = cursor.getString(cursor.getColumnIndex(dbHandler.KEY_VOLUNTEER_NAME));
             String phone = cursor.getString(cursor.getColumnIndex(dbHandler.KEY_VOLUNTEER_PHONE));
             String volunteerDay = cursor.getString(cursor.getColumnIndex(dbHandler.KEY_VOLUNTEER_DAY));
             String observations = cursor.getString(cursor.getColumnIndex(dbHandler.KEY_VOLUNTEER_OBSERVATIONS));
 
-            Volunteer volunteer = new Volunteer(name,phone,volunteerDay,observations);
+            Volunteer volunteer = new Volunteer(name, phone, volunteerDay, observations);
             volunteers.add(volunteer);
         }
         return volunteers;
+    }
+
+    public void removeAll()
+    {
+        // db.delete(String tableName, String whereClause, String[] whereArgs);
+        // If whereClause is null, it will delete all rows.
+        SQLiteDatabase db = dbHandler.getWritableDatabase(); // helper is object extends SQLiteOpenHelper
+        db.delete(DBHandler.TABLE_DOGS, null, null);
+        db.delete(DBHandler.TABLE_CAGES, null, null);
+        db.delete(DBHandler.TABLE_VOLUNTEERS, null, null);
+    }
+
+    public void onUpgrade()
+    {
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        dbHandler.onUpgrade(db,2,2);
     }
 
     static class DBHandler extends SQLiteOpenHelper {
@@ -164,29 +197,54 @@ public class DBAdapter{
             //0 No sale
             //1 Interior
             //2 Exterior
-            db.execSQL(insertDogs + "1,'Gachas',1,2);");
-            db.execSQL(insertDogs + "2,'Vida',1,2);");
-            db.execSQL(insertDogs + "3,'Trixie',2,2);");
-            db.execSQL(insertDogs + "4,'Atenea',3,1);");
-            db.execSQL(insertDogs + "5,'Kratos',4,2);");
-            db.execSQL(insertDogs + "6,'Quim',4,1);");
-            db.execSQL(insertDogs + "7,'Tones',5,2);");
-            db.execSQL(insertDogs + "8,'Straciatella',5,2);");
-            db.execSQL(insertDogs + "9,'Nika',6,2);");
-            db.execSQL(insertDogs + "10,'Luc',7,2);");
-            db.execSQL(insertDogs + "11,'Geralt',8,1);");
-            db.execSQL(insertDogs + "12,'Chelsea',9,2);");
-            db.execSQL(insertDogs + "13,'Blacky',10,1);");
-            db.execSQL(insertDogs + "14,'Max',10,2);");
-            db.execSQL(insertDogs + "15,'Canela',10,2);");
-            db.execSQL(insertDogs + "16,'Nelson',11,2);");
-            db.execSQL(insertDogs + "17,'Neit',11,2);");
-            db.execSQL(insertDogs + "18,'GosPati1',12,2);");
-            db.execSQL(insertDogs + "19,'GosPati2',13,2);");
-            db.execSQL(insertDogs + "20,'GosPati3',14,2);");
-            db.execSQL(insertDogs + "21,'GosQuarentena1',15,2);");
-            db.execSQL(insertDogs + "22,'GosQuarentena2',16,2);");
-            db.execSQL(insertDogs + "23,'GosQuarentena3',17,2);");
+            db.execSQL(insertDogs + "1,'Puyol',1,2);");
+            db.execSQL(insertDogs + "2,'Vida',2,2);");
+            db.execSQL(insertDogs + "3,'Trixie',3,2);");
+            db.execSQL(insertDogs + "4,'Thor',4,2);");
+            db.execSQL(insertDogs + "5,'Looney',5,2);");
+            db.execSQL(insertDogs + "6,'Atenea',6,1);");
+            db.execSQL(insertDogs + "7,'Quim',7,2);");
+            db.execSQL(insertDogs + "8,'Kratos',7,2);");
+            db.execSQL(insertDogs + "9,'Rista',8,2);");
+            db.execSQL(insertDogs + "10,'Milady',9,2);");
+            db.execSQL(insertDogs + "11,'Maxi',10,2);");
+            db.execSQL(insertDogs + "12,'Nika',11,2);");
+            db.execSQL(insertDogs + "13,'Mara',12,2);");
+            db.execSQL(insertDogs + "14,'Geralt',13,1);");
+            db.execSQL(insertDogs + "15,'Ralts',14,2);");
+            db.execSQL(insertDogs + "16,'Luc',15,2);");
+            db.execSQL(insertDogs + "17,'Pontos',16,2);");
+            db.execSQL(insertDogs + "18,'Chelin',17,2);");
+            db.execSQL(insertDogs + "19,'Dogos',18,2);");
+            db.execSQL(insertDogs + "20,'Chelsea',19,2);");
+            db.execSQL(insertDogs + "21,'Argus',20,1);");
+            db.execSQL(insertDogs + "22,'Jess',20,1);");
+            db.execSQL(insertDogs + "23,'Max',21,2);");
+            db.execSQL(insertDogs + "24,'Canela',21,2);");
+            db.execSQL(insertDogs + "25,'Blacky',21,1);");
+            db.execSQL(insertDogs + "26,'Titus',22,2);");
+            db.execSQL(insertDogs + "27,'Amiguets',22,2);");
+            db.execSQL(insertDogs + "28,'Miam',23,0);");
+            db.execSQL(insertDogs + "29,'Dardo',23,0);");
+
+            db.execSQL(insertDogs + "30,'Vito',24,2);");
+            db.execSQL(insertDogs + "31,'Corleone',24,2);");
+            db.execSQL(insertDogs + "32,'Ter',24,0);");
+            db.execSQL(insertDogs + "33,'Perla',24,2);");
+
+            db.execSQL(insertDogs + "34,'Canelo',26,2);");
+            db.execSQL(insertDogs + "35,'Saga',26,2);");
+            db.execSQL(insertDogs + "36,'Tunes',26,2);");
+            db.execSQL(insertDogs + "37,'Sira',26,0);");
+
+            db.execSQL(insertDogs + "38,'Pésol',29,2);");
+            db.execSQL(insertDogs + "39,'Cristal',29,2);");
+            db.execSQL(insertDogs + "40,'Bull',30,2);");
+            db.execSQL(insertDogs + "41,'Maya',30,2);");
+            db.execSQL(insertDogs + "42,'Stracciatela',31,2);");
+
+            db.execSQL(insertDogs + "43,'Mar',32,2);");
+            db.execSQL(insertDogs + "44,'Roc',32,2);");
         }
 
         private void insertVolunteers(SQLiteDatabase db)

@@ -1,4 +1,9 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.Utils;
+
+import com.example.ignasi94.backtrackingsimple.Algorithm.Algorithm;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 
 import java.util.ArrayList;
 import java.util.List;

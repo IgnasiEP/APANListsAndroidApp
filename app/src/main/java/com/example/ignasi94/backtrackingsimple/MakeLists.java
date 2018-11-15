@@ -1,9 +1,18 @@
 package com.example.ignasi94.backtrackingsimple;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+
+import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
+import com.example.ignasi94.backtrackingsimple.Utils.Constants;
+import com.example.ignasi94.backtrackingsimple.Utils.RunnableThread;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,9 +34,38 @@ public class MakeLists extends AppCompatActivity {
         doListButtonTest1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Dog> dogs = GetDogs(1);
+                dbAdapter.onUpgrade();
+                List<Dog> dogs = dbAdapter.getAllDogs();
                 List<Cage> cages = GetCages();
                 List<Volunteer> volunteers = GetVolunteers(1);
+                int npaseos = 4;
+                RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
+                ThreadGroup tg = new ThreadGroup("TestGroup1");
+                Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
+                t.start();
+                try {
+                    t.join();
+                    Dog[][] walks = rT.walksTable;
+                    ArrayList<ArrayList<Dog>> clean = rT.cleanTable;
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                //Pasamos la solución de paseos a matriz de id's
+                Intent launchactivity= new Intent(MakeLists.this,ShowSolution.class);
+                SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
+                startActivity(launchactivity);
+            }
+        });
+
+        doListButtonTest2 = (Button) findViewById(R.id.button2);
+        doListButtonTest2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Dog> dogs = GetDogs(2);
+                List<Cage> cages = GetCages();
+                List<Volunteer> volunteers = GetVolunteers(2);
                 RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
                 ThreadGroup tg = new ThreadGroup("TestGroup1");
                 Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
@@ -43,19 +81,6 @@ public class MakeLists extends AppCompatActivity {
             }
         });
 
-        doListButtonTest2 = (Button) findViewById(R.id.button2);
-        doListButtonTest2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Dog> dogs = GetDogs(2);
-                List<Cage> cages = GetCages();
-                List<Volunteer> volunteers = GetVolunteers(2);
-                Algorithm alg = new Algorithm(dogs,cages,volunteers);
-                Dog[][] table = alg.walksTable;
-                ArrayList<ArrayList<Dog>> clean = alg.cleanTable;
-            }
-        });
-
         doListButtonTest3 = (Button) findViewById(R.id.button3);
         doListButtonTest3.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,31 +88,91 @@ public class MakeLists extends AppCompatActivity {
                 List<Dog> dogs = GetDogs(3);
                 List<Cage> cages = GetCages();
                 List<Volunteer> volunteers = GetVolunteers(3);
-                Algorithm alg = new Algorithm(dogs,cages,volunteers);
-                Dog[][] table = alg.walksTable;
-                ArrayList<ArrayList<Dog>> clean = alg.cleanTable;
+                RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
+                ThreadGroup tg = new ThreadGroup("TestGroup1");
+                Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
+                t.start();
+                try {
+                    t.join();
+                    Dog[][] walks = rT.walksTable;
+                    ArrayList<ArrayList<Dog>> clean = rT.cleanTable;
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
 
-        doListButtonTest4 = (Button) findViewById(R.id.button4);
+        /*doListButtonTest4 = (Button) findViewById(R.id.button4);
         doListButtonTest4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 List<Dog> dogs = dbAdapter.getAllDogs();
                 List<Cage> cages = dbAdapter.getAllCages();
                 List<Volunteer> volunteers = dbAdapter.getAllVolunteers();
-                Algorithm alg = new Algorithm(dogs,cages,volunteers);
-                Dog[][] table = alg.walksTable;
-                ArrayList<ArrayList<Dog>> clean = alg.cleanTable;
+                RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
+                ThreadGroup tg = new ThreadGroup("TestGroup1");
+                Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
+                t.start();
+                try {
+                    t.join();
+                    Dog[][] walks = rT.walksTable;
+                    ArrayList<ArrayList<Dog>> clean = rT.cleanTable;
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
-        });
+        });*/
     }
 
+    public void SetOutputParameters(Intent launchactivity, int nPaseos, int nVolunteers, RunnableThread rT)
+    {
+        ArrayList<ArrayList<Integer>>  walksArray = new ArrayList<ArrayList<Integer>>();
+        for(int i = 0; i < nPaseos; ++i)
+        {
+            ArrayList<Integer> nArray = new ArrayList<Integer>();
+            for(int j = 0; j < nVolunteers; ++j)
+            {
+                if(rT.walksTable[i][j] != null) {
+                    nArray.add(rT.walksTable[i][j].id);
+                }
+                else
+                {
+                    nArray.add(0);
+                }
+            }
+            walksArray.add(nArray);
+        }
+        //Añadimos la matriz de paseos fila por fila al Intent
+        launchactivity.putExtra("nPaseos", nPaseos);
+        for(int i = 0; i < walksArray.size(); ++i)
+        {
+            launchactivity.putExtra("WalkSolution" + i, walksArray.get(i));
+        }
+
+        ArrayList<ArrayList<Integer>>  cleanArray = new ArrayList<ArrayList<Integer>>();
+        for(int i = 0; i < nPaseos; ++i)
+        {
+            ArrayList<Integer> nArray = new ArrayList<Integer>();
+            for(int j = 0; j < rT.cleanTable.get(i).size(); ++j)
+            {
+                nArray.add(rT.cleanTable.get(i).get(j).id);
+            }
+            cleanArray.add(nArray);
+        }
+        //Añadimos la solución de limpieza al Intent
+        launchactivity.putExtra("nVolunteers", nVolunteers);
+        for(int i = 0; i < rT.cleanTable.size(); ++i)
+        {
+            launchactivity.putExtra("CleanSolution" + i, cleanArray.get(i));
+        }
+    }
     //Dog(int id, String name, int idCage, int age, String link, Boolean special, Short walktype, String observations)
     public List<Dog> GetDogs(int i)
     {
         List<Dog> list = new ArrayList<Dog>();
-        Dog dog = new Dog(1,"Puyol",1,0,null,false,Constants.WT_EXTERIOR,null);
+        Dog dog = new Dog(1,"Puyol",1,0,null,false, Constants.WT_EXTERIOR,null);
         Dog dog2 = new Dog(2,"Vida",2,0,null,false,Constants.WT_EXTERIOR,null);
         Dog dog3 = new Dog(3,"Trixie",3,0,null,false,Constants.WT_EXTERIOR,null);
         Dog dog4 = new Dog(4,"Thor",4,0,null,false,Constants.WT_EXTERIOR,null);
@@ -130,17 +215,18 @@ public class MakeLists extends AppCompatActivity {
 
         Dog dog38 = new Dog(38,"Pésol",29,0,null,false,Constants.WT_EXTERIOR,null);
         Dog dog39 = new Dog(39,"Cristal",29,0,null,false,Constants.WT_EXTERIOR,null);
-
         Dog dog40 = new Dog(40,"Bull",30,0,null,false,Constants.WT_EXTERIOR,null);
         Dog dog41 = new Dog(41,"Maya",30,0,null,false,Constants.WT_EXTERIOR,null);
-
         Dog dog42 = new Dog(42,"Stracciatela",31,0,null,false,Constants.WT_EXTERIOR,null);
+
+        Dog dog43 = new Dog(43,"Mar",32,0,null,false,Constants.WT_EXTERIOR,null);
+        Dog dog44 = new Dog(44,"Roc",32,0,null,false,Constants.WT_EXTERIOR,null);
 
         list.add(dog);list.add(dog2);list.add(dog3);list.add(dog4);list.add(dog5);list.add(dog6);list.add(dog7);list.add(dog8);list.add(dog9);list.add(dog10);
         list.add(dog11);list.add(dog12);list.add(dog13);list.add(dog14);list.add(dog15);list.add(dog16);list.add(dog17);list.add(dog18);list.add(dog19);list.add(dog20);
         list.add(dog21);list.add(dog22);list.add(dog23);list.add(dog24);list.add(dog25);list.add(dog26);list.add(dog27);list.add(dog28);list.add(dog29);list.add(dog30);
         list.add(dog31);list.add(dog32);list.add(dog33);list.add(dog34);list.add(dog35);list.add(dog36);list.add(dog37);list.add(dog38);list.add(dog39);list.add(dog40);
-        list.add(dog41);list.add(dog42);
+        list.add(dog41);list.add(dog42);list.add(dog43);list.add(dog44);
 
         return list;
     }
@@ -183,11 +269,13 @@ public class MakeLists extends AppCompatActivity {
         Cage cage30 = new Cage(30,30,Constants.CAGE_ZONE_PATIOS);
         Cage cage31 = new Cage(31,31,Constants.CAGE_ZONE_PATIOS);
 
+        Cage cage32 = new Cage(32,32,Constants.CAGE_ZONE_CUARENTENAS);
+
 
         list.add(cage1);list.add(cage2);list.add(cage3);list.add(cage4);list.add(cage5);list.add(cage6);list.add(cage7);list.add(cage8);list.add(cage9);list.add(cage10);
         list.add(cage11);list.add(cage12);list.add(cage13);list.add(cage14);list.add(cage15);list.add(cage16);list.add(cage17);list.add(cage18);list.add(cage19);list.add(cage20);
         list.add(cage21);list.add(cage22);list.add(cage23);list.add(cage24);list.add(cage25);list.add(cage26);list.add(cage27);list.add(cage28);list.add(cage29);list.add(cage30);
-        list.add(cage31);
+        list.add(cage31);list.add(cage32);
 
         return list;
     }
@@ -225,9 +313,10 @@ public class MakeLists extends AppCompatActivity {
         }
         else
         {
-            list.add(alex2);list.add(andrea);list.add(marga);list.add(cris);list.add(asun);list.add(elena);list.add(guio);list.add(munsita);list.add(montse);
+            list.add(alex2);list.add(andrea);list.add(marga);list.add(cris);list.add(asun);
         }
 
         return list;
     }
 }
+

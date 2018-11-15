@@ -1,10 +1,10 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.Estructuras;
 
 public class Cage {
     //Private Variables
-    int id;
-    int numCage;
-    String zone;
+    public int id;
+    public int numCage;
+    public String zone;
 
     //empty constructor
     public Cage(){}

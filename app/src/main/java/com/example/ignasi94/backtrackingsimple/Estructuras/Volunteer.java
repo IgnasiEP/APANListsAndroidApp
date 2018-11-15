@@ -1,11 +1,11 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.Estructuras;
 
 public class Volunteer {
-    int id;
-    String name;
-    String phone;
-    String volunteerDay;
-    String observations;
+    public int id;
+    public String name;
+    public String phone;
+    public String volunteerDay;
+    public String observations;
 
     //empty constructor
     public Volunteer(){}
