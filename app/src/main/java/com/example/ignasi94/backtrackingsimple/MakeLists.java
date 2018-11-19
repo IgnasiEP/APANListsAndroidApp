@@ -37,7 +37,7 @@ public class MakeLists extends AppCompatActivity {
                 dbAdapter.onUpgrade();
                 List<Dog> dogs = dbAdapter.getAllDogs();
                 List<Cage> cages = GetCages();
-                List<Volunteer> volunteers = GetVolunteers(1);
+                List<Volunteer> volunteers = dbAdapter.getAllVolunteers();
                 int npaseos = 4;
                 RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
                 ThreadGroup tg = new ThreadGroup("TestGroup1");

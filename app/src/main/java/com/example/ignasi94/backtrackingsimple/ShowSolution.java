@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +23,10 @@ import android.view.ViewGroup.LayoutParams;
 
 import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
+import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
 import com.example.ignasi94.backtrackingsimple.R;
+import com.example.ignasi94.backtrackingsimple.Utils.RunnableThread;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -33,8 +37,9 @@ public class ShowSolution extends Activity {
 
     Integer nPaseos;
     Integer nVolunteers;
+    ArrayList<Volunteer> volunteers;
     Dog[][] walkSolution;
-    ArrayList<Dog> walkSolutionArray;
+    ArrayList<VolunteerDog> walkSolutionArray;
     ArrayList<ArrayList<Integer>> cleanSolution;
     DBAdapter dbAdapter;
 
@@ -42,26 +47,34 @@ public class ShowSolution extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_solution);
         this.ReadMakeListsParameters(getIntent());
-        // INITIALISE YOUR GRID
-        GridView grid=(GridView)findViewById(R.id.grid);
-        grid.setNumColumns(nPaseos);
+        // Inicializar grid
+        GridView dogGrid = (GridView) findViewById(R.id.grid_dogs);
+        dogGrid.setNumColumns(nPaseos+1);
+        // Crear Adapter
+        DogAdapter dogAdapter = new DogAdapter(getApplicationContext(), walkSolutionArray);
+        // Relacionar el adapter a la grid
+        dogGrid.setAdapter(dogAdapter);
 
-        // CREATE AN ADAPTER  (MATRIX ADAPTER)
-        MatricAdapter adapter=new MatricAdapter(getApplicationContext(),walkSolutionArray);
-
-        // ATTACH THE ADAPTER TO GRID
-        grid.setAdapter(adapter);
-
+        Button editButton = (Button) findViewById(R.id.button_editar_lista);
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent launchactivity= new Intent(ShowSolution.this,EditSolution.class);
+                launchactivity.putExtras(getIntent().getExtras());
+                startActivity(launchactivity);
+            }
+        });
     }
 
     public void ReadMakeListsParameters(Intent intent)
     {
         dbAdapter = new DBAdapter(this);
         Dictionary<Integer,Dog>  dogs = dbAdapter.getAllDogsDictionary();
+        volunteers = (ArrayList) dbAdapter.getAllVolunteers();
         nPaseos = intent.getIntExtra("nPaseos", 0);
         nVolunteers = intent.getIntExtra("nVolunteers", 0);
         walkSolution = new Dog[nVolunteers][nPaseos];
-        walkSolutionArray = new ArrayList<Dog>();
+        walkSolutionArray = new ArrayList<VolunteerDog>();
         for(int i = 0; i < nPaseos; ++i)
         {
             ArrayList<Integer> iArray = intent.getIntegerArrayListExtra("WalkSolution"+i);
@@ -74,9 +87,15 @@ public class ShowSolution extends Activity {
 
         for(int i = 0; i < nVolunteers; ++i)
         {
-            for(int j = 0; j < nPaseos; ++j)
+            for(int j = 0; j < nPaseos + 1; ++j)
             {
-                walkSolutionArray.add(walkSolution[i][j]);
+                if(j == 0)
+                {
+                    walkSolutionArray.add(new VolunteerDog(null, volunteers.get(i)));
+                }
+                else {
+                    walkSolutionArray.add(new VolunteerDog(walkSolution[i][j-1], null));
+                }
             }
         }
 
@@ -88,11 +107,11 @@ public class ShowSolution extends Activity {
         }
     }
 
-    public class MatricAdapter extends BaseAdapter {
+    public class DogAdapter extends BaseAdapter {
         Context context;
-        ArrayList<Dog> matrixList;
+        ArrayList<VolunteerDog> matrixList;
 
-        public MatricAdapter(Context context, ArrayList<Dog> matrixList) {
+        public DogAdapter(Context context, ArrayList<VolunteerDog> matrixList) {
             this.context = context;
             this.matrixList = matrixList;
         }
@@ -121,12 +140,17 @@ public class ShowSolution extends Activity {
             }
             TextView textViewAndroid = (TextView) gridViewAndroid.findViewById(R.id.android_gridview_text);
             ImageView imageViewAndroid = (ImageView) gridViewAndroid.findViewById(R.id.android_gridview_image);
-            textViewAndroid.setText(walkSolutionArray.get(position).name);
-            imageViewAndroid.setImageResource(R.mipmap.ic_dog_default);
+            if((position % (nPaseos+1)) == 0)
+            {
+                textViewAndroid.setText(walkSolutionArray.get(position).volunteer.name);
+                imageViewAndroid.setImageResource(R.mipmap.ic_volunteer_default);
+            }
+            else {
+                textViewAndroid.setText(walkSolutionArray.get(position).dog.name);
+                imageViewAndroid.setImageResource(R.mipmap.ic_dog_default);
+            }
 
             return gridViewAndroid;
         }
     }
-
-
 }

@@ -24,5 +24,10 @@ public class Volunteer {
         this(0,name,phone,volunteerDay,observations);
     }
 
+    public Volunteer(String name)
+    {
+        this.name = name;
+    }
+
 }
 

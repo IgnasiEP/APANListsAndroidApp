@@ -38,6 +38,11 @@ public class Dog {
         this(0,name,idCage,age,link,special,walktype,observations);
     }
 
+    public Dog(String name)
+    {
+        this.name = name;
+    }
+
     public boolean HasInteriorPartner(List<Dog> dogs)
     {
         //Si el perro ya es interior nos ahorramos hacer el bucle

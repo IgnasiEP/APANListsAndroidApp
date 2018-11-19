@@ -12,5 +12,6 @@ public final class Constants {
     public static int EDGE_INCOMPATIBLE_VALUE = 1;
     public static String VOLUNTEER_DAY_SATURDAY = "Saturday";
     public static String VOLUNTEER_DAY_SUNDAY = "Sunday";
+    public static String DEFAULT_DOG_NAME = "Empty";
 }
 

@@ -33,4 +33,5 @@ dependencies {
     implementation 'com.io7m.jgrapht:jgrapht:1.2.1-MODULARIZED'
     implementation 'com.io7m.jgrapht:jgrapht-core:1.2.1-MODULARIZED'
     implementation 'org.eclipse.ecf:org.apache.log4j:1.2.15.v201012070815'
+    implementation files('libs/DraggableGridView.jar')
 }

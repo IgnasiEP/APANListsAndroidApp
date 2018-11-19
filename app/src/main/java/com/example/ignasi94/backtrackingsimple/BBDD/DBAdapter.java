@@ -250,14 +250,14 @@ public class DBAdapter{
         private void insertVolunteers(SQLiteDatabase db)
         {
             String insertVolunteers = "INSERT INTO " + TABLE_VOLUNTEERS + "(" + KEY_VOLUNTEER_ID + "," + KEY_VOLUNTEER_NAME + "," + KEY_VOLUNTEER_DAY +") VALUES(";
-            db.execSQL(insertVolunteers + 1 + ",'Voluntario1','S');");
-            db.execSQL(insertVolunteers + 2 + ",'Voluntario2','S');");
-            db.execSQL(insertVolunteers + 3 + ",'Voluntario3','S');");
-            db.execSQL(insertVolunteers + 4 + ",'Voluntario4','S');");
-            db.execSQL(insertVolunteers + 5 + ",'Voluntario5','S');");
-            db.execSQL(insertVolunteers + 6 + ",'Voluntario6','S');");
-            db.execSQL(insertVolunteers + 7 + ",'Voluntario7','S');");
-            db.execSQL(insertVolunteers + 8 + ",'Voluntario8','S');");
+            db.execSQL(insertVolunteers + 1 + ",'Ignasi','S');");
+            db.execSQL(insertVolunteers + 2 + ",'Esther','S');");
+            db.execSQL(insertVolunteers + 3 + ",'Sònia','S');");
+            db.execSQL(insertVolunteers + 4 + ",'Àlex','S');");
+            db.execSQL(insertVolunteers + 5 + ",'Guillem','S');");
+            db.execSQL(insertVolunteers + 6 + ",'Lídia','S');");
+            db.execSQL(insertVolunteers + 7 + ",'Alba1','S');");
+            db.execSQL(insertVolunteers + 8 + ",'Alba2','S');");
         }
 
         public DBHandler(Context context)
