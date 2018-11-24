@@ -2,8 +2,10 @@ package com.example.ignasi94.backtrackingsimple.Estructuras;
 
 public class VolunteerDog implements Cloneable
 {
-    public Dog dog;
+    public Integer cleanRow;
+    public boolean visibility;
     public Volunteer volunteer;
+    public Dog dog;
 
     public VolunteerDog() {}
 
@@ -11,6 +13,13 @@ public class VolunteerDog implements Cloneable
     {
         this.dog = dog;
         this.volunteer = volunteer;
+    }
+
+    public VolunteerDog(Dog dog, Integer cleanRow, boolean visibility)
+    {
+        this.dog = dog;
+        this.visibility = visibility;
+        this.cleanRow = cleanRow;
     }
 
     public Object clone() {

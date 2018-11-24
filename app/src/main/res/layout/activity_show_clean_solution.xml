@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ShowSolution">
+    tools:context=".ShowCleanSolution">
 
     <HorizontalScrollView
-        android:id="@+id/dogsview"
+        android:id="@+id/cleandogsview"
         android:layout_width="fill_parent"
-        android:layout_height="495dp"
+        android:layout_height="498dp"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="24dp"
         android:layout_marginEnd="8dp"
@@ -26,58 +26,21 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <GridView
-            android:id="@+id/grid_dogs"
+            android:id="@+id/grid_clean_dogs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:columnWidth="110dp"
             android:gravity="center"
             android:horizontalSpacing="10dp"
             android:verticalSpacing="10dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </HorizontalScrollView>
 
-
-    <Button
-        android:id="@+id/button6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:text="Button"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/button_editar_lista"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="Editar Lista"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/button_limpieza"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:text="Limpieza"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button_editar_lista"
-        app:layout_constraintStart_toEndOf="@+id/button6" />
 </android.support.constraint.ConstraintLayout>

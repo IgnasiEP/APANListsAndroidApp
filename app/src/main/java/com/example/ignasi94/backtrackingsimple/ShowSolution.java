@@ -64,6 +64,16 @@ public class ShowSolution extends Activity {
                 startActivity(launchactivity);
             }
         });
+
+        Button showClean = (Button) findViewById(R.id.button_limpieza);
+        showClean.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent launchactivity= new Intent(ShowSolution.this,ShowCleanSolution.class);
+                launchactivity.putExtras(getIntent().getExtras());
+                startActivity(launchactivity);
+            }
+        });
     }
 
     public void ReadMakeListsParameters(Intent intent)
@@ -136,7 +146,7 @@ public class ShowSolution extends Activity {
             View gridViewAndroid = view;
             if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                gridViewAndroid = inflater.inflate(R.layout.griditem_show_solution, null);
+                gridViewAndroid = inflater.inflate(R.layout.griditem_griditem_dogs, null);
             }
             TextView textViewAndroid = (TextView) gridViewAndroid.findViewById(R.id.android_gridview_text);
             ImageView imageViewAndroid = (ImageView) gridViewAndroid.findViewById(R.id.android_gridview_image);

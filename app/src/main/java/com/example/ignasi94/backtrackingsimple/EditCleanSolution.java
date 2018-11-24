@@ -4,87 +4,66 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.view.View.OnTouchListener;
-import android.view.View.DragShadowBuilder;
-import android.view.View.OnLongClickListener;
-import com.animoto.android.views.*;
 
 import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.List;
 
-public class EditSolution extends Activity {
+public class EditCleanSolution extends Activity {
 
     Integer nPaseos;
-    Integer dogsUnassignedColumns;
     Integer nVolunteers;
-    Integer draggedIndex;
+    Integer gridColumns;
+    Integer dogsUnassignedColumns;
     ArrayList<Volunteer> volunteers;
-    Dog[][] walkSolution;
-    ArrayList<VolunteerDog> walkSolutionArray;
-    ArrayList<ArrayList<Integer>> cleanSolution;
+    ArrayList<ArrayList<VolunteerDog>> cleanSolution;
     DBAdapter dbAdapter;
-    DogAdapter dogAdapter;
+    ArrayList<VolunteerDog> cleanGridArray;
+    DogAdapter cleanDogAdapter;
     DogAdapter dogAdapterUnassigned;
+    Integer draggedIndex;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_solution);
+        setContentView(R.layout.activity_edit_clean_solution);
+        gridColumns = 5;
         this.ReadMakeListsParameters(getIntent());
-        // DOGGRID
-        GridView dogGrid = (GridView) findViewById(R.id.grid_dogs);
-        dogGrid.setNumColumns(nPaseos+1);
-        // Adapter
-        dogAdapter = new DogAdapter(getApplicationContext(), walkSolutionArray, false);
-        dogGrid.setAdapter(dogAdapter);
-        // Events
-        dogGrid.setOnItemLongClickListener(new WalkSolutionTouchListener());
+
+        GridView dogGrid = (GridView) findViewById(R.id.grid_clean_dogs);
+        dogGrid.setNumColumns(gridColumns);
+        // Crear Adapter
+        cleanDogAdapter = new DogAdapter(getApplicationContext(), this.cleanGridArray, false, gridColumns);
+        // Relacionar el adapter a la grid
+        dogGrid.setAdapter(cleanDogAdapter);
+        dogGrid.setOnItemLongClickListener(new CleanSolutionTouchListener());
 
         // DOGGRIDUNASSIGNED
         GridView dogGridUnassigned = (GridView) findViewById(R.id.grid_dogs_notassigned);
         dogsUnassignedColumns = 5;
         dogGridUnassigned.setNumColumns(dogsUnassignedColumns);
         // Adapter
-        dogAdapterUnassigned = new DogAdapter(getApplicationContext(), new ArrayList<VolunteerDog>(), true);
+        dogAdapterUnassigned = new DogAdapter(getApplicationContext(), new ArrayList<VolunteerDog>(), true, dogsUnassignedColumns);
         dogGridUnassigned.setAdapter(dogAdapterUnassigned);
-        // Events
+        //Events
         dogGridUnassigned.setOnItemLongClickListener(new UnassignedDogsTouchListener());
         dogGridUnassigned.setOnDragListener(new DragListener());
-
-        Button showEditClean = (Button) findViewById(R.id.button_limpieza);
-        showEditClean.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent launchactivity= new Intent(EditSolution.this,EditCleanSolution   .class);
-                launchactivity.putExtras(getIntent().getExtras());
-                startActivity(launchactivity);
-            }
-        });
 
     }
 
@@ -94,58 +73,76 @@ public class EditSolution extends Activity {
         volunteers = (ArrayList) dbAdapter.getAllVolunteers();
         nPaseos = intent.getIntExtra("nPaseos", 0);
         nVolunteers = intent.getIntExtra("nVolunteers", 0);
-        walkSolution = new Dog[nVolunteers][nPaseos];
-        walkSolutionArray = new ArrayList<VolunteerDog>();
-        for (int i = 0; i < nPaseos; ++i) {
-            ArrayList<Integer> iArray = intent.getIntegerArrayListExtra("WalkSolution" + i);
-            for (int j = 0; j < iArray.size(); ++j) {
-                walkSolution[j][i] = dogs.get(iArray.get(j));
-            }
 
-        }
-
-        for (int i = 0; i < nVolunteers; ++i) {
-            for (int j = 0; j < nPaseos + 1; ++j) {
-                if (j == 0) {
-                    walkSolutionArray.add(new VolunteerDog(null, volunteers.get(i)));
-                } else {
-                    walkSolutionArray.add(new VolunteerDog(walkSolution[i][j - 1], null));
-                }
-            }
-        }
-
-        cleanSolution = new ArrayList<ArrayList<Integer>>();
+        cleanSolution = new ArrayList<ArrayList<VolunteerDog>>();
         for (int i = 0; i < nPaseos; ++i) {
             ArrayList<Integer> iArray = intent.getIntegerArrayListExtra("CleanSolution" + i);
-            cleanSolution.add(i, iArray);
+            ArrayList<VolunteerDog> iArraySolution = new ArrayList<VolunteerDog>();
+            for(int j = 0; j < iArray.size(); ++j)
+            {
+                Dog dog = dogs.get(iArray.get(j));
+                if(i == 0)
+                {
+                    iArraySolution.add(new VolunteerDog(dog, null));
+                    iArraySolution.add(new VolunteerDog(dog, null));
+                    iArraySolution.add(new VolunteerDog(dog, null));
+                    iArraySolution.add(new VolunteerDog(dog, null));
+                    iArraySolution.add(new VolunteerDog(dog, null));
+                }
+                iArraySolution.add(new VolunteerDog(dog, null));
+            }
+            cleanSolution.add(iArraySolution);
+        }
+
+        cleanGridArray = new ArrayList<VolunteerDog>();
+        for(int i = 0; i < cleanSolution.size();++i)
+        {
+            int dogsToAdd = 0;
+            for(int j = 0; j < cleanSolution.get(i).size(); ++j) {
+                if ((dogsToAdd % gridColumns) == 0 && j == 0) {
+                    cleanGridArray.add(new VolunteerDog(null, i + 1, true));
+                    ++dogsToAdd;
+                } else if ((dogsToAdd % gridColumns) == 0) {
+                    cleanGridArray.add(new VolunteerDog(null, i + 1, false));
+                    ++dogsToAdd;
+                }
+                cleanGridArray.add(cleanSolution.get(i).get(j));
+                ++dogsToAdd;
+            }
+            while((dogsToAdd % gridColumns) != 0)
+            {
+                cleanGridArray.add(new VolunteerDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
+                ++dogsToAdd;
+            }
         }
     }
 
     public class DogAdapter extends BaseAdapter {
         Context context;
         ArrayList<VolunteerDog> matrixList;
+        Integer columns;
         boolean onlyDogs;
 
-        public DogAdapter(Context context, ArrayList<VolunteerDog> matrixList, boolean onlyDogs) {
+        public DogAdapter(Context context, ArrayList<VolunteerDog> matrixList, boolean onlyDogs, Integer columns) {
             this.context = context;
             this.onlyDogs = onlyDogs;
+            this.columns = columns;
             if(onlyDogs && (matrixList.size() % dogsUnassignedColumns) == 0)
             {
                 VolunteerDog volunteerDog = new VolunteerDog(new Dog(Constants.DEFAULT_DOG_NAME), null);
                 matrixList.add(volunteerDog);
             }
             this.matrixList = matrixList;
-
         }
 
         @Override
         public int getCount() {
-            return this.matrixList.size();
+            return matrixList.size();
         }
 
         @Override
         public VolunteerDog getItem(int i) {
-            return this.matrixList.get(i);
+            return matrixList.get(i);
         }
 
         @Override
@@ -183,7 +180,168 @@ public class EditSolution extends Activity {
             {
                 this.matrixList.add(i, volunteerDog);
             }
+        }
 
+        public boolean isSecondaryEmptyRow(Integer position)
+        {
+            Integer row = position/this.columns;
+            Integer startIndex = (row+1)*this.columns;
+            //No es la primera row del iPaseo -> se puede borrar
+            //Todos los elementos de la row estan empty y el último de la row anterior
+            //tambien
+            if(startIndex >= this.matrixList.size())
+            {
+                return false;
+            }
+            if(this.matrixList.get(startIndex).visibility)
+            {
+                return false;
+            }
+            if(!this.matrixList.get(startIndex-1).dog.name.isEmpty())
+            {
+                return false;
+            }
+            for(int i = 1; i < this.columns; ++i)
+            {
+                if(!this.matrixList.get(startIndex+i).dog.name.isEmpty())
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public void removeRow(Integer position)
+        {
+            Integer row = position/this.columns;
+            Integer startIndex = (row+1)*this.columns;
+            ArrayList<VolunteerDog> clone = (ArrayList<VolunteerDog>) this.matrixList.clone();
+            for(int i = 0; i < this.columns; ++i)
+            {
+                clone.remove((int)startIndex);
+            }
+            this.matrixList = clone;
+        }
+
+        public Integer reajustElement(Integer position)
+        {
+            Integer tmpPosition = position -1;
+            VolunteerDog volunteerDog = new VolunteerDog();
+            boolean reajust = false;
+            Integer lastEmptyPosition = 0;
+            while(true)
+            {
+                volunteerDog = this.matrixList.get(tmpPosition);
+                if(volunteerDog.dog == null && !volunteerDog.visibility)
+                {
+                    tmpPosition = tmpPosition - 1;
+                }
+                else if(volunteerDog.dog != null && volunteerDog.dog.name.isEmpty())
+                {
+                    lastEmptyPosition = tmpPosition;
+                    tmpPosition = tmpPosition - 1;
+                    reajust = true;
+                }
+                else
+                {
+                    tmpPosition = tmpPosition + 1;
+                    if((tmpPosition % this.columns) == 0)
+                    {
+                        tmpPosition = tmpPosition + 1;
+                    }
+                    break;
+                }
+            }
+            if(reajust)
+            {
+                volunteerDog = this.matrixList.get(position);
+                VolunteerDog tmpVolunteerDog = this.matrixList.get(tmpPosition);
+                this.matrixList.remove((int)position);
+                this.matrixList.add(position, tmpVolunteerDog);
+                this.matrixList.remove((int)tmpPosition);
+                this.matrixList.add(tmpPosition, volunteerDog);
+            }
+            return tmpPosition;
+        }
+
+        public void reajustEmptyElement(Integer position)
+        {
+            Integer tmpPosition = position;
+            VolunteerDog draggedVolunteerDog = this.matrixList.get(position);
+            if(draggedVolunteerDog.dog.name.isEmpty()) {
+                this.matrixList.remove((int) position);
+
+                while (true) {
+                    VolunteerDog volunteerDog = this.matrixList.get(tmpPosition);
+                    if(tmpPosition == this.matrixList.size() - 1)
+                    {
+                        this.matrixList.add(new VolunteerDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
+                        break;
+                    }
+                    if(volunteerDog.dog == null && volunteerDog.visibility)
+                    {
+                        this.matrixList.add(tmpPosition, new VolunteerDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
+                        break;
+                    }
+                    if (volunteerDog.dog == null && !volunteerDog.visibility) {
+                        VolunteerDog tmpVolunteerDog = this.matrixList.get(tmpPosition);
+                        this.matrixList.remove((int) tmpPosition);
+                        this.matrixList.add(tmpPosition + 1, tmpVolunteerDog);
+                        tmpPosition = tmpPosition + 1;
+                    } else if (volunteerDog.dog != null && volunteerDog.dog.name.isEmpty()) {
+                        this.matrixList.add(tmpPosition, new VolunteerDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
+                        break;
+                    }
+                    tmpPosition = tmpPosition + 1;
+                }
+            }
+        }
+
+        public boolean isFullRow(Integer index)
+        {
+            Integer row = index/this.columns;
+            Integer startIndex = row*this.columns;
+            Integer nextRowIndex = (row+1)*this.columns;
+            for(int i = 1; i < this.columns; ++i)
+            {
+                if(this.matrixList.get(startIndex+i).dog.name.isEmpty())
+                {
+                    return false;
+                }
+            }
+            if(nextRowIndex < this.matrixList.size() && this.matrixList.get(startIndex).cleanRow == this.matrixList.get(nextRowIndex).cleanRow)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public void addRow(Integer index)
+        {
+            Integer row = index/this.columns;
+            Integer startIndex = (row+1)*this.columns;
+            Integer lastRow = row*this.columns;
+            Integer numberPaseo = -1;
+            if(lastRow < 0)
+            {
+                numberPaseo = 1;
+            }
+            else
+            {
+                numberPaseo = this.matrixList.get(lastRow).cleanRow;
+            }
+            for(int i = 0; i < this.columns; ++i)
+            {
+                if(i == 0)
+                {
+                    this.matrixList.add(startIndex+i, new VolunteerDog(null,numberPaseo, false));
+                }
+                else
+                {
+                    this.matrixList.add( startIndex + i, new VolunteerDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
+                }
+            }
         }
 
         @Override
@@ -193,29 +351,25 @@ public class EditSolution extends Activity {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 gridViewAndroid = inflater.inflate(R.layout.griditem_griditem_dogs, null);
             }
-
             gridViewAndroid.setTag(position);
             TextView textViewAndroid = (TextView) gridViewAndroid.findViewById(R.id.android_gridview_text);
             ImageView imageViewAndroid = (ImageView) gridViewAndroid.findViewById(R.id.android_gridview_image);
-
-            if((position % (nPaseos+1)) == 0 && !onlyDogs)
+            VolunteerDog volunteerDog = this.matrixList.get(position);
+            if(!onlyDogs && (position % gridColumns) == 0)
             {
-                VolunteerDog volunteerDog = matrixList.get(position);
-                textViewAndroid.setText(volunteerDog.volunteer.name);
-                imageViewAndroid.setImageResource(R.mipmap.ic_volunteer_default);
-            }
-            else {
-                VolunteerDog volunteerDog = matrixList.get(position);
-                textViewAndroid.setText(volunteerDog.dog.name);
-                imageViewAndroid.setImageResource(R.mipmap.ic_dog_default);
-                if(onlyDogs && volunteerDog.dog.name.isEmpty())
-                {
-                    imageViewAndroid.setImageResource(R.mipmap.ic_doggridunassigned_empty_image);
+                if(volunteerDog.visibility) {
+                    imageViewAndroid.setImageResource(R.mipmap.ic_doggrid_empty_image);
+                    textViewAndroid.setText(volunteerDog.cleanRow.toString());
                 }
-                else if (!onlyDogs && volunteerDog.dog.name.isEmpty())
+                else
                 {
                     imageViewAndroid.setImageResource(R.mipmap.ic_doggrid_empty_image);
+                    textViewAndroid.setText(volunteerDog.cleanRow.toString());
                 }
+            }
+            else {
+                textViewAndroid.setText(volunteerDog.dog.name);
+                imageViewAndroid.setImageResource(R.mipmap.ic_dog_default);
             }
             gridViewAndroid.setOnDragListener(new DragListener());
 
@@ -223,11 +377,11 @@ public class EditSolution extends Activity {
         }
     }
 
-    public class WalkSolutionTouchListener implements OnItemLongClickListener {
+    public class CleanSolutionTouchListener implements OnItemLongClickListener {
         @Override
         public boolean onItemLongClick(AdapterView<?> arg0, View view, int position, long arg3) {
-            if((position % (nPaseos+1)) == 0 || dogAdapter.matrixList.get(position).dog.name.isEmpty()) {
-               return false;
+            if((position % (gridColumns)) == 0 || cleanDogAdapter.matrixList.get(position).dog.name.isEmpty()) {
+                return false;
             }
             ClipData data = ClipData.newPlainText("", "");
             View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
@@ -307,21 +461,29 @@ public class EditSolution extends Activity {
                     String gridOrigenName = gridViewOrigen.getTag().toString();
                     if(gridOrigenName.contentEquals("grid_dogs"))
                     {
-                        origenAdapter = dogAdapter;
+                        //origenAdapter = dogAdapter;
+                    }
+                    else if(gridOrigenName.contentEquals("grid_dogs_notassigned"))
+                    {
+                        origenAdapter = dogAdapterUnassigned;
                     }
                     else
                     {
-                        origenAdapter = dogAdapterUnassigned;
+                        origenAdapter = cleanDogAdapter;
                     }
 
                     String gridDestinoName = gridViewDestino.getTag().toString();
                     if(gridDestinoName.contentEquals("grid_dogs"))
                     {
-                        destinoAdapter = dogAdapter;
+                        //destinoAdapter = dogAdapter;
+                    }
+                    else if(gridDestinoName.contentEquals("grid_dogs_notassigned"))
+                    {
+                        destinoAdapter = dogAdapterUnassigned;
                     }
                     else
                     {
-                        destinoAdapter = dogAdapterUnassigned;
+                        destinoAdapter = cleanDogAdapter;
                     }
 
                     boolean canBeDrag = true;
@@ -329,6 +491,9 @@ public class EditSolution extends Activity {
                     if(destino != null) {
                         indexDestino = (Integer) destino.getTag();
                         if (gridDestinoName.contentEquals("grid_dogs") && (indexDestino % (nPaseos + 1)) == 0) {
+                            canBeDrag = false;
+                        }
+                        if (gridDestinoName.contentEquals("grid_clean_dogs") && (indexDestino % gridColumns) == 0) {
                             canBeDrag = false;
                         }
                         if (gridOrigenName.contentEquals("grid_dogs_notassigned") && gridDestinoName.contentEquals("grid_dogs_notassigned")
@@ -344,28 +509,45 @@ public class EditSolution extends Activity {
                             VolunteerDog volunteerDogDestino = (VolunteerDog) origenAdapter.getItem(indexDestino).clone();
                             origenAdapter.removeAt(draggedIndex);
                             origenAdapter.addAt(draggedIndex, volunteerDogDestino);
-                            origenAdapter.removeAt(indexDestino);
-                            origenAdapter.addAt(indexDestino, volunteerDogOrigen);
+                            destinoAdapter.removeAt(indexDestino);
+                            destinoAdapter.addAt(indexDestino, volunteerDogOrigen);
+                            if(gridDestinoName.contentEquals("grid_clean_dogs")) {
+                                Integer newIndexDestino = destinoAdapter.reajustElement(indexDestino);
+                                destinoAdapter.reajustEmptyElement(draggedIndex);
+                                if(destinoAdapter.isFullRow(newIndexDestino))
+                                {
+                                    destinoAdapter.addRow(newIndexDestino);
+                                }
+                                if(destinoAdapter.isSecondaryEmptyRow(draggedIndex))
+                                {
+                                    destinoAdapter.removeRow(draggedIndex);
+                                }
+                            }
                             origenAdapter.notifyDataSetChanged();
                             gridViewOrigen.invalidateViews();
                         } else {
-                            //Si GridViewOrigen == DOGGRIG y GridViewDestino == DOGGRIDUNASSIGNED
-                            if (gridOrigenName.contentEquals("grid_dogs") && gridDestinoName.contentEquals("grid_dogs_notassigned")) {
+                            //Si GridViewOrigen == DOGGRIGCLEAN y GridViewDestino == DOGGRIDUNASSIGNED
+                            if (gridOrigenName.contentEquals("grid_clean_dogs") && gridDestinoName.contentEquals("grid_dogs_notassigned")) {
                                 //Sustituir perro de la GridOrigen por un espacio vacío y actualizar gridvieworigen
-                                VolunteerDog volunteerDog = (VolunteerDog) dogAdapter.getItem(draggedIndex).clone();
+                                VolunteerDog volunteerDog = (VolunteerDog) origenAdapter.getItem(draggedIndex).clone();
                                 if (onDragAllGrid) {
-                                    dogAdapter.removeAt(draggedIndex);
+                                    origenAdapter.removeAt(draggedIndex);
                                     Dog empty = new Dog(Constants.DEFAULT_DOG_NAME);
                                     VolunteerDog emptyVolunteerDog = new VolunteerDog(empty, null);
-                                    dogAdapter.addAt(draggedIndex, emptyVolunteerDog);
-                                    dogAdapter.notifyDataSetChanged();
+                                    origenAdapter.addAt(draggedIndex, emptyVolunteerDog);
+                                    origenAdapter.reajustEmptyElement(draggedIndex);
+                                    if(origenAdapter.isSecondaryEmptyRow(draggedIndex))
+                                    {
+                                        origenAdapter.removeRow(draggedIndex);
+                                    }
+                                    origenAdapter.notifyDataSetChanged();
                                     gridViewOrigen.invalidateViews();
 
                                     //Añadir a la gridviewDestino el elemento arrastrado
                                     try {
-                                        dogAdapterUnassigned.add(volunteerDog);
-                                        int count = dogAdapterUnassigned.getCount();
-                                        dogAdapterUnassigned.getView(count - 1, null, null);
+                                        destinoAdapter.add(volunteerDog);
+                                        int count = destinoAdapter.getCount();
+                                        destinoAdapter.getView(count - 1, null, null);
                                         destinoAdapter.notifyDataSetChanged();
                                         gridViewDestino.invalidateViews();
                                     } catch (Exception e) {
@@ -392,9 +574,15 @@ public class EditSolution extends Activity {
                                 if (!volunteerDogDestino.dog.name.isEmpty()) {
                                     origenAdapter.addAt(draggedIndex, volunteerDogDestino);
                                 }
-
                                 destinoAdapter.removeAt(indexDestino);
                                 destinoAdapter.addAt(indexDestino, volunteerDogOrigen);
+                                if(gridDestinoName.contentEquals("grid_clean_dogs")) {
+                                    Integer newIndexDestino = destinoAdapter.reajustElement(indexDestino);
+                                    if(destinoAdapter.isFullRow(newIndexDestino))
+                                    {
+                                        destinoAdapter.addRow(newIndexDestino);
+                                    }
+                                }
                                 destinoAdapter.notifyDataSetChanged();
                                 origenAdapter.notifyDataSetChanged();
                                 gridViewOrigen.invalidateViews();

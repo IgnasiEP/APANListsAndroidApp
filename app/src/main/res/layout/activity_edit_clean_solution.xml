@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EditSolution">
+    tools:context=".EditCleanSolution">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
@@ -63,7 +63,7 @@
         </HorizontalScrollView>
 
         <HorizontalScrollView
-            android:id="@+id/dogsview"
+            android:id="@+id/dogscleanview"
             android:layout_width="fill_parent"
             android:layout_height="328dp"
             android:layout_alignParentTop="true"
@@ -81,7 +81,7 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <GridView
-                android:id="@+id/grid_dogs"
+                android:id="@+id/grid_clean_dogs"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_marginEnd="16dp"
@@ -92,7 +92,7 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:horizontalSpacing="10dp"
-                android:tag="grid_dogs"
+                android:tag="grid_clean_dogs"
                 android:verticalSpacing="10dp"
                 android:paddingBottom="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -102,25 +102,4 @@
         </HorizontalScrollView>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/button_guardar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="Guardar cambios"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/button_limpieza"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:text="Limpieza"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 </android.support.constraint.ConstraintLayout>
