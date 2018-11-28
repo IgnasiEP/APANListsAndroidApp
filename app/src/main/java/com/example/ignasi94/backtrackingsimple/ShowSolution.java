@@ -79,6 +79,12 @@ public class ShowSolution extends Activity {
     public void ReadMakeListsParameters(Intent intent)
     {
         dbAdapter = new DBAdapter(this);
+        nPaseos = getIntent().getIntExtra("nPaseos", 0);
+        volunteers = (ArrayList) dbAdapter.getAllVolunteers();
+        nVolunteers = volunteers.size();
+        walkSolutionArray = dbAdapter.GetWalkSolution(nVolunteers,nPaseos+1);
+
+        /*dbAdapter = new DBAdapter(this);
         Dictionary<Integer,Dog>  dogs = dbAdapter.getAllDogsDictionary();
         volunteers = (ArrayList) dbAdapter.getAllVolunteers();
         nPaseos = intent.getIntExtra("nPaseos", 0);
@@ -114,7 +120,7 @@ public class ShowSolution extends Activity {
         {
             ArrayList<Integer> iArray = intent.getIntegerArrayListExtra("CleanSolution"+i);
             cleanSolution.add(i,iArray);
-        }
+        }*/
     }
 
     public class DogAdapter extends BaseAdapter {
@@ -156,8 +162,15 @@ public class ShowSolution extends Activity {
                 imageViewAndroid.setImageResource(R.mipmap.ic_volunteer_default);
             }
             else {
-                textViewAndroid.setText(walkSolutionArray.get(position).dog.name);
-                imageViewAndroid.setImageResource(R.mipmap.ic_dog_default);
+                String dogName = walkSolutionArray.get(position).dog.name;
+                textViewAndroid.setText(dogName);
+                if(dogName.isEmpty())
+                {
+                    imageViewAndroid.setImageResource(R.mipmap.ic_doggrid_empty_image);
+                }
+                else {
+                    imageViewAndroid.setImageResource(R.mipmap.ic_dog_default);
+                }
             }
 
             return gridViewAndroid;

@@ -23,6 +23,8 @@ public class MakeLists extends AppCompatActivity {
     Button doListButtonTest2 = null;
     Button doListButtonTest3 = null;
     Button doListButtonTest4 = null;
+    ArrayList<ArrayList<Dog>>  clean;
+    Dog[][] walks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +47,8 @@ public class MakeLists extends AppCompatActivity {
                 t.start();
                 try {
                     t.join();
-                    Dog[][] walks = rT.walksTable;
-                    ArrayList<ArrayList<Dog>> clean = rT.cleanTable;
+                    walks = rT.walksTable;
+                    clean = rT.cleanTable;
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -54,7 +56,10 @@ public class MakeLists extends AppCompatActivity {
 
                 //Pasamos la solución de paseos a matriz de id's
                 Intent launchactivity= new Intent(MakeLists.this,ShowSolution.class);
-                SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
+                //SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
+                launchactivity.putExtra("nPaseos", npaseos);
+                dbAdapter.SaveWalkSolution(walks, volunteers);
+                dbAdapter.SaveCleanSolution(clean);
                 startActivity(launchactivity);
             }
         });
@@ -128,7 +133,7 @@ public class MakeLists extends AppCompatActivity {
 
     public void SetOutputParameters(Intent launchactivity, int nPaseos, int nVolunteers, RunnableThread rT)
     {
-        ArrayList<ArrayList<Integer>>  walksArray = new ArrayList<ArrayList<Integer>>();
+        ArrayList<ArrayList<Integer>> walksArray = new ArrayList<ArrayList<Integer>>();
         for(int i = 0; i < nPaseos; ++i)
         {
             ArrayList<Integer> nArray = new ArrayList<Integer>();
@@ -151,7 +156,7 @@ public class MakeLists extends AppCompatActivity {
             launchactivity.putExtra("WalkSolution" + i, walksArray.get(i));
         }
 
-        ArrayList<ArrayList<Integer>>  cleanArray = new ArrayList<ArrayList<Integer>>();
+        ArrayList<ArrayList<Integer>> cleanArray = new ArrayList<ArrayList<Integer>>();
         for(int i = 0; i < nPaseos; ++i)
         {
             ArrayList<Integer> nArray = new ArrayList<Integer>();

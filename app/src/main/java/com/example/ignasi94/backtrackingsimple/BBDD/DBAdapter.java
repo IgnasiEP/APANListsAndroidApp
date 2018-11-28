@@ -1,15 +1,19 @@
 package com.example.ignasi94.backtrackingsimple.BBDD;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
+import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -34,6 +38,18 @@ public class DBAdapter{
             dogsDictionary.put(dog.id,dog);
         }
         return dogsDictionary;
+    }
+
+    public Dictionary<Integer,Volunteer> getAllVolunteersDictionary()
+    {
+        Dictionary<Integer,Volunteer> volunteersDictionary = new Hashtable<Integer, Volunteer>();
+        List<Volunteer> volunteers = getAllVolunteers();
+        for(int i = 0; i < volunteers.size(); ++i)
+        {
+            Volunteer volunteer = volunteers.get(i);
+            volunteersDictionary.put(volunteer.id,volunteer);
+        }
+        return volunteersDictionary;
     }
 
     public List<Dog> getAllDogs()
@@ -103,19 +119,228 @@ public class DBAdapter{
     public List<Volunteer> getAllVolunteers() {
         List<Volunteer> volunteers = new ArrayList<Volunteer>();
         SQLiteDatabase db = dbHandler.getWritableDatabase();
-        String[] columns = {dbHandler.KEY_VOLUNTEER_NAME, dbHandler.KEY_VOLUNTEER_PHONE, dbHandler.KEY_VOLUNTEER_DAY, dbHandler.KEY_VOLUNTEER_OBSERVATIONS};
+        String[] columns = {dbHandler.KEY_VOLUNTEER_ID, dbHandler.KEY_VOLUNTEER_NAME, dbHandler.KEY_VOLUNTEER_PHONE, dbHandler.KEY_VOLUNTEER_DAY, dbHandler.KEY_VOLUNTEER_OBSERVATIONS};
         Cursor cursor = db.query(dbHandler.TABLE_VOLUNTEERS, columns, null, null, null, null, null);
         StringBuffer buffer = new StringBuffer();
         while (cursor.moveToNext()) {
+            int id = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_VOLUNTEER_ID));
             String name = cursor.getString(cursor.getColumnIndex(dbHandler.KEY_VOLUNTEER_NAME));
             String phone = cursor.getString(cursor.getColumnIndex(dbHandler.KEY_VOLUNTEER_PHONE));
             String volunteerDay = cursor.getString(cursor.getColumnIndex(dbHandler.KEY_VOLUNTEER_DAY));
             String observations = cursor.getString(cursor.getColumnIndex(dbHandler.KEY_VOLUNTEER_OBSERVATIONS));
 
-            Volunteer volunteer = new Volunteer(name, phone, volunteerDay, observations);
+            Volunteer volunteer = new Volunteer(id,name, phone, volunteerDay, observations);
             volunteers.add(volunteer);
         }
         return volunteers;
+    }
+
+    public void SaveWalkSolution(Dog[][] walks, List<Volunteer> volunteers)
+    {
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        Dog[][] walksT = new Dog[walks[0].length][walks.length];
+        for(int i = 0; i < walksT.length; ++i) {
+            for (int j = 0; j < walksT[0].length; ++j) {
+                walksT[i][j] = walks[j][i];
+            }
+        }
+        int id = 0;
+        for(int i = 0; i < walksT.length; ++i)
+        {
+            for(int j = 0; j < walksT[0].length + 1; ++j)
+            {
+                contentValues = new ContentValues();
+                if(j == 0)
+                {
+                    contentValues.put(DBHandler.KEY_WALKS_ID, id);
+                    contentValues.put(DBHandler.KEY_WALKS_ROW, i);
+                    contentValues.put(DBHandler.KEY_WALKS_COLUMN, j);
+                    contentValues.put(DBHandler.KEY_WALKS_VOLUNTEER_ID, volunteers.get(i).id);
+                }
+                else
+                {
+                    contentValues.put(DBHandler.KEY_WALKS_ID, id);
+                    contentValues.put(DBHandler.KEY_WALKS_ROW, i);
+                    contentValues.put(DBHandler.KEY_WALKS_COLUMN, j);
+                    contentValues.put(DBHandler.KEY_WALKS_DOG_ID, walksT[i][j-1].id);
+                }
+                db.insert(DBHandler.TABLE_WALKS, null,contentValues);
+                ++id;
+            }
+        }
+    }
+
+    public void SaveWalkSolution(ArrayList<VolunteerDog> walks)
+    {
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        int id = 0;
+        int column = 0;
+        int row = -1;
+        for(int i = 0; i < walks.size(); ++i)
+        {
+            contentValues = new ContentValues();
+            if(walks.get(i).volunteer != null)
+            {
+                row = row + 1;
+                column = 0;
+                contentValues.put(DBHandler.KEY_WALKS_ID, id);
+                contentValues.put(DBHandler.KEY_WALKS_ROW, row);
+                contentValues.put(DBHandler.KEY_WALKS_COLUMN, column);
+                contentValues.put(DBHandler.KEY_WALKS_VOLUNTEER_ID, walks.get(i).volunteer.id);
+            }
+            else if(!walks.get(i).dog.name.isEmpty())
+            {
+                contentValues.put(DBHandler.KEY_WALKS_ID, id);
+                contentValues.put(DBHandler.KEY_WALKS_ROW, row);
+                contentValues.put(DBHandler.KEY_WALKS_COLUMN, column);
+                contentValues.put(DBHandler.KEY_WALKS_DOG_ID, walks.get(i).dog.id);
+            }
+            db.insert(DBHandler.TABLE_WALKS, null,contentValues);
+            column++;
+            ++id;
+        }
+    }
+
+
+
+    public void SaveCleanSolution(ArrayList<ArrayList<Dog>> clean)
+    {
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        int id = 0;
+        for(int i = 0; i < clean.size(); ++i)
+        {
+            for(int j = 0; j < clean.get(i).size(); ++j)
+            {
+                contentValues = new ContentValues();
+                contentValues.put(DBHandler.KEY_CLEAN_ID, id);
+                contentValues.put(DBHandler.KEY_CLEAN_ROW, i);
+                contentValues.put(DBHandler.KEY_WALKS_COLUMN, j);
+                contentValues.put(DBHandler.KEY_WALKS_DOG_ID, clean.get(i).get(j).id);
+                db.insert(DBHandler.TABLE_CLEAN, null,contentValues);
+                ++id;
+            }
+        }
+    }
+
+    public void SaveCleanSolution(List<VolunteerDog> clean)
+    {
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        int id = 0;
+        int row = 0;
+        int column = 0;
+        for(int i = 0; i < clean.size(); ++i)
+        {
+            if(clean.get(i).dog == null)
+            {
+                row = clean.get(i).cleanRow - 1;
+                column = 0;
+            }
+            else if (!clean.get(i).dog.name.isEmpty()){
+                contentValues = new ContentValues();
+                contentValues.put(DBHandler.KEY_CLEAN_ID, id);
+                contentValues.put(DBHandler.KEY_CLEAN_ROW, row);
+                contentValues.put(DBHandler.KEY_WALKS_COLUMN, column);
+                contentValues.put(DBHandler.KEY_WALKS_DOG_ID, clean.get(i).dog.id);
+                db.insert(DBHandler.TABLE_CLEAN, null, contentValues);
+            }
+            ++column;
+            ++id;
+        }
+    }
+
+    public ArrayList<VolunteerDog> GetWalkSolution(int nRows, int nColumns)
+    {
+        ArrayList<VolunteerDog> walksSolution = new ArrayList<VolunteerDog>();
+        VolunteerDog[][] dogMatrix = new VolunteerDog[nRows][nColumns];
+        Dictionary<Integer,Dog> dogs = this.getAllDogsDictionary();
+        Dictionary<Integer,Volunteer> volunteers = this.getAllVolunteersDictionary();
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        String[] columns = {dbHandler.KEY_WALKS_ID, dbHandler.KEY_WALKS_ROW, dbHandler.KEY_WALKS_COLUMN, dbHandler.KEY_WALKS_VOLUNTEER_ID, dbHandler.KEY_WALKS_DOG_ID};
+        Cursor cursor =db.query(dbHandler.TABLE_WALKS,columns,null, null,null,null,null);
+        StringBuffer buffer= new StringBuffer();
+        while (cursor.moveToNext())
+        {
+            int id = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_WALKS_ID));
+            int row = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_WALKS_ROW));
+            int column = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_WALKS_COLUMN));
+            int volunteerId = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_WALKS_VOLUNTEER_ID));
+            int dogId = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_WALKS_DOG_ID));
+
+            VolunteerDog volunteerDog = new VolunteerDog(dogs.get(dogId),volunteers.get(volunteerId));
+            dogMatrix[row][column] = volunteerDog;
+        }
+
+        for(int i = 0; i < dogMatrix.length; ++i)
+        {
+            for(int j = 0; j < dogMatrix[i].length; ++j)
+            {
+                if(dogMatrix[i][j] == null)
+                {
+                    walksSolution.add(new VolunteerDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
+                }
+                else {
+                    walksSolution.add(dogMatrix[i][j]);
+                }
+            }
+        }
+        return walksSolution;
+    }
+
+    public ArrayList<VolunteerDog> GetCleanSolution(int rows, int nColumns)
+    {
+        ArrayList<VolunteerDog> cleanSolution = new ArrayList<VolunteerDog>();
+        ArrayList<ArrayList<VolunteerDog>> cleanMatrix = new ArrayList<ArrayList<VolunteerDog>>();
+        for(int i = 0; i < rows; i++)
+        {
+            cleanMatrix.add(i,new ArrayList<VolunteerDog>());
+        }
+        Dictionary<Integer,Dog> dogs = this.getAllDogsDictionary();
+        Dictionary<Integer,Volunteer> volunteers = this.getAllVolunteersDictionary();
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        String[] columns = {dbHandler.KEY_CLEAN_ID, dbHandler.KEY_CLEAN_ROW, dbHandler.KEY_CLEAN_COLUMN, dbHandler.KEY_CLEAN_DOG_ID};
+        Cursor cursor =db.query(dbHandler.TABLE_CLEAN,columns,null, null,null,null,null);
+        StringBuffer buffer= new StringBuffer();
+        while (cursor.moveToNext())
+        {
+            int id = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_CLEAN_ID));
+            int row = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_CLEAN_ROW));
+            int column = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_CLEAN_COLUMN));
+            int dogId = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_CLEAN_DOG_ID));
+
+            VolunteerDog volunteerDog = new VolunteerDog(dogs.get(dogId),null);
+            cleanMatrix.get(row).add(volunteerDog);
+        }
+
+        for(int i = 0; i < cleanMatrix.size(); ++i)
+        {
+            int dogsToAdd = 0;
+            if(cleanMatrix.get(i).size() == 0)
+            {
+                cleanSolution.add(new VolunteerDog(null, i + 1, true));
+                ++dogsToAdd;
+            }
+            for(int j = 0; j < cleanMatrix.get(i).size(); ++j) {
+                if ((dogsToAdd % nColumns) == 0 && j == 0) {
+                    cleanSolution.add(new VolunteerDog(null, i + 1, true));
+                    ++dogsToAdd;
+                } else if ((dogsToAdd % nColumns) == 0) {
+                    cleanSolution.add(new VolunteerDog(null, i + 1, false));
+                    ++dogsToAdd;
+                }
+                cleanSolution.add(cleanMatrix.get(i).get(j));
+                ++dogsToAdd;
+            }
+            while((dogsToAdd % nColumns) != 0)
+            {
+                cleanSolution.add(new VolunteerDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
+                ++dogsToAdd;
+            }
+        }
+        return cleanSolution;
     }
 
     public void removeAll()
@@ -132,6 +357,12 @@ public class DBAdapter{
     {
         SQLiteDatabase db = dbHandler.getWritableDatabase();
         dbHandler.onUpgrade(db,2,2);
+    }
+
+    public void CleanSolutionsTables()
+    {
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        dbHandler.onUpgrade(db,2,2, true);
     }
 
     static class DBHandler extends SQLiteOpenHelper {
@@ -168,6 +399,25 @@ public class DBAdapter{
         private static final String KEY_VOLUNTEER_PHONE = "phone";
         private static final String KEY_VOLUNTEER_DAY = "volunteerDay";
         private static final String KEY_VOLUNTEER_OBSERVATIONS = "observations";
+
+        //Walks table name
+        private static final String TABLE_WALKS = "walks";
+
+        //Walks table column names
+        private static final String KEY_WALKS_ID = "id";
+        private static final String KEY_WALKS_ROW = "irow";
+        private static final String KEY_WALKS_COLUMN = "icolumn";
+        private static final String KEY_WALKS_DOG_ID = "idDog";
+        private static final String KEY_WALKS_VOLUNTEER_ID = "idVolunteer";
+
+        //Clean table name
+        private static final String TABLE_CLEAN = "clean";
+
+        //Clean table column names
+        private static final String KEY_CLEAN_ID = "id";
+        private static final String KEY_CLEAN_ROW = "irow";
+        private static final String KEY_CLEAN_COLUMN = "icolumn";
+        private static final String KEY_CLEAN_DOG_ID = "idDog";
 
         private void insertCages(SQLiteDatabase db)
         {
@@ -288,10 +538,23 @@ public class DBAdapter{
                     + KEY_VOLUNTEER_PHONE + " TEXT,"
                     + KEY_VOLUNTEER_DAY + " TEXT,"
                     + KEY_VOLUNTEER_OBSERVATIONS + " TEXT" + ")";
+            String CREATE_WALKS_TABLE = "CREATE TABLE " + TABLE_WALKS + "("
+                    + KEY_WALKS_ID + " INTEGER PRIMARY KEY,"
+                    + KEY_WALKS_ROW + " INTEGER,"
+                    + KEY_WALKS_COLUMN + " INTEGER,"
+                    + KEY_WALKS_DOG_ID + " INTEGER,"
+                    + KEY_WALKS_VOLUNTEER_ID + " INTEGER" + ")";
+            String CREATE_CLEAN_TABLE = "CREATE TABLE " + TABLE_CLEAN + "("
+                    + KEY_CLEAN_ID + " INTEGER PRIMARY KEY,"
+                    + KEY_CLEAN_ROW + " INTEGER,"
+                    + KEY_CLEAN_COLUMN + " INTEGER,"
+                    + KEY_CLEAN_DOG_ID + " INTEGER" + ")";
 
             db.execSQL(CREATE_DOGS_TABLE);
             db.execSQL(CREATE_CAGES_TABLE);
             db.execSQL(CREATE_VOLUNTEERS_TABLE);
+            db.execSQL(CREATE_WALKS_TABLE);
+            db.execSQL(CREATE_CLEAN_TABLE);
             this.insertCages(db);
             this.insertDogs(db);
             this.insertVolunteers(db);
@@ -303,12 +566,35 @@ public class DBAdapter{
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOGS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAGES);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_VOLUNTEERS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_WALKS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CLEAN);
 
             //Create tables again
             onCreate(db);
         }
+
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion, boolean saveSolutions) {
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_WALKS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CLEAN);
+
+            String CREATE_WALKS_TABLE = "CREATE TABLE " + TABLE_WALKS + "("
+                    + KEY_WALKS_ID + " INTEGER PRIMARY KEY,"
+                    + KEY_WALKS_ROW + " INTEGER,"
+                    + KEY_WALKS_COLUMN + " INTEGER,"
+                    + KEY_WALKS_DOG_ID + " INTEGER,"
+                    + KEY_WALKS_VOLUNTEER_ID + " INTEGER" + ")";
+            String CREATE_CLEAN_TABLE = "CREATE TABLE " + TABLE_CLEAN + "("
+                    + KEY_CLEAN_ID + " INTEGER PRIMARY KEY,"
+                    + KEY_CLEAN_ROW + " INTEGER,"
+                    + KEY_CLEAN_COLUMN + " INTEGER,"
+                    + KEY_CLEAN_DOG_ID + " INTEGER" + ")";
+
+            db.execSQL(CREATE_WALKS_TABLE);
+            db.execSQL(CREATE_CLEAN_TABLE);
+        }
     }
 }
+
 
 
 

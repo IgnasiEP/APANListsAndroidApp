@@ -51,6 +51,13 @@ public class ShowCleanSolution extends Activity {
 
     public void ReadMakeListsParameters(Intent intent) {
         dbAdapter = new DBAdapter(this);
+        nPaseos = getIntent().getIntExtra("nPaseos", 0);
+        volunteers = (ArrayList) dbAdapter.getAllVolunteers();
+        nVolunteers = volunteers.size();
+        cleanGridArray = dbAdapter.GetCleanSolution(nPaseos, gridColumns);
+
+
+        /*dbAdapter = new DBAdapter(this);
         Dictionary<Integer, Dog> dogs = dbAdapter.getAllDogsDictionary();
         volunteers = (ArrayList) dbAdapter.getAllVolunteers();
         nPaseos = intent.getIntExtra("nPaseos", 0);
@@ -96,7 +103,7 @@ public class ShowCleanSolution extends Activity {
                 cleanGridArray.add(new VolunteerDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
                 ++dogsToAdd;
             }
-        }
+        }*/
     }
 
     public class CleanDogAdapter extends BaseAdapter {
@@ -141,13 +148,20 @@ public class ShowCleanSolution extends Activity {
                 }
                 else
                 {
-                    imageViewAndroid.setImageResource(R.mipmap.ic_doggrid_empty_image);
-                    textViewAndroid.setText(volunteerDog.cleanRow.toString());
+                    imageViewAndroid.setImageResource(R.mipmap.ic_white_dog);
+                    textViewAndroid.setText("");
                 }
             }
             else {
-                textViewAndroid.setText(volunteerDog.dog.name);
-                imageViewAndroid.setImageResource(R.mipmap.ic_dog_default);
+                String dogName = volunteerDog.dog.name;
+                textViewAndroid.setText(dogName);
+                if(dogName.isEmpty())
+                {
+                    imageViewAndroid.setImageResource(R.mipmap.ic_white_dog);
+                }
+                else {
+                    imageViewAndroid.setImageResource(R.mipmap.ic_dog_default);
+                }
             }
 
             return gridViewAndroid;

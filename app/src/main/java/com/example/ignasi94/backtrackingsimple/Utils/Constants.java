@@ -13,5 +13,8 @@ public final class Constants {
     public static String VOLUNTEER_DAY_SATURDAY = "Saturday";
     public static String VOLUNTEER_DAY_SUNDAY = "Sunday";
     public static String DEFAULT_DOG_NAME = "";
+    public static Integer GRID_DOGS = 1;
+    public static Integer GRID_DOGS_UNASSIGNED = 2;
+    public static Integer GRID_CLEAN = 3;
 }
 

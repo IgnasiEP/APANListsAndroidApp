@@ -355,7 +355,7 @@ public class EditCleanSolution extends Activity {
             TextView textViewAndroid = (TextView) gridViewAndroid.findViewById(R.id.android_gridview_text);
             ImageView imageViewAndroid = (ImageView) gridViewAndroid.findViewById(R.id.android_gridview_image);
             VolunteerDog volunteerDog = this.matrixList.get(position);
-            if(!onlyDogs && (position % gridColumns) == 0)
+            if(!onlyDogs && (position % this.columns) == 0)
             {
                 if(volunteerDog.visibility) {
                     imageViewAndroid.setImageResource(R.mipmap.ic_doggrid_empty_image);

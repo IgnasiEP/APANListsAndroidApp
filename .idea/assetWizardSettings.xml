@@ -33,8 +33,8 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="foregroundImage" value="C:\Users\Ignasi\Desktop\background.png" />
-                                      <entry key="foregroundLayerName" value="ic_doggridunassigned_empty_image" />
+                                      <entry key="foregroundImage" value="C:\Users\Ignasi\Desktop\whitebackground.png" />
+                                      <entry key="foregroundLayerName" value="ic_white_dog" />
                                     </map>
                                   </option>
                                 </PersistentState>
