@@ -10,8 +10,8 @@ public final class Constants {
     public static int EDGE_SAME_CAGE_VALUE = 3;
     public static int EDGE_COMPATIBLE_VALUE = 2;
     public static int EDGE_INCOMPATIBLE_VALUE = 1;
-    public static String VOLUNTEER_DAY_SATURDAY = "Saturday";
-    public static String VOLUNTEER_DAY_SUNDAY = "Sunday";
+    public static String VOLUNTEER_DAY_SATURDAY = "S";
+    public static String VOLUNTEER_DAY_SUNDAY = "D";
     public static String DEFAULT_DOG_NAME = "";
     public static Integer GRID_DOGS = 1;
     public static Integer GRID_DOGS_UNASSIGNED = 2;

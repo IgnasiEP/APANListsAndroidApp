@@ -349,7 +349,7 @@ public class EditCleanSolution extends Activity {
             View gridViewAndroid = view;
             if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                gridViewAndroid = inflater.inflate(R.layout.griditem_griditem_dogs, null);
+                gridViewAndroid = inflater.inflate(R.layout.griditem_dogs, null);
             }
             gridViewAndroid.setTag(position);
             TextView textViewAndroid = (TextView) gridViewAndroid.findViewById(R.id.android_gridview_text);
