@@ -136,7 +136,7 @@ public class DBAdapter{
         return volunteers;
     }
 
-    public void SaveWalkSolution(Dog[][] walks, List<Volunteer> volunteers)
+    public void SaveWalkSolution(Dog[][] walks, List<VolunteerWalks> volunteers)
     {
         SQLiteDatabase db = dbHandler.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -344,8 +344,9 @@ public class DBAdapter{
         return cleanSolution;
     }
 
-    public void SaveSelectedVolunteers(List<Volunteer> volunteers)
+    public void SaveSelectedVolunteers(List<VolunteerWalks> volunteers)
     {
+        this.CleanSelectedVolunteers();
         SQLiteDatabase db = dbHandler.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         int id = 0;
@@ -353,18 +354,19 @@ public class DBAdapter{
         int column = 0;
         for(int i = 0; i < volunteers.size(); ++i)
         {
-            Volunteer volunteer = volunteers.get(i);
+            VolunteerWalks volunteer = volunteers.get(i);
             contentValues = new ContentValues();
             contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_ID, id);
             contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_VOLUNTEER_ID, volunteer.id);
-            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_CLEAN, 0);
-            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_1, 0);
-            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_2, 0);
-            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_3, 0);
-            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_4, 0);
-            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_5, 0);
-            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_6, 0);
-            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_7, 0);
+            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_VOLUNTEER_NAME, volunteer.name);
+            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_CLEAN, volunteer.clean);
+            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_1, volunteer.walk1);
+            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_2, volunteer.walk2);
+            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_3, volunteer.walk3);
+            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_4, volunteer.walk4);
+            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_WALK_5, volunteer.walk5);
+            contentValues.put(DBHandler.KEY_SELECTEDVOLUNTEERS_NWALKS, volunteer.nPaseos);
+
             db.insert(DBHandler.TABLE_SELECTED_VOLUNTEERS, null, contentValues);
             ++id;
         }
@@ -373,23 +375,23 @@ public class DBAdapter{
     public ArrayList<VolunteerWalks> getAllSelectedVolunteers() {
         ArrayList<VolunteerWalks> volunteers = new ArrayList<VolunteerWalks>();
         SQLiteDatabase db = dbHandler.getWritableDatabase();
-        String[] columns = {dbHandler.KEY_SELECTEDVOLUNTEERS_VOLUNTEER_ID, dbHandler.KEY_SELECTEDVOLUNTEERS_CLEAN, dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_1,
+        String[] columns = {dbHandler.KEY_SELECTEDVOLUNTEERS_VOLUNTEER_ID, dbHandler.KEY_SELECTEDVOLUNTEERS_VOLUNTEER_NAME, dbHandler.KEY_SELECTEDVOLUNTEERS_CLEAN, dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_1,
                             dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_2, dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_3, dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_4, dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_5,
-                            dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_6, dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_7};
+                            dbHandler.KEY_SELECTEDVOLUNTEERS_NWALKS};
         Cursor cursor = db.query(dbHandler.TABLE_SELECTED_VOLUNTEERS, columns, null, null, null, null, null);
         StringBuffer buffer = new StringBuffer();
         while (cursor.moveToNext()) {
             int idVolunteer = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_VOLUNTEER_ID));
+            String nameVolunteer = cursor.getString(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_VOLUNTEER_NAME));
             int clean = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_CLEAN));
             int walk1 = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_1));
             int walk2 = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_2));
             int walk3 = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_3));
             int walk4 = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_4));
             int walk5 = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_5));
-            int walk6 = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_6));
-            int walk7 = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_WALK_7));
+            int nPaseos = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_NWALKS));
 
-            VolunteerWalks volunteer = new VolunteerWalks(idVolunteer, clean, walk1, walk2, walk3, walk4, walk5, walk6, walk7);
+            VolunteerWalks volunteer = new VolunteerWalks(idVolunteer, nameVolunteer, clean, walk1, walk2, walk3, walk4, walk5, nPaseos);
             volunteers.add(volunteer);
         }
         return volunteers;
@@ -486,14 +488,14 @@ public class DBAdapter{
         //Selected volunteers column names
         private static final String KEY_SELECTEDVOLUNTEERS_ID = "id";
         private static final String KEY_SELECTEDVOLUNTEERS_VOLUNTEER_ID = "idVolunteer";
+        private static final String KEY_SELECTEDVOLUNTEERS_VOLUNTEER_NAME = "nameVolunteer";
         private static final String KEY_SELECTEDVOLUNTEERS_CLEAN = "clean";
         private static final String KEY_SELECTEDVOLUNTEERS_WALK_1 = "walk1";
         private static final String KEY_SELECTEDVOLUNTEERS_WALK_2 = "walk2";
         private static final String KEY_SELECTEDVOLUNTEERS_WALK_3 = "walk3";
         private static final String KEY_SELECTEDVOLUNTEERS_WALK_4 = "walk4";
         private static final String KEY_SELECTEDVOLUNTEERS_WALK_5 = "walk5";
-        private static final String KEY_SELECTEDVOLUNTEERS_WALK_6 = "walk6";
-        private static final String KEY_SELECTEDVOLUNTEERS_WALK_7 = "walk7";
+        private static final String KEY_SELECTEDVOLUNTEERS_NWALKS = "nPaseos";
 
         private void insertCages(SQLiteDatabase db)
         {
@@ -628,14 +630,14 @@ public class DBAdapter{
             String CREATE_SELECTED_VOLUNTEERS_TABLE = "CREATE TABLE " + TABLE_SELECTED_VOLUNTEERS + "("
                     + KEY_SELECTEDVOLUNTEERS_ID + " INTEGER PRIMARY KEY,"
                     + KEY_SELECTEDVOLUNTEERS_VOLUNTEER_ID + " INTEGER,"
+                    + KEY_SELECTEDVOLUNTEERS_VOLUNTEER_NAME + " STRING,"
                     + KEY_SELECTEDVOLUNTEERS_CLEAN + " INTEGER,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_1 + " INTEGER,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_2 + " INTEGER,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_3 + " INTEGER,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_4 + " INTEGER,"
-                    + KEY_SELECTEDVOLUNTEERS_WALK_5 + " INTEGER,"
-                    + KEY_SELECTEDVOLUNTEERS_WALK_6 + " INTEGER,"
-                    + KEY_SELECTEDVOLUNTEERS_WALK_7 + " INTEGER" + ")";
+                    + KEY_SELECTEDVOLUNTEERS_WALK_5 + " BOOLEAN,"
+                    + KEY_SELECTEDVOLUNTEERS_NWALKS + " INTEGER" + ")";
 
             db.execSQL(CREATE_DOGS_TABLE);
             db.execSQL(CREATE_CAGES_TABLE);
@@ -656,6 +658,7 @@ public class DBAdapter{
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_VOLUNTEERS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_WALKS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CLEAN);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_SELECTED_VOLUNTEERS);
 
             //Create tables again
             onCreate(db);
@@ -688,14 +691,14 @@ public class DBAdapter{
             String CREATE_SELECTED_VOLUNTEERS_TABLE = "CREATE TABLE " + TABLE_SELECTED_VOLUNTEERS + "("
                     + KEY_SELECTEDVOLUNTEERS_ID + " INTEGER PRIMARY KEY,"
                     + KEY_SELECTEDVOLUNTEERS_VOLUNTEER_ID + " INTEGER,"
+                    + KEY_SELECTEDVOLUNTEERS_VOLUNTEER_NAME + " STRING,"
                     + KEY_SELECTEDVOLUNTEERS_CLEAN + " BOOLEAN,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_1 + " BOOLEAN,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_2 + " BOOLEAN,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_3 + " BOOLEAN,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_4 + " BOOLEAN,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_5 + " BOOLEAN,"
-                    + KEY_SELECTEDVOLUNTEERS_WALK_6 + " BOOLEAN,"
-                    + KEY_SELECTEDVOLUNTEERS_WALK_7 + " BOOLEAN" + ")";
+                    + KEY_SELECTEDVOLUNTEERS_NWALKS + " INTEGER" + ")";
 
             db.execSQL(CREATE_SELECTED_VOLUNTEERS_TABLE);
         }

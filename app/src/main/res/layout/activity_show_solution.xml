@@ -9,7 +9,7 @@
     <HorizontalScrollView
         android:id="@+id/dogsview"
         android:layout_width="fill_parent"
-        android:layout_height="495dp"
+        android:layout_height="601dp"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="24dp"
         android:layout_marginEnd="8dp"
@@ -22,8 +22,10 @@
         android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.222">
 
         <GridView
             android:id="@+id/grid_dogs"
@@ -33,10 +35,10 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="16dp"
-            android:paddingBottom="16dp"
             android:columnWidth="110dp"
             android:gravity="center"
             android:horizontalSpacing="10dp"
+            android:paddingBottom="16dp"
             android:verticalSpacing="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -44,18 +46,6 @@
             app:layout_constraintTop_toTopOf="parent" />
     </HorizontalScrollView>
 
-
-    <Button
-        android:id="@+id/button6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:text="Button"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/button_editar_lista"
@@ -73,12 +63,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="156dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="156dp"
         android:layout_marginStart="8dp"
         android:text="Limpieza"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_editar_lista"
-        app:layout_constraintStart_toEndOf="@+id/button6" />
+        app:layout_constraintHorizontal_bias="0.21"
+        app:layout_constraintStart_toStartOf="parent" />
 </android.support.constraint.ConstraintLayout>

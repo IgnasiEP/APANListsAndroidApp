@@ -34,6 +34,7 @@ import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class EditSolution extends Activity {
     Integer nVolunteers;
     Integer draggedIndex;
     Integer cleanGridColumns;
-    ArrayList<Volunteer> volunteers;
+    ArrayList<VolunteerWalks> volunteers;
     Dog[][] walkSolution;
     ArrayList<VolunteerDog> walkSolutionArray;
     ArrayList<ArrayList<VolunteerDog>> cleanSolution;
@@ -151,7 +152,7 @@ public class EditSolution extends Activity {
     public void ReadMakeListsParameters(Intent intent) {
         dbAdapter = new DBAdapter(this);
         nPaseos = getIntent().getIntExtra("nPaseos", 0);
-        volunteers = (ArrayList) dbAdapter.getAllVolunteers();
+        volunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
         nVolunteers = volunteers.size();
         walkSolutionArray = dbAdapter.GetWalkSolution(nVolunteers,nPaseos+1);
         cleanGridArray = dbAdapter.GetCleanSolution(nPaseos, cleanGridColumns);
@@ -186,7 +187,7 @@ public class EditSolution extends Activity {
     public void MakeCleanLists(Intent intent) {
         dbAdapter = new DBAdapter(this);
         Dictionary<Integer, Dog> dogs = dbAdapter.getAllDogsDictionary();
-        volunteers = (ArrayList) dbAdapter.getAllVolunteers();
+        volunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
         nPaseos = intent.getIntExtra("nPaseos", 0);
         nVolunteers = intent.getIntExtra("nVolunteers", 0);
 
@@ -499,7 +500,7 @@ public class EditSolution extends Activity {
                 imageViewAndroid.setImageResource(R.mipmap.ic_dog_default);
                 if(gridType == Constants.GRID_DOGS_UNASSIGNED && volunteerDog.dog.name.isEmpty())
                 {
-                    imageViewAndroid.setImageResource(R.mipmap.ic_doggridunassigned_empty_image);
+                    imageViewAndroid.setImageResource(R.mipmap.ic_white_dog);
                 }
                 else if (gridType == Constants.GRID_DOGS && volunteerDog.dog.name.isEmpty())
                 {
@@ -608,6 +609,11 @@ public class EditSolution extends Activity {
                     DogAdapter destinoAdapter = null;
                     LinearLayout destino = null;
 
+                    if(v.getTag().toString().contentEquals("button_limpieza") || v.getTag().toString().contentEquals("button_paseos"))
+                    {
+                        view.setVisibility(View.VISIBLE);
+                        return true;
+                    }
                     if(v.getTag().toString().contentEquals("grid_dogs_notassigned")) {
                         onDragAllGrid = true;
                         //GridViewDestino

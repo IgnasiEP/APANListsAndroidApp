@@ -19,6 +19,7 @@ import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class ShowCleanSolution extends Activity {
     Integer nPaseos;
     Integer nVolunteers;
     Integer gridColumns;
-    ArrayList<Volunteer> volunteers;
+    ArrayList<VolunteerWalks> volunteers;
     ArrayList<ArrayList<VolunteerDog>> cleanSolution;
     DBAdapter dbAdapter;
     ArrayList<VolunteerDog> cleanGridArray;
@@ -52,7 +53,7 @@ public class ShowCleanSolution extends Activity {
     public void ReadMakeListsParameters(Intent intent) {
         dbAdapter = new DBAdapter(this);
         nPaseos = getIntent().getIntExtra("nPaseos", 0);
-        volunteers = (ArrayList) dbAdapter.getAllVolunteers();
+        volunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
         nVolunteers = volunteers.size();
         cleanGridArray = dbAdapter.GetCleanSolution(nPaseos, gridColumns);
 

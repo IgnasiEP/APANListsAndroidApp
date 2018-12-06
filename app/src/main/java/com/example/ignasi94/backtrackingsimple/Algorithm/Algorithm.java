@@ -5,6 +5,7 @@ import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Grafo.DogGraph;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Grafo.EdgeDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
+import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
 import java.util.ArrayList;
@@ -30,14 +31,14 @@ public class Algorithm {
 
     public Algorithm() {}
 
-    public Algorithm(List<Dog> dogs, List<Cage> cages, List<Volunteer> volunteers)
+    public Algorithm(List<Dog> dogs, List<Cage> cages, List<VolunteerWalks> volunteers)
     {
         SimpleBacktracking(dogs,cages,volunteers);
     }
 
-    public void SimpleBacktracking(List<Dog> dogs, List<Cage> cages, List<Volunteer> volunteers)
+    public void SimpleBacktracking(List<Dog> dogs, List<Cage> cages, List<VolunteerWalks> volunteers)
     {
-        int nPaseos = 4;
+        int nPaseos = volunteers.get(0).nPaseos;
         this.cages = (ArrayList) cages;
         listDogsPerCage = new ArrayList<ArrayList<Dog>>();
         this.CreateListDogsPerCage(dogs,cages);

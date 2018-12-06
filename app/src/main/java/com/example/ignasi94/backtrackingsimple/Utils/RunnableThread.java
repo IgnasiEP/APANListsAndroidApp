@@ -4,6 +4,7 @@ import com.example.ignasi94.backtrackingsimple.Algorithm.Algorithm;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
+import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ public class RunnableThread implements Runnable {
     private String name;
     private List<Dog> listDogs;
     private List<Cage> listCages;
-    private List<Volunteer> listVolunteers;
+    private List<VolunteerWalks> listVolunteers;
     public Dog[][] walksTable;
     public ArrayList<ArrayList<Dog>> cleanTable;
 
@@ -20,7 +21,7 @@ public class RunnableThread implements Runnable {
     {
         return this.name;
     }
-    public RunnableThread(String n, List<Dog> listDogs, List<Cage> listCages, List<Volunteer> listVolunteers) {
+    public RunnableThread(String n, List<Dog> listDogs, List<Cage> listCages, List<VolunteerWalks> listVolunteers) {
         this.name = n;
         this.listDogs = listDogs;
         this.listCages = listCages;

@@ -47,12 +47,26 @@
         </activity>
         <activity android:name=".SelectVolunteers">
             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ConfigureWalks">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".FirstScreen">
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ConfigureWalks">
+        <activity android:name=".ListsScreen">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

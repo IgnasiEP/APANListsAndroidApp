@@ -25,6 +25,7 @@ import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 import com.example.ignasi94.backtrackingsimple.R;
 import com.example.ignasi94.backtrackingsimple.Utils.RunnableThread;
 
@@ -37,7 +38,7 @@ public class ShowSolution extends Activity {
 
     Integer nPaseos;
     Integer nVolunteers;
-    ArrayList<Volunteer> volunteers;
+    ArrayList<VolunteerWalks> volunteers;
     Dog[][] walkSolution;
     ArrayList<VolunteerDog> walkSolutionArray;
     ArrayList<ArrayList<Integer>> cleanSolution;
@@ -80,7 +81,7 @@ public class ShowSolution extends Activity {
     {
         dbAdapter = new DBAdapter(this);
         nPaseos = getIntent().getIntExtra("nPaseos", 0);
-        volunteers = (ArrayList) dbAdapter.getAllVolunteers();
+        volunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
         nVolunteers = volunteers.size();
         walkSolutionArray = dbAdapter.GetWalkSolution(nVolunteers,nPaseos+1);
 

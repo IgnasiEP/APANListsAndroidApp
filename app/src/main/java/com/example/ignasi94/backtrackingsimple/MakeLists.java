@@ -10,6 +10,7 @@ import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
+import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 import com.example.ignasi94.backtrackingsimple.Utils.RunnableThread;
 
@@ -32,103 +33,30 @@ public class MakeLists extends AppCompatActivity {
         setContentView(R.layout.activity_make_lists);
 
         dbAdapter = new DBAdapter(this);
-        doListButtonTest1 = (Button) findViewById(R.id.button);
-        doListButtonTest1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dbAdapter.onUpgrade();
-                List<Dog> dogs = dbAdapter.getAllDogs();
-                List<Cage> cages = GetCages();
-                List<Volunteer> volunteers = dbAdapter.getAllVolunteers();
-                int npaseos = 4;
-                RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
-                ThreadGroup tg = new ThreadGroup("TestGroup1");
-                Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
-                t.start();
-                try {
-                    t.join();
-                    walks = rT.walksTable;
-                    clean = rT.cleanTable;
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+        List<Dog> dogs = dbAdapter.getAllDogs();
+        List<Cage> cages = GetCages();
+        List<VolunteerWalks> volunteers = dbAdapter.getAllSelectedVolunteers();
+        int npaseos = volunteers.get(0).nPaseos;
+        RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
+        ThreadGroup tg = new ThreadGroup("TestGroup1");
+        Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
+        t.start();
+        try {
+            t.join();
+            walks = rT.walksTable;
+            clean = rT.cleanTable;
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-                //Pasamos la solución de paseos a matriz de id's
-                Intent launchactivity= new Intent(MakeLists.this,ShowSolution.class);
-                //SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
-                launchactivity.putExtra("nPaseos", npaseos);
-                dbAdapter.SaveWalkSolution(walks, volunteers);
-                dbAdapter.SaveCleanSolution(clean);
-                startActivity(launchactivity);
-            }
-        });
-
-        doListButtonTest2 = (Button) findViewById(R.id.button2);
-        doListButtonTest2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Dog> dogs = GetDogs(2);
-                List<Cage> cages = GetCages();
-                List<Volunteer> volunteers = GetVolunteers(2);
-                RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
-                ThreadGroup tg = new ThreadGroup("TestGroup1");
-                Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
-                t.start();
-                try {
-                    t.join();
-                    Dog[][] walks = rT.walksTable;
-                    ArrayList<ArrayList<Dog>> clean = rT.cleanTable;
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        doListButtonTest3 = (Button) findViewById(R.id.button3);
-        doListButtonTest3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Dog> dogs = GetDogs(3);
-                List<Cage> cages = GetCages();
-                List<Volunteer> volunteers = GetVolunteers(3);
-                RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
-                ThreadGroup tg = new ThreadGroup("TestGroup1");
-                Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
-                t.start();
-                try {
-                    t.join();
-                    Dog[][] walks = rT.walksTable;
-                    ArrayList<ArrayList<Dog>> clean = rT.cleanTable;
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        /*doListButtonTest4 = (Button) findViewById(R.id.button4);
-        doListButtonTest4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Dog> dogs = dbAdapter.getAllDogs();
-                List<Cage> cages = dbAdapter.getAllCages();
-                List<Volunteer> volunteers = dbAdapter.getAllVolunteers();
-                RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
-                ThreadGroup tg = new ThreadGroup("TestGroup1");
-                Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
-                t.start();
-                try {
-                    t.join();
-                    Dog[][] walks = rT.walksTable;
-                    ArrayList<ArrayList<Dog>> clean = rT.cleanTable;
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        });*/
+        //Pasamos la solución de paseos a matriz de id's
+        Intent launchactivity= new Intent(MakeLists.this,ShowSolution.class);
+        //SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
+        launchactivity.putExtra("nPaseos", npaseos);
+        dbAdapter.SaveWalkSolution(walks, volunteers);
+        dbAdapter.SaveCleanSolution(clean);
+        startActivity(launchactivity);
     }
 
     public void SetOutputParameters(Intent launchactivity, int nPaseos, int nVolunteers, RunnableThread rT)
