@@ -115,6 +115,7 @@ public class SelectVolunteers extends Activity {
                     }
                 }
                 allVolunteersAdapter.matrixList = saturdayVolunteers;
+                allVolunteersAdapter.allmatrixOptionList = (ArrayList<VolunteerWalks>) saturdayVolunteers.clone();
                 allVolunteersAdapter.notifyDataSetChanged();
                 allVolunteersGrid.invalidateViews();
             }
@@ -136,6 +137,7 @@ public class SelectVolunteers extends Activity {
                     }
                 }
                 allVolunteersAdapter.matrixList = sundayVolunteers;
+                allVolunteersAdapter.allmatrixOptionList = (ArrayList<VolunteerWalks>) sundayVolunteers.clone();
                 allVolunteersAdapter.notifyDataSetChanged();
                 allVolunteersGrid.invalidateViews();
             }
@@ -147,6 +149,7 @@ public class SelectVolunteers extends Activity {
                 sunday.setVisibility(View.GONE);
                 anyDay.setVisibility(View.VISIBLE);
                 allVolunteersAdapter.matrixList = (ArrayList<VolunteerWalks>) allVolunteersAdapter.allmatrixList.clone();
+                allVolunteersAdapter.allmatrixOptionList = (ArrayList<VolunteerWalks>) allVolunteersAdapter.allmatrixList.clone();
                 allVolunteersAdapter.notifyDataSetChanged();
                 allVolunteersGrid.invalidateViews();
             }
@@ -205,6 +208,7 @@ public class SelectVolunteers extends Activity {
             Context context;
             ArrayList<VolunteerWalks> matrixList;
             ArrayList<VolunteerWalks> allmatrixList;
+        ArrayList<VolunteerWalks> allmatrixOptionList;
             boolean allList;
             ValueFilter valueFilter;
 
@@ -212,6 +216,7 @@ public class SelectVolunteers extends Activity {
             this.context = context;
             this.matrixList = matrixList;
             this.allmatrixList = (ArrayList<VolunteerWalks>) matrixList.clone();
+            this.allmatrixOptionList = (ArrayList<VolunteerWalks>) matrixList.clone();
             this.allList = allList;
         }
 
@@ -268,11 +273,11 @@ public class SelectVolunteers extends Activity {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
-                ArrayList<Volunteer> allMatrix = (ArrayList<Volunteer>) allmatrixList.clone();
+                ArrayList<VolunteerWalks> allMatrix = (ArrayList<VolunteerWalks>) allmatrixList.clone();
                 if (constraint != null && constraint.length() > 0) {
-                    List<Volunteer> filterList = new ArrayList<>();
+                    List<VolunteerWalks> filterList = new ArrayList<>();
                     for (int i = 0; i < allMatrix.size(); i++) {
-                        if ((allMatrix.get(i).name.toUpperCase()).contains(constraint.toString().toUpperCase()) && matrixList.contains(allMatrix.get(i))) {
+                        if ((allMatrix.get(i).name.toUpperCase()).contains(constraint.toString().toUpperCase()) && allmatrixOptionList.contains(allMatrix.get(i))) {
                             filterList.add(allMatrix.get(i));
                         }
                     }

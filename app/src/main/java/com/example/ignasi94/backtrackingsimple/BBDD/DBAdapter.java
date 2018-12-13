@@ -24,6 +24,8 @@ import java.util.List;
 public class DBAdapter{
 
     DBHandler dbHandler ;
+    private Dog dog;
+
     public DBAdapter(Context context)
     {
         dbHandler = new DBHandler(context);
@@ -95,7 +97,37 @@ public class DBAdapter{
             Dog dog = new Dog(id,name,cage,age,link,special,walkType,observations);
             dogs.add(dog);
         }
+
+        for(int i = 0; i < dogs.size(); ++i)
+        {
+            this.getDogFriends(dogs, i);
+        }
         return dogs;
+    }
+
+    public void getDogFriends(List<Dog> dogs, int position)
+    {
+        Dog dog = dogs.get(position);
+        List<Dog> friends = new ArrayList<Dog>();
+        String[] args = { Integer.toString(dog.id) };
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        String[] columns = {dbHandler.KEY_DOGFRIENDS_ID,dbHandler.KEY_DOGFRIENDS_DOG_ID, dbHandler.KEY_DOGFRIENDS_FRIENDDOG_ID};
+        Cursor cursor = db.query(dbHandler.TABLE_DOG_FRIENDS, columns,dbHandler.KEY_DOGFRIENDS_DOG_ID + "=?", args,null,null,null);
+        StringBuffer buffer= new StringBuffer();
+        while (cursor.moveToNext()) {
+            int id = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_DOGFRIENDS_ID));
+            int dogId = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_DOGFRIENDS_DOG_ID));
+            int friendDogId = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_DOGFRIENDS_FRIENDDOG_ID));
+
+            if(dog.id == dogId) {
+                for (int i = 0; i < dogs.size(); ++i) {
+                    if (dogs.get(i).id == friendDogId) {
+                        friends.add(dogs.get(i));
+                    }
+                }
+            }
+        }
+        dog.friends = friends;
     }
 
     public List<Cage> getAllCages()
@@ -161,12 +193,17 @@ public class DBAdapter{
                 }
                 else
                 {
-                    contentValues.put(DBHandler.KEY_WALKS_ID, id);
-                    contentValues.put(DBHandler.KEY_WALKS_ROW, i);
-                    contentValues.put(DBHandler.KEY_WALKS_COLUMN, j);
-                    contentValues.put(DBHandler.KEY_WALKS_DOG_ID, walksT[i][j-1].id);
+                    if(walksT[i][j-1] != null) {
+                        contentValues.put(DBHandler.KEY_WALKS_ID, id);
+                        contentValues.put(DBHandler.KEY_WALKS_ROW, i);
+                        contentValues.put(DBHandler.KEY_WALKS_COLUMN, j);
+                        contentValues.put(DBHandler.KEY_WALKS_DOG_ID, walksT[i][j - 1].id);
+                    }
                 }
-                db.insert(DBHandler.TABLE_WALKS, null,contentValues);
+
+                if(contentValues.containsKey(DBHandler.KEY_WALKS_ID)) {
+                    db.insert(DBHandler.TABLE_WALKS, null, contentValues);
+                }
                 ++id;
             }
         }
@@ -497,6 +534,14 @@ public class DBAdapter{
         private static final String KEY_SELECTEDVOLUNTEERS_WALK_5 = "walk5";
         private static final String KEY_SELECTEDVOLUNTEERS_NWALKS = "nPaseos";
 
+        //Dog friends table name
+        private static final String TABLE_DOG_FRIENDS = "dogFriends";
+
+        //Dog friends column names
+        private static final String KEY_DOGFRIENDS_ID = "id";
+        private static final String KEY_DOGFRIENDS_DOG_ID = "idDog";
+        private static final String KEY_DOGFRIENDS_FRIENDDOG_ID = "idFriendDog";
+
         private void insertCages(SQLiteDatabase db)
         {
             String insertCages = "INSERT INTO " + TABLE_CAGES + "(" + KEY_CAGE_ID + "," + KEY_CAGE_NUM + "," + KEY_CAGE_ZONE +") VALUES(";
@@ -588,6 +633,13 @@ public class DBAdapter{
             db.execSQL(insertVolunteers + 8 + ",'Alba2','D');");
         }
 
+        private void insertFriendDogs(SQLiteDatabase db)
+        {
+            String insertFriendDogs = "INSERT INTO " + TABLE_DOG_FRIENDS + "(" + KEY_DOGFRIENDS_ID + "," + KEY_DOGFRIENDS_DOG_ID + "," + KEY_DOGFRIENDS_FRIENDDOG_ID +") VALUES(";
+            db.execSQL(insertFriendDogs + 1 + "," + 7 + "," + 25 + ");");
+            db.execSQL(insertFriendDogs + 2 + "," + 25 + "," + 7 + ");");;
+        }
+
         public DBHandler(Context context)
         {
             super(context,DATABASE_NAME,null,DATABASE_VERSION);
@@ -638,6 +690,10 @@ public class DBAdapter{
                     + KEY_SELECTEDVOLUNTEERS_WALK_4 + " INTEGER,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_5 + " BOOLEAN,"
                     + KEY_SELECTEDVOLUNTEERS_NWALKS + " INTEGER" + ")";
+            String CREATE_DOG_FRIENDS_TABLE = "CREATE TABLE " + TABLE_DOG_FRIENDS + "("
+                    + KEY_DOGFRIENDS_ID + " INTEGER PRIMARY KEY,"
+                    + KEY_DOGFRIENDS_DOG_ID + " INTEGER,"
+                    + KEY_DOGFRIENDS_FRIENDDOG_ID + " INTEGER" + ")";
 
             db.execSQL(CREATE_DOGS_TABLE);
             db.execSQL(CREATE_CAGES_TABLE);
@@ -645,9 +701,11 @@ public class DBAdapter{
             db.execSQL(CREATE_WALKS_TABLE);
             db.execSQL(CREATE_CLEAN_TABLE);
             db.execSQL(CREATE_SELECTED_VOLUNTEERS_TABLE);
+            db.execSQL(CREATE_DOG_FRIENDS_TABLE);
             this.insertCages(db);
             this.insertDogs(db);
             this.insertVolunteers(db);
+            this.insertFriendDogs(db);
         }
 
         @Override
@@ -659,6 +717,7 @@ public class DBAdapter{
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_WALKS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CLEAN);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_SELECTED_VOLUNTEERS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOG_FRIENDS);
 
             //Create tables again
             onCreate(db);

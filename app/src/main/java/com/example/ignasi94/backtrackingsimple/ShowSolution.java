@@ -81,47 +81,23 @@ public class ShowSolution extends Activity {
     {
         dbAdapter = new DBAdapter(this);
         nPaseos = getIntent().getIntExtra("nPaseos", 0);
-        volunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
+        ArrayList<VolunteerWalks> selectedVolunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
+        volunteers = this.EraseCleaningVolunteers(selectedVolunteers);
         nVolunteers = volunteers.size();
         walkSolutionArray = dbAdapter.GetWalkSolution(nVolunteers,nPaseos+1);
+    }
 
-        /*dbAdapter = new DBAdapter(this);
-        Dictionary<Integer,Dog>  dogs = dbAdapter.getAllDogsDictionary();
-        volunteers = (ArrayList) dbAdapter.getAllVolunteers();
-        nPaseos = intent.getIntExtra("nPaseos", 0);
-        nVolunteers = intent.getIntExtra("nVolunteers", 0);
-        walkSolution = new Dog[nVolunteers][nPaseos];
-        walkSolutionArray = new ArrayList<VolunteerDog>();
-        for(int i = 0; i < nPaseos; ++i)
+    public ArrayList<VolunteerWalks> EraseCleaningVolunteers(List<VolunteerWalks> volunteers)
+    {
+        ArrayList<VolunteerWalks> volunteerWalks = new ArrayList<VolunteerWalks>();
+        for(int i = 0; i < volunteers.size(); ++i)
         {
-            ArrayList<Integer> iArray = intent.getIntegerArrayListExtra("WalkSolution"+i);
-            for(int j = 0; j < iArray.size(); ++j)
+            if(volunteers.get(i).clean == 0)
             {
-                walkSolution[j][i] = dogs.get(iArray.get(j));
-            }
-
-        }
-
-        for(int i = 0; i < nVolunteers; ++i)
-        {
-            for(int j = 0; j < nPaseos + 1; ++j)
-            {
-                if(j == 0)
-                {
-                    walkSolutionArray.add(new VolunteerDog(null, volunteers.get(i)));
-                }
-                else {
-                    walkSolutionArray.add(new VolunteerDog(walkSolution[i][j-1], null));
-                }
+                volunteerWalks.add(volunteers.get(i));
             }
         }
-
-        cleanSolution = new ArrayList<ArrayList<Integer>>();
-        for(int i = 0; i < nPaseos; ++i)
-        {
-            ArrayList<Integer> iArray = intent.getIntegerArrayListExtra("CleanSolution"+i);
-            cleanSolution.add(i,iArray);
-        }*/
+        return volunteerWalks;
     }
 
     public class DogAdapter extends BaseAdapter {

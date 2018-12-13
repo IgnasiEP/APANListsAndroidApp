@@ -37,7 +37,9 @@ public class MakeLists extends AppCompatActivity {
         List<Cage> cages = GetCages();
         List<VolunteerWalks> volunteers = dbAdapter.getAllSelectedVolunteers();
         int npaseos = volunteers.get(0).nPaseos;
-        RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
+        ArrayList<VolunteerWalks> volunteerWalks = new ArrayList<VolunteerWalks>();
+        volunteerWalks = this.EraseCleaningVolunteers(volunteers);
+        RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteerWalks);
         ThreadGroup tg = new ThreadGroup("TestGroup1");
         Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
         t.start();
@@ -54,7 +56,7 @@ public class MakeLists extends AppCompatActivity {
         Intent launchactivity= new Intent(MakeLists.this,ShowSolution.class);
         //SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
         launchactivity.putExtra("nPaseos", npaseos);
-        dbAdapter.SaveWalkSolution(walks, volunteers);
+        dbAdapter.SaveWalkSolution(walks, volunteerWalks);
         dbAdapter.SaveCleanSolution(clean);
         startActivity(launchactivity);
     }
@@ -101,6 +103,20 @@ public class MakeLists extends AppCompatActivity {
             launchactivity.putExtra("CleanSolution" + i, cleanArray.get(i));
         }
     }
+
+    public ArrayList<VolunteerWalks> EraseCleaningVolunteers(List<VolunteerWalks> volunteers)
+    {
+        ArrayList<VolunteerWalks> volunteerWalks = new ArrayList<VolunteerWalks>();
+        for(int i = 0; i < volunteers.size(); ++i)
+        {
+            if(volunteers.get(i).clean == 0)
+            {
+                volunteerWalks.add(volunteers.get(i));
+            }
+        }
+        return volunteerWalks;
+    }
+
     //Dog(int id, String name, int idCage, int age, String link, Boolean special, Short walktype, String observations)
     public List<Dog> GetDogs(int i)
     {

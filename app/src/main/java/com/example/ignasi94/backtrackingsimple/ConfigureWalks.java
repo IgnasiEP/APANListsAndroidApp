@@ -43,33 +43,54 @@ public class ConfigureWalks extends Activity {
     GridView volunteersGrid;
     int nPaseos;
     Dictionary<Integer,Volunteer> volunteersDict;
+    boolean wasNewConfig;
+    boolean newConfig;
+    ArrayList<Boolean> newConfigs;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configure_walks);
-        boolean newConfig= getIntent().getBooleanExtra("NEW", true);
+        newConfig= getIntent().getBooleanExtra("NEW", true);
+        wasNewConfig = newConfig;
         dbAdapter = new DBAdapter(this);
         volunteersDict = dbAdapter.getAllVolunteersDictionary();
         volunteerWalks = dbAdapter.getAllSelectedVolunteers();
 
+        newConfigs = new ArrayList<Boolean>();
+        for(int i = 0; i < volunteerWalks.size(); ++i)
+        {
+            newConfigs.add(newConfig);
+        }
+
+        if(!newConfig)
+        {
+            nPaseos = volunteerWalks.get(0).nPaseos;
+        }
+        else
+        {
+            nPaseos = 4;
+            this.SetAllSelected(volunteerWalks);
+        }
+
         volunteersGrid = (GridView) findViewById(R.id.grid_volunteers);
         volunteersGrid.setNumColumns(1);
         // Crear Adapter
-        volunteerWalksAdapter = new VolunteerWalksAdapter(getApplicationContext(), volunteerWalks, 4, newConfig);
+        volunteerWalksAdapter = new VolunteerWalksAdapter(getApplicationContext(), volunteerWalks, nPaseos);
         // Relacionar el adapter a la grid
         volunteersGrid.setAdapter(volunteerWalksAdapter);
 
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         String[] letra = {"3","4","5"};
         spinner.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, letra));
-        spinner.setSelection(1);
+        spinner.setSelection(nPaseos-3);
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id)
             {
                 String selected = (String) adapterView.getItemAtPosition(pos);
-                volunteerWalksAdapter = new VolunteerWalksAdapter(getApplicationContext(), volunteerWalks, Integer.parseInt(selected), false);
+                volunteerWalksAdapter = new VolunteerWalksAdapter(getApplicationContext(), volunteerWalks, Integer.parseInt(selected));
                 volunteersGrid.setAdapter(volunteerWalksAdapter);
             }
 
@@ -103,13 +124,11 @@ public class ConfigureWalks extends Activity {
         Context context;
         ArrayList<VolunteerWalks> matrixList;
         int nPaseos;
-        boolean newConfig;
 
-        public VolunteerWalksAdapter(Context context, ArrayList<VolunteerWalks> matrixList, int nPaseos, boolean newConfig) {
+        public VolunteerWalksAdapter(Context context, ArrayList<VolunteerWalks> matrixList, int nPaseos) {
             this.context = context;
             this.matrixList = matrixList;
             this.nPaseos = nPaseos;
-            this.newConfig = newConfig;
         }
 
         @Override
@@ -136,7 +155,7 @@ public class ConfigureWalks extends Activity {
             View gridViewAndroid = view;
             if (view == null) {
                     LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    gridViewAndroid = inflater.inflate(R.layout.griditem_configure_walks5, null);
+                    gridViewAndroid = inflater.inflate(R.layout.griditem_configure_walks, null);
             }
 
             ImageView imageViewAndroid = (ImageView) gridViewAndroid.findViewById(R.id.android_gridview_image);
@@ -163,24 +182,37 @@ public class ConfigureWalks extends Activity {
 
             if(this.nPaseos == 3)
             {
+                buttonWalk1.setVisibility(View.VISIBLE);
+                buttonWalk2.setVisibility(View.VISIBLE);
+                buttonWalk3.setVisibility(View.VISIBLE);
                 buttonWalk4.setVisibility(View.INVISIBLE);
                 buttonWalk5.setVisibility(View.INVISIBLE);
+                buttonAll.setVisibility(View.VISIBLE);
             }
 
             if(this.nPaseos == 4)
             {
+                buttonWalk1.setVisibility(View.VISIBLE);
+                buttonWalk2.setVisibility(View.VISIBLE);
+                buttonWalk3.setVisibility(View.VISIBLE);
                 buttonWalk4.setVisibility(View.VISIBLE);
                 buttonWalk5.setVisibility(View.INVISIBLE);
+                buttonAll.setVisibility(View.VISIBLE);
             }
 
             if(this.nPaseos == 5)
             {
+                buttonWalk1.setVisibility(View.VISIBLE);
+                buttonWalk2.setVisibility(View.VISIBLE);
+                buttonWalk3.setVisibility(View.VISIBLE);
                 buttonWalk4.setVisibility(View.VISIBLE);
                 buttonWalk5.setVisibility(View.VISIBLE);
+                buttonAll.setVisibility(View.VISIBLE);
             }
 
             VolunteerWalks volunteer = volunteerWalksAdapter.matrixList.get(position);
             volunteer.nPaseos = this.nPaseos;
+
             if(allSelected == 0)
             {
                 //Deseleccionar todos
@@ -250,7 +282,7 @@ public class ConfigureWalks extends Activity {
                 //No hacer nada
             }
             else {
-                if(this.newConfig) {
+                if(newConfigs.get(position)) {
                     buttonWalk1.setBackgroundResource(R.drawable.button_border);
                     buttonWalk1.setTextColor(Color.WHITE);
                     buttonWalk2.setBackgroundResource(R.drawable.button_border);
@@ -274,6 +306,8 @@ public class ConfigureWalks extends Activity {
                     volunteer.walk3 = 1;
                     volunteer.walk4 = 1;
                     volunteer.walk5 = 1;
+                    newConfigs.remove(position);
+                    newConfigs.add(position,false);
                 }
                 else
                 {
@@ -287,6 +321,25 @@ public class ConfigureWalks extends Activity {
                         buttonWalk4.setVisibility(View.INVISIBLE);
                         buttonWalk5.setVisibility(View.INVISIBLE);
                         buttonAll.setVisibility(View.INVISIBLE);
+
+                        buttonWalk1.setBackgroundResource(R.drawable.button_border_unclicked);
+                        buttonWalk1.setTextColor(Color.BLACK);
+                        buttonWalk2.setBackgroundResource(R.drawable.button_border_unclicked);
+                        buttonWalk2.setTextColor(Color.BLACK);
+                        buttonWalk3.setBackgroundResource(R.drawable.button_border_unclicked);
+                        buttonWalk3.setTextColor(Color.BLACK);
+                        buttonWalk4.setBackgroundResource(R.drawable.button_border_unclicked);
+                        buttonWalk4.setTextColor(Color.BLACK);
+                        buttonWalk5.setBackgroundResource(R.drawable.button_border_unclicked);
+                        buttonWalk5.setTextColor(Color.BLACK);
+                        buttonAll.setBackgroundResource(R.drawable.button_border_unclicked);
+                        buttonAll.setTextColor(Color.BLACK);
+                        volunteer.walk1 = 0;
+                        volunteer.walk2 = 0;
+                        volunteer.walk3 = 0;
+                        volunteer.walk4 = 0;
+                        volunteer.walk5 = 0;
+
                     }
                     else {
                         if (volunteer.walk1 == 1) {
@@ -529,6 +582,20 @@ public class ConfigureWalks extends Activity {
                     volunteer.walk5 = 1;
                 }
             }
+        }
+    }
+
+    public void SetAllSelected(ArrayList<VolunteerWalks> volunteersList)
+    {
+        for(int i = 0; i < volunteersList.size(); ++i)
+        {
+            VolunteerWalks volunteer = volunteersList.get(i);
+            volunteer.walk1 = 1;
+            volunteer.walk2 = 1;
+            volunteer.walk3 = 1;
+            volunteer.walk4 = 1;
+            volunteer.walk5 = 1;
+            volunteer.nPaseos = 4;
         }
     }
 }

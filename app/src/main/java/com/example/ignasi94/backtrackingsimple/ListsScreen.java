@@ -55,7 +55,9 @@ public class ListsScreen extends Activity {
                 List<Cage> cages = GetCages();
                 List<VolunteerWalks> volunteers = dbAdapter.getAllSelectedVolunteers();
                 int npaseos = volunteers.get(0).nPaseos;
-                RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteers);
+                ArrayList<VolunteerWalks> volunteerWalks = new ArrayList<VolunteerWalks>();
+                volunteerWalks = EraseCleaningVolunteers(volunteers);
+                RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteerWalks);
                 ThreadGroup tg = new ThreadGroup("TestGroup1");
                 Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
                 t.start();
@@ -72,7 +74,7 @@ public class ListsScreen extends Activity {
                 Intent launchactivity= new Intent(ListsScreen.this,ShowSolution.class);
                 //SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
                 launchactivity.putExtra("nPaseos", npaseos);
-                dbAdapter.SaveWalkSolution(walks, volunteers);
+                dbAdapter.SaveWalkSolution(walks, volunteerWalks);
                 dbAdapter.SaveCleanSolution(clean);
                 startActivity(launchactivity);
             }
@@ -89,6 +91,19 @@ public class ListsScreen extends Activity {
             goEditConfigureListsButton.setVisibility(View.VISIBLE);
             goMakeListsButton.setVisibility(View.VISIBLE);
         }
+    }
+
+    public ArrayList<VolunteerWalks> EraseCleaningVolunteers(List<VolunteerWalks> volunteers)
+    {
+        ArrayList<VolunteerWalks> volunteerWalks = new ArrayList<VolunteerWalks>();
+        for(int i = 0; i < volunteers.size(); ++i)
+        {
+            if(volunteers.get(i).clean == 0)
+            {
+                volunteerWalks.add(volunteers.get(i));
+            }
+        }
+        return volunteerWalks;
     }
 
     //public Cage(int id, int numCage, String zone)

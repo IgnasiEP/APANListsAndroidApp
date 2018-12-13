@@ -7,6 +7,7 @@ public final class Constants {
     public static Short WT_NONE = 0;
     public static Short WT_INTERIOR = 1;
     public static Short WT_EXTERIOR = 2;
+    public static int EDGE_INTERIOR_FRIENDS_VALUE = 4;
     public static int EDGE_SAME_CAGE_VALUE = 3;
     public static int EDGE_COMPATIBLE_VALUE = 2;
     public static int EDGE_INCOMPATIBLE_VALUE = 1;
