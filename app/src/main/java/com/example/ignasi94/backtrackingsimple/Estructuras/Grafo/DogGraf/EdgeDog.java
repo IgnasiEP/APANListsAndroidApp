@@ -1,4 +1,4 @@
-package com.example.ignasi94.backtrackingsimple.Estructuras.Grafo;
+package com.example.ignasi94.backtrackingsimple.Estructuras.Grafo.DogGraf;
 
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 
