@@ -46,15 +46,15 @@ public class CageGraph {
         return null;
     }
 
-    public void addEdge(Cage v1,Cage v2, EdgeCage edge) {
+    public void addEdge(VertexCage v1,VertexCage v2, EdgeCage edge) {
         boolean edge1 = false;
         boolean edge2 = false;
         for(int i = 0; i < this.vertexs.length; ++i) {
-            if(this.vertexs[i].idCage == v1.id) {
+            if(this.vertexs[i].idCage == v1.idCage) {
                 this.adjacencylist[i].add(edge);
                 edge1 = true;
             }
-            if(this.vertexs[i].idCage == v2.id) {
+            if(this.vertexs[i].idCage == v2.idCage) {
                 this.adjacencylist[i].add(edge);
                 edge2 = true;
             }
@@ -76,10 +76,10 @@ public class CageGraph {
     }
 
     //Returns a set of all edges touching the specified vertex.
-    public LinkedList<EdgeCage> edgesOf(Cage vertex)
+    public LinkedList<EdgeCage> edgesOf(VertexCage vertex)
     {
         for(int i = 0; i < this.vertexs.length; ++i) {
-            if(this.vertexs[i].idCage == vertex.id) {
+            if(this.vertexs[i].idCage == vertex.idCage) {
                 return this.adjacencylist[i];
             }
         }
@@ -87,12 +87,12 @@ public class CageGraph {
     }
 
     //Returns a set of all edges touching the specified vertex with the specified weight.
-    public List<EdgeCage> edgesOfByWeight(Cage vertex, double weight)
+    public List<EdgeCage> edgesOfByWeight(VertexCage vertex, double weight)
     {
         LinkedList<EdgeCage> result = new LinkedList<EdgeCage>();
         LinkedList<EdgeCage> edges = new LinkedList<EdgeCage>();
         for(int i = 0; i < this.vertexs.length; ++i) {
-            if(this.vertexs[i].idCage == vertex.id) {
+            if(this.vertexs[i].idCage == vertex.idCage) {
                 edges = this.adjacencylist[i];
             }
         }
@@ -107,10 +107,10 @@ public class CageGraph {
         return result;
     }
 
-    public EdgeCage getEdge(Cage v1, Cage v2)
+    public EdgeCage getEdge(VertexCage v1, VertexCage v2)
     {
         for(int i = 0; i < this.vertexs.length; ++i) {
-            if(this.vertexs[i].idCage == v1.id || this.vertexs[i].idCage == v2.id) {
+            if(this.vertexs[i].idCage == v1.idCage || this.vertexs[i].idCage == v2.idCage) {
                 Iterator iter = this.adjacencylist[i].iterator();
                 while(iter.hasNext()) {
                     EdgeCage edge = (EdgeCage) iter.next();
@@ -124,9 +124,9 @@ public class CageGraph {
         return null;
     }
 
-    public int Degree(Cage vertex) {
+    public int Degree(VertexCage vertex) {
         for(int i = 0; i < this.vertexs.length; ++i) {
-            if(this.vertexs[i].idCage == vertex.id) {
+            if(this.vertexs[i].idCage == vertex.idCage) {
                 return this.adjacencylist[i].size();
             }
         }

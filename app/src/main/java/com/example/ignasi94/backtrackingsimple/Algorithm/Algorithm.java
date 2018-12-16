@@ -1,5 +1,6 @@
 package com.example.ignasi94.backtrackingsimple.Algorithm;
 
+import android.view.View;
 import android.widget.ArrayAdapter;
 
 import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
@@ -17,6 +18,8 @@ import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 import org.jgrapht.Graph;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.FileHandler;
@@ -25,20 +28,33 @@ import java.util.logging.Logger;
 
 public class Algorithm {
 
+    //WalkTable & Domains
     public Dog[][] walksTable;
     public ArrayList<ArrayList<ArrayList<Dog>>> walksDomains;
+    public ArrayList<Dog> nWalkDomain;
+
+    //Clean Table & Domains
     public ArrayList <ArrayList<Dog>> cleanTable;
     public ArrayList <ArrayList<ArrayList<Dog>>> cleanDomains;
-    public ArrayList<ArrayList<Dog>> listDogsPerCage;
     public ArrayList<ArrayList<Dog>> nCleanDomain;
-    public ArrayList<Dog> nWalkDomain;
+    public ArrayList<ArrayList<Dog>> interiorFriendGroups;
+    public Dictionary<Dog,Integer> cleanDogsAssigned;
+
+    //Utils
+    public ArrayList<ArrayList<Dog>> listDogsPerCage;
     public ArrayList<Cage> cages;
     public ArrayList<ArrayList<Integer>> walksConfig;
     public ArrayList<WalksInfo> walksMapping;
+
+    //Graphs
     public DogGraph dogGraph;
     public CageGraph cageGraph;
+
+    //Important Values
     int nPaseos;
     int totalWalks;
+
+    //Others
     public final Logger Log = Logger.getLogger("Logger");
     public FileHandler fh;
 
@@ -55,6 +71,7 @@ public class Algorithm {
         this.cages = (ArrayList) cages;
         //Lista de perros por jaula
         listDogsPerCage = new ArrayList<ArrayList<Dog>>();
+        cleanDogsAssigned = new Hashtable<Dog,Integer>();
         this.CreateListDogsPerCage(dogs,cages);
 
         //Grafo
@@ -166,17 +183,17 @@ public class Algorithm {
                     if(jVertex.friendDogs.containsAll(iVertex.interiorDogsInCage) &&
                        iVertex.friendDogs.containsAll(jVertex.interiorDogsInCage))
                     {
-                        EdgeCage edge = new EdgeCage(iCage,jCage, Constants.CAGE_EDGE_INTERIOR_FRIENDS_VALUE);
-                        cagesGraph.addEdge(iCage, jCage, edge);
+                        EdgeCage edge = new EdgeCage(iVertex,jVertex, Constants.CAGE_EDGE_INTERIOR_FRIENDS_VALUE);
+                        cagesGraph.addEdge(iVertex, jVertex, edge);
                     }
                     else
                     {
-                        EdgeCage edge = new EdgeCage(iCage,jCage, Constants.CAGE_EDGE_INCOMPATIBLE_VALUE);
-                        cagesGraph.addEdge(iCage, jCage, edge);
+                        EdgeCage edge = new EdgeCage(iVertex,jVertex, Constants.CAGE_EDGE_INCOMPATIBLE_VALUE);
+                        cagesGraph.addEdge(iVertex, jVertex, edge);
                     }
                 } else {
-                    EdgeCage edge = new EdgeCage(iCage,jCage, Constants.CAGE_EDGE_COMPATIBLE_VALUE);
-                    cagesGraph.addEdge(iCage, jCage, edge);
+                    EdgeCage edge = new EdgeCage(iVertex,jVertex, Constants.CAGE_EDGE_COMPATIBLE_VALUE);
+                    cagesGraph.addEdge(iVertex, jVertex, edge);
                 }
             }
         }
@@ -506,6 +523,11 @@ public class Algorithm {
         boolean remove = false;
         if(!emptyDomain) {
             if (iClean == irow) {
+                //Añadimos los perros asignado a la lista de perros asignados a limpieza
+                for (int i = 0; i < this.cleanTable.get(iClean).size(); ++i) {
+                    Dog dog = this.cleanTable.get(iClean).get(i);
+                    this.cleanDogsAssigned.put(dog,1);
+                }
                 //Eliminamos de los dominios de limpieza los perros asignados
                 for (int i = iClean + 1; i < this.cleanDomains.size(); ++i) {
                     this.cleanDomains.get(i).remove(this.cleanTable.get(iClean));
@@ -531,6 +553,36 @@ public class Algorithm {
                             }
                         }
                     }
+                }
+
+                //Eliminamos todos los conjuntos con perros ya asignados a limpieza
+                if(iClean+1 < this.cleanDomains.size())
+                {
+
+                    ArrayList<ArrayList<Dog>> newCleanDomain = (ArrayList<ArrayList<Dog>>) this.cleanDomains.get(iClean + 1).clone();
+                    for (int i = 0; i < this.cleanDomains.get(iClean+1).size(); ++i) {
+                        boolean eraseGroup = false;
+                        //Per cada group de gossos mirem si s'ha d'eliminar
+                        for(int j = 0; j < this.cleanDomains.get(iClean+1).get(i).size(); ++j)
+                        {
+                            Dog dog = this.cleanDomains.get(iClean+1).get(i).get(j);
+                            int value = cleanDogsAssigned.get(dog);
+                            if(value != 1)
+                            {
+                                eraseGroup = true;
+                            }
+                        }
+                        if(eraseGroup)
+                        {
+                            newCleanDomain.remove(i);
+                        }
+                    }
+
+                    for (int i = iClean + 1; i < this.cleanDomains.size(); ++i) {
+                        this.cleanDomains.get(i).clear();
+                        this.cleanDomains.get(i).addAll(newCleanDomain);
+                    }
+
                 }
             } else {
                 //Eliminamos de los posteriores dominios de paseo todos los perros de la jaula asignada
@@ -614,6 +666,7 @@ public class Algorithm {
                 cleanDomain.remove(this.cleanTable.get(i));
             }
         }
+
         for(int i = 0; i < nPaseos; ++i)
         {
             for(int j = 0; j < nVolunteers; ++j)
@@ -630,6 +683,31 @@ public class Algorithm {
                     }
                 }
             }
+        }
+
+        //Eliminamos todos los conjuntos con perros ya asignados a limpieza
+        ArrayList<ArrayList<Dog>> newCleanDomain = (ArrayList<ArrayList<Dog>>) cleanDomain.clone();
+        for (int i = 0; i < cleanDomain.size(); ++i) {
+            boolean eraseGroup = false;
+            //Per cada group de gossos mirem si s'ha d'eliminar
+            for(int j = 0; j < cleanDomain.get(i).size(); ++j)
+            {
+                Dog dog = cleanDomain.get(i).get(j);
+                int value = cleanDogsAssigned.get(dog);
+                if(value != 1)
+                {
+                    eraseGroup = true;
+                }
+            }
+            if(eraseGroup)
+            {
+                newCleanDomain.remove(cleanDomain.get(i));
+            }
+        }
+
+        for (int i = iClean + 1; i < this.cleanDomains.size(); ++i) {
+            this.cleanDomains.get(i).clear();
+            this.cleanDomains.get(i).addAll(newCleanDomain);
         }
 
         for(int i = iClean; i < nPaseos; ++i)
@@ -1126,25 +1204,94 @@ public class Algorithm {
         ArrayList<ArrayList<Dog>> interiorFriendsGroups = new ArrayList<ArrayList<Dog>>();
 
         VertexCage[] vertexs = this.cageGraph.vertexList();
+        Dictionary<VertexCage,Boolean> visitedVertexs = new Hashtable<VertexCage,Boolean>();
+        ArrayList<VertexCage> cagesGroup = new ArrayList<VertexCage>();
+        ArrayList<Dog> dogGroup = new ArrayList<Dog>();
 
-        for(int i = 0; i < vertexs.length; ++i)
-        {
-            //Crear llista buida de gossos
-            //Crear llista buida de gàbies
+        for(int i = 0; i < vertexs.length; ++i) {
+            visitedVertexs = new Hashtable<VertexCage, Boolean>();
+            for (int j = 0; j < vertexs.length; ++j) {
+                visitedVertexs.put(vertexs[j], false);
+            }
 
-
-            //*RECURSIVITAT *//
-            //Marcar vertex com a visitat i afegir a la llista de gàbies
-            //Buscar pel vertex i totes les arestes de pes = Compatible x interiors
-            //Per cada aresta
-                //Obtenir vertex2
-                //Mirar si el vertex 2 és compatible amb les gàbies del grup actual (per cada aresta mirar si existeixen totes les gàbies de la llista)
-                    //Si es compatible amb totes
-                    //Afegir gossos de la gàbia a la llista
-                    //Crida recursiva
-            //FI (No hi ha més arestes)
-            //Afegir llista actual a la llista de llistes global
+            cagesGroup.add(vertexs[i]);
+            dogGroup.addAll(vertexs[i].interiorDogsInCage);
+            this.RecursiveGetInteriorFriendsGroupsDomain(vertexs[i], vertexs, visitedVertexs, cagesGroup, dogGroup);
         }
-        return null;
+
+        return interiorFriendsGroups;
+    }
+
+    public void RecursiveGetInteriorFriendsGroupsDomain(VertexCage vertex, VertexCage[] vertexs, Dictionary<VertexCage,Boolean> visitedVertexs,  ArrayList<VertexCage> cagesGroup, ArrayList<Dog> dogGroup)
+    {
+        //Marcar vertex com a visitat i afegir a la llista de gàbies
+        visitedVertexs.remove(vertex);
+        visitedVertexs.put(vertex, true);
+
+        //Buscar pel vertex i totes les arestes de pes = Compatible x interiors
+        List<EdgeCage> edges = this.cageGraph.edgesOfByWeight(vertex, Constants.CAGE_EDGE_INTERIOR_FRIENDS_VALUE);
+
+        boolean endRoad = true;
+        boolean oneCompatible = false;
+        //Per cada aresta
+        for (int i = 0; i < edges.size(); ++i) {
+            //Obtenir vertex2
+            EdgeCage edge = edges.get(i);
+            VertexCage vertex2 = null;
+            if (edge.v1 == vertex) {
+                vertex2 = edge.v2;
+            } else {
+                vertex2 = edge.v1;
+            }
+
+            if (!visitedVertexs.get(vertex2)) {
+                endRoad = false;
+                //Mirar si el vertex 2 és compatible amb les gàbies del grup actual (per cada aresta mirar si existeixen totes les gàbies de la llista)
+                List<EdgeCage> edges2 = this.cageGraph.edgesOfByWeight(vertex2, Constants.CAGE_EDGE_INTERIOR_FRIENDS_VALUE);
+                ArrayList<VertexCage> cagesGroupClone = (ArrayList<VertexCage>) cagesGroup.clone();
+                for (int j = 0; j < edges2.size(); ++j) {
+                    EdgeCage edge2 = edges2.get(i);
+                    VertexCage notVertex2 = null;
+                    if (edge2.v1 == vertex2) {
+                        notVertex2 = edge2.v2;
+                    } else {
+                        notVertex2 = edge2.v1;
+                    }
+                    if (cagesGroupClone.contains(notVertex2.idCage)) {
+                        cagesGroupClone.remove(notVertex2);
+                    }
+                }
+
+                ArrayList<Dog> dogGroupTest = (ArrayList<Dog>) dogGroup.clone();
+                dogGroupTest.addAll(vertex2.interiorDogsInCage);
+                boolean existsSubGroup = false;
+                for(int j = 0; j < interiorFriendGroups.size(); ++j)
+                {
+                    if(interiorFriendGroups.get(j).containsAll(dogGroupTest))
+                    {
+                        existsSubGroup = true;
+                    }
+                }
+
+                //Si es compatible amb totes
+                if (cagesGroupClone.size() == 0 && !existsSubGroup) {
+                    oneCompatible = true;
+                    cagesGroup.add(vertex2);
+                    //Afegir gossos de la gàbia a la llista
+                    dogGroup.addAll(vertex2.interiorDogsInCage);
+
+                    //Crida recursiva
+                    this.RecursiveGetInteriorFriendsGroupsDomain(vertex2, vertexs, visitedVertexs, cagesGroup, dogGroup);
+                }
+            }
+        }
+        //Si no hi ha més vèrtexs a visitar o tots els possibles a visitar són imconpatibles
+        //afegim la llista de gossos actuals
+        if(endRoad || !oneCompatible)
+        {
+            interiorFriendGroups.add(dogGroup);
+        }
+        dogGroup.removeAll(vertex.interiorDogsInCage);
+        cagesGroup.remove(vertex);
     }
 }

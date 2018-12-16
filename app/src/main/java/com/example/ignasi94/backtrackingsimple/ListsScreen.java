@@ -52,6 +52,7 @@ public class ListsScreen extends Activity {
             @Override
             public void onClick(View v) {
                 List<Dog> dogs = dbAdapter.getAllDogs();
+                TESTINTERIORFRIENDS(dogs);
                 List<Cage> cages = GetCages();
                 List<VolunteerWalks> volunteers = dbAdapter.getAllSelectedVolunteers();
                 int npaseos = volunteers.get(0).nPaseos;
@@ -104,6 +105,83 @@ public class ListsScreen extends Activity {
             }
         }
         return volunteerWalks;
+    }
+
+
+    //
+    //
+    // |-------- 2 (21+22) --------
+    // |                          |
+    // |                          |
+    // 1 ----- 5 ----- 6          3
+    // | \                      / |
+    // |  \                   /   |
+    // |   --------- 4 -----/     |
+    // |--------------------------|
+    public void TESTINTERIORFRIENDS(List<Dog> dogs)
+    {
+        for(int i = 0; i < dogs.size(); ++i)
+        {
+            if(dogs.get(i).walktype == Constants.WT_INTERIOR)
+            {
+                dogs.get(i).walktype = Constants.WT_NONE;
+            }
+        }
+
+        //public Dog(int id, String name, int idCage, int age, String link, Boolean special, Short walktype, String observations)
+        int lastId = dogs.get(dogs.size()-1).id;
+        Dog dog1 = new Dog(lastId+1,"NODE 1", 1, 0, null, false, Constants.WT_INTERIOR, null);
+        lastId++;
+
+        Dog dog21 = new Dog(lastId+1,"NODE 2-1", 2, 0, null, false, Constants.WT_INTERIOR, null);
+        lastId++;
+
+        Dog dog22 = new Dog(lastId+1,"NODE 2-2", 2, 0, null, false, Constants.WT_INTERIOR, null);
+        lastId++;
+
+        Dog dog3 = new Dog(lastId+1,"NODE 3", 3, 0, null, false, Constants.WT_INTERIOR, null);
+        lastId++;
+
+        Dog dog4 = new Dog(lastId+1,"NODE 4", 4, 0, null, false, Constants.WT_INTERIOR, null);
+        lastId++;
+
+        Dog dog5 = new Dog(lastId+1,"NODE 5", 5, 0, null, false, Constants.WT_INTERIOR, null);
+        lastId++;
+
+        Dog dog6 = new Dog(lastId+1,"NODE 6", 6, 0, null, false, Constants.WT_INTERIOR, null);
+        lastId++;
+
+        dog1.friends.add(dog21);
+        dog1.friends.add(dog22);
+        dog1.friends.add(dog3);
+        dog1.friends.add(dog4);
+        dog1.friends.add(dog5);
+
+        dog21.friends.add(dog1);
+        dog21.friends.add(dog3);
+        dog21.friends.add(dog4);
+
+        dog22.friends.add(dog1);
+        dog22.friends.add(dog3);
+        dog22.friends.add(dog5);
+
+        dog3.friends.add(dog1);
+        dog3.friends.add(dog21);
+        dog3.friends.add(dog22);
+        dog3.friends.add(dog4);
+
+        dog5.friends.add(dog1);
+        dog5.friends.add(dog6);
+
+        dog6.friends.add(dog5);
+
+        dogs.add(dog1);
+        dogs.add(dog21);
+        dogs.add(dog22);
+        dogs.add(dog3);
+        dogs.add(dog4);
+        dogs.add(dog5);
+        dogs.add(dog6);
     }
 
     //public Cage(int id, int numCage, String zone)

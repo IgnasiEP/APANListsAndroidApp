@@ -4,13 +4,13 @@ import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 
 public class EdgeCage {
-    public Cage v1;
-    public Cage v2;
+    public VertexCage v1;
+    public VertexCage v2;
     public double weight;
 
     public EdgeCage() {}
 
-    public EdgeCage(Cage v1, Cage v2, double weight)
+    public EdgeCage(VertexCage v1, VertexCage v2, double weight)
     {
         this.v1 = v1;
         this.v2 = v2;
