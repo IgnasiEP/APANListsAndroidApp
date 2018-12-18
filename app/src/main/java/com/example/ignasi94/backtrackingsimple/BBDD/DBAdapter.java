@@ -8,10 +8,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
+import com.example.ignasi94.backtrackingsimple.Estructuras.CageDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Grafo.DogGraf.TupleDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
+import com.example.ignasi94.backtrackingsimple.MergeUtils.MergeUtils;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
 import java.lang.reflect.Array;
@@ -53,6 +56,18 @@ public class DBAdapter{
             volunteersDictionary.put(volunteer.id,volunteer);
         }
         return volunteersDictionary;
+    }
+
+    public Dictionary<Integer,Cage> getAllCagesDictionary()
+    {
+        Dictionary<Integer,Cage> cagesDictionary = new Hashtable<Integer, Cage>();
+        List<Cage> cages = getAllCages();
+        for(int i = 0; i < cages.size(); ++i)
+        {
+            Cage cage = cages.get(i);
+            cagesDictionary.put(cage.id,cage);
+        }
+        return cagesDictionary;
     }
 
     public List<Dog> getAllDogs()
@@ -103,6 +118,67 @@ public class DBAdapter{
             this.getDogFriends(dogs, i);
         }
         return dogs;
+    }
+
+    public void SaveDogs(List<Dog> dogs)
+    {
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+
+        for(int i = 0; i < dogs.size(); ++i) {
+
+            Dog dog = dogs.get(i);
+            ContentValues initialValues = new ContentValues();
+            initialValues.put(DBHandler.KEY_DOG_ID, dog.id);
+            initialValues.put(DBHandler.KEY_DOG_NAME, dog.name);
+            initialValues.put(DBHandler.KEY_DOG_ID_CAGE, dog.idCage);
+            initialValues.put(DBHandler.KEY_DOG_AGE, dog.age);
+            initialValues.put(DBHandler.KEY_DOG_LINK, dog.link);
+            initialValues.put(DBHandler.KEY_DOG_SPECIAL, dog.special);
+            initialValues.put(DBHandler.KEY_DOG_WALKTYPE, dog.walktype);
+            initialValues.put(DBHandler.KEY_DOG_OBSERVATIONS, dog.observations);
+
+            int id = (int) db.insertWithOnConflict(dbHandler.TABLE_DOGS, null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
+            if (id == -1) {
+                db.update(dbHandler.TABLE_DOGS, initialValues, DBHandler.KEY_DOG_ID + "=?", new String[]{Integer.toString(dog.id)});
+            }
+
+            Cursor getMaxId = db.rawQuery("select max(" + dbHandler.KEY_DOGFRIENDS_DOG_ID + ") as id from " + dbHandler.TABLE_DOG_FRIENDS, null);
+            int maxId = 0;
+            while(getMaxId.moveToNext()) {
+                maxId = getMaxId.getInt(0);
+            }
+
+            for(int j = 0; j < dog.friends.size(); ++j)
+            {
+                Dog friend = dog.friends.get(j);
+
+                initialValues = new ContentValues();
+                initialValues.put(DBHandler.KEY_DOGFRIENDS_ID, maxId);
+                initialValues.put(DBHandler.KEY_DOGFRIENDS_DOG_ID, dog.id);
+                initialValues.put(DBHandler.KEY_DOGFRIENDS_FRIENDDOG_ID, friend.id);
+
+                String[] columns = {dbHandler.KEY_DOGFRIENDS_ID};
+                String selection = dbHandler.KEY_DOGFRIENDS_DOG_ID + "=? AND " + dbHandler.KEY_DOGFRIENDS_FRIENDDOG_ID + "=?";
+                String[] params = new String[]{Integer.toString(dog.id), Integer.toString(friend.id)};
+                Cursor cursor = db.query(dbHandler.TABLE_DOG_FRIENDS,columns,selection, params,null,null,null);
+                boolean exists = false;
+                int rowId = 0;
+                while (cursor.moveToNext()) {
+                    exists = true;
+                    rowId = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_DOG_ID));
+                }
+
+                if(!exists)
+                {
+                    db.insertWithOnConflict(dbHandler.TABLE_DOG_FRIENDS, null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
+                    maxId++;
+                }
+                else
+                {
+                    db.update(dbHandler.TABLE_DOG_FRIENDS, initialValues, DBHandler.KEY_DOGFRIENDS_DOG_ID + "=?;", new String[]{Integer.toString(rowId)});
+                }
+            }
+        }
     }
 
     public void getDogFriends(List<Dog> dogs, int position)
@@ -381,6 +457,60 @@ public class DBAdapter{
         return cleanSolution;
     }
 
+    public ArrayList<CageDog> GetDogsPerCage(int nColumns, String zone)
+    {
+        ArrayList<CageDog> cageDogs = new ArrayList<CageDog>();
+        List<Dog> dogs = this.getAllDogs();
+        Dictionary<Integer,Cage> cages = this.getAllCagesDictionary();
+
+        Dog[] dogsArray = new Dog[dogs.size()];
+        MergeUtils.MergeByIdCage(dogs.toArray(dogsArray));
+        List<Dog> dogsList = new ArrayList<Dog>();
+        for(int i = 0; i < dogsArray.length; ++i)
+        {
+            dogsList.add(dogsArray[i]);
+        }
+
+        int position = 0;
+        int lastDogIdCage = 0;
+        for(int i = 0; i < dogsList.size(); ++i)
+        {
+            Dog dog = dogsList.get(i);
+
+            if(lastDogIdCage != dog.idCage) {
+                while ((position % nColumns) != 0) {
+                    cageDogs.add(new CageDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
+                    ++position;
+                }
+
+                int tmpId = lastDogIdCage + 1;
+                while(tmpId != dog.idCage)
+                {
+                    cageDogs.add(new CageDog(cages.get(tmpId), true));
+                    ++position;
+                    while ((position % nColumns) != 0) {
+                        cageDogs.add(new CageDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
+                        ++position;
+                    }
+                    tmpId++;
+                }
+            }
+
+            if ((position % nColumns) == 0 && lastDogIdCage != dog.idCage) {
+                cageDogs.add(new CageDog(cages.get(dog.idCage), true));
+                ++position;
+            } else if ((position % nColumns) == 0) {
+                cageDogs.add(new CageDog(cages.get(dog.idCage), false));
+                ++position;
+            }
+            cageDogs.add(new CageDog(dog, null));
+            ++position;
+            lastDogIdCage = dog.idCage;
+        }
+
+        return cageDogs;
+    }
+
     public void SaveSelectedVolunteers(List<VolunteerWalks> volunteers)
     {
         this.CleanSelectedVolunteers();
@@ -556,12 +686,29 @@ public class DBAdapter{
             db.execSQL(insertCages + 9 + "," + 9 + "," + "'XENILES');");
             db.execSQL(insertCages + 10 + "," + 10 + "," + "'XENILES');");
             db.execSQL(insertCages + 11 + "," + 11 + "," + "'XENILES');");
-            db.execSQL(insertCages + 12 + "," + 1 + "," + "'PATIOS');");
-            db.execSQL(insertCages + 13 + "," + 2 + "," + "'PATIOS');");
-            db.execSQL(insertCages + 14 + "," + 3 + "," + "'PATIOS');");
-            db.execSQL(insertCages + 15 + "," + 1 + "," + "'CUARENTENAS');");
-            db.execSQL(insertCages + 16 + "," + 2 + "," + "'CUARENTENAS');");
-            db.execSQL(insertCages + 17 + "," + 3 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 12 + "," + 12 + "," + "'XENILES');");
+            db.execSQL(insertCages + 13 + "," + 13 + "," + "'XENILES');");
+            db.execSQL(insertCages + 14 + "," + 14 + "," + "'XENILES');");
+            db.execSQL(insertCages + 15 + "," + 15 + "," + "'XENILES');");
+            db.execSQL(insertCages + 16 + "," + 16 + "," + "'XENILES');");
+            db.execSQL(insertCages + 17 + "," + 17 + "," + "'XENILES');");
+            db.execSQL(insertCages + 18 + "," + 18 + "," + "'XENILES');");
+            db.execSQL(insertCages + 19 + "," + 19 + "," + "'XENILES');");
+            db.execSQL(insertCages + 20 + "," + 20 + "," + "'XENILES');");
+            db.execSQL(insertCages + 21 + "," + 21 + "," + "'XENILES');");
+            db.execSQL(insertCages + 22 + "," + 22 + "," + "'XENILES');");
+            db.execSQL(insertCages + 23 + "," + 23 + "," + "'XENILES');");
+            db.execSQL(insertCages + 24 + "," + 24 + "," + "'PATIOS');");
+            db.execSQL(insertCages + 25 + "," + 25 + "," + "'PATIOS');");
+            db.execSQL(insertCages + 26 + "," + 26 + "," + "'PATIOS');");
+            db.execSQL(insertCages + 27 + "," + 27 + "," + "'PATIOS');");
+            db.execSQL(insertCages + 28 + "," + 28 + "," + "'PATIOS');");
+            db.execSQL(insertCages + 29 + "," + 29 + "," + "'PATIOS');");
+            db.execSQL(insertCages + 30 + "," + 30 + "," + "'PATIOS');");
+            db.execSQL(insertCages + 31 + "," + 31 + "," + "'PATIOS');");
+            db.execSQL(insertCages + 32 + "," + 32 + "," + "'CUARENTENAS');");
+
+
         }
 
         private void insertDogs(SQLiteDatabase db)

@@ -1,4 +1,4 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.Screens.ListsScreens;
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,13 +19,11 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.view.View.OnClickListener;
 import android.widget.Filter;
-import android.widget.Filterable;
 
 import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
-import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
-import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
+import com.example.ignasi94.backtrackingsimple.R;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
 import java.util.ArrayList;
@@ -48,7 +46,7 @@ public class SelectVolunteers extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_select_volunteers);
+        setContentView(R.layout.lists_activity_select_volunteers);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         boolean newConfig= getIntent().getBooleanExtra("NEW", true);
         dbAdapter = new DBAdapter(this);
@@ -240,7 +238,7 @@ public class SelectVolunteers extends Activity {
             View gridViewAndroid = view;
             if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                gridViewAndroid = inflater.inflate(R.layout.griditem_select_volunteers, null);
+                gridViewAndroid = inflater.inflate(R.layout.lists_griditem_select_volunteers, null);
             }
             TextView textViewAndroid = (TextView) gridViewAndroid.findViewById(R.id.android_gridview_text);
             ImageView imageViewAndroid = (ImageView) gridViewAndroid.findViewById(R.id.android_gridview_image);

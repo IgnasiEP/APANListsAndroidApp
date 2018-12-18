@@ -11,8 +11,11 @@ import com.example.ignasi94.backtrackingsimple.Estructuras.Grafo.CageGraf.Vertex
 import com.example.ignasi94.backtrackingsimple.Estructuras.Grafo.DogGraf.DogGraph;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Grafo.DogGraf.EdgeDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Grafo.DogGraf.TupleDog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
+import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 import com.example.ignasi94.backtrackingsimple.Estructuras.WalksInfo;
+import com.example.ignasi94.backtrackingsimple.MergeUtils.MergeUtils;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
 import org.jgrapht.Graph;
@@ -72,6 +75,7 @@ public class Algorithm {
         //Lista de perros por jaula
         listDogsPerCage = new ArrayList<ArrayList<Dog>>();
         cleanDogsAssigned = new Hashtable<Dog,Integer>();
+        interiorFriendGroups = new ArrayList<ArrayList<Dog>>();
         this.CreateListDogsPerCage(dogs,cages);
 
         //Grafo
@@ -103,7 +107,7 @@ public class Algorithm {
         this.Backtracking(0,0,0,nPaseos,volunteers.size(),dogs.size());
 
         //Modificar solución
-        this.ReOrderWalksTableSolution(volunteers.size());
+        //this.ReOrderWalksTableSolution(volunteers.size());
     }
 
     //Creación del grafo.
@@ -322,7 +326,7 @@ public class Algorithm {
         interiorFriendsGroups = this.GetInteriorFriendsGroupsDomain();
         interiorFriendsGroups.addAll(nWalkInteriorDomain);
         interiorFriendsGroups.addAll(nWalkallCageDomain);
-        return nWalkInteriorDomain;
+        return interiorFriendsGroups;
     }
     public void CreateListDogsPerCage(List<Dog> dogs, List<Cage> cages)
     {
@@ -451,10 +455,16 @@ public class Algorithm {
         if( iClean == irow)
         {
             Dog assigned = this.cleanTable.get(irow).get(0);
-            //Comprobar que el resto de perros de la jaula (que pueden salir) caben en el npaseo
-            int dogsInCage = this.GetExteriorDogs(assigned.idCage);
-            if(dogsInCage > this.iWalks(irow))
-            {
+            int dogsToAssign = 0;
+            if(cleanTable.get(irow).size() > 0 && this.MoreThanOneCageClean(irow)) {
+                dogsToAssign = GetDogsToAssign(irow);
+            }
+            else {
+                //Comprobar que el resto de perros de la jaula (que pueden salir) caben en el npaseo
+                dogsToAssign = this.GetExteriorDogs(assigned.idCage);
+            }
+
+            if (dogsToAssign > this.iWalks(irow)) {
                 return false;
             }
         }
@@ -566,15 +576,15 @@ public class Algorithm {
                         for(int j = 0; j < this.cleanDomains.get(iClean+1).get(i).size(); ++j)
                         {
                             Dog dog = this.cleanDomains.get(iClean+1).get(i).get(j);
-                            int value = cleanDogsAssigned.get(dog);
-                            if(value != 1)
+                            Object value = cleanDogsAssigned.get(dog);
+                            if(value != null)
                             {
                                 eraseGroup = true;
                             }
                         }
                         if(eraseGroup)
                         {
-                            newCleanDomain.remove(i);
+                            newCleanDomain.remove(this.cleanDomains.get(iClean+1).get(i));
                         }
                     }
 
@@ -693,15 +703,15 @@ public class Algorithm {
             for(int j = 0; j < cleanDomain.get(i).size(); ++j)
             {
                 Dog dog = cleanDomain.get(i).get(j);
-                int value = cleanDogsAssigned.get(dog);
-                if(value != 1)
+                Object value = cleanDogsAssigned.get(dog);
+                if(value != null)
                 {
                     eraseGroup = true;
                 }
             }
             if(eraseGroup)
             {
-                newCleanDomain.remove(cleanDomain.get(i));
+                newCleanDomain.remove(this.cleanDomains.get(i));
             }
         }
 
@@ -1074,17 +1084,35 @@ public class Algorithm {
         return totalWalks;
     }
 
-    public void ReOrderWalksTableSolution(int nVolunteers)
+    public void ReOrderWalksTableSolution(int nVolunteers, ArrayList<Volunteer> volunteers)
     {
         for(int i = 0; i < nPaseos; ++i)
         {
             ArrayList<Dog> idogs = new ArrayList<Dog>();
+            ArrayList<Dog> specials = new ArrayList<Dog>();
             //Recuperamos los perros asignados al paseo i
-            for(int j = 0; j < walksTable[i].length; ++j)
-            {
+            for(int j = 0; j < walksTable[i].length; ++j) {
                 idogs.add(walksTable[i][j]);
+                if (walksTable[i][j].special) {
+                    specials.add(walksTable[i][j]);
+                }
                 walksTable[i][j] = null;
             }
+
+            //Crear lista de voluntarios de orden creciente segun la cantidad de perros especiales
+            //asignados en comparación con los del paseo
+            ArrayList<Volunteer> volunteersWithSpecialDogs = this.GetSortedVolunteersWithDogs(i,idogs,volunteers, true);
+            //Crear lista de voluntarios de orden creciente segun la cantidad de perros especiales
+            //asignados en comparación con los del paseo
+            ArrayList<Volunteer> volunteersWithFavouriteDogs = this.GetSortedVolunteersWithDogs(i, idogs, volunteers, false);
+
+            //Asignar especiales
+            //this.AssignDogsByFavourites(volunteersWithSpecialDogs, true);
+
+            //Asignar favoritos
+            //this.AssignDogsByFavourites(volunteersWithSpecialDogs, false);
+
+            //Asignar resto
 
             //Reasignamos estos perros a los voluntarios que hacen el paseo i
             for(int j = 0; j < walksTable[i].length; ++j)
@@ -1099,6 +1127,12 @@ public class Algorithm {
 
         //Volvemos a ordenar los paseos en el orden original
         Dog[][] newWalksTable = new Dog[nPaseos][nVolunteers];
+        ArrayList<ArrayList<Dog>> newCleanTable = new ArrayList<ArrayList<Dog>>();
+        for(int i = 0; i < nPaseos; ++i)
+        {
+            newCleanTable.add(new ArrayList<Dog>());
+        }
+
         for(int i = 0; i < nPaseos; ++i)
         {
             int assigniRow = this.walksMapping.get(i).iWalk;
@@ -1106,9 +1140,12 @@ public class Algorithm {
             {
                 newWalksTable[i][j] = walksTable[assigniRow][j];
             }
+            newCleanTable.remove(i);
+            newCleanTable.add(i,cleanTable.get(assigniRow));
         }
 
         this.walksTable = newWalksTable;
+        this.cleanTable = newCleanTable;
     }
 
     public boolean InteriorAreFriends(int idCageX, int idCageY)
@@ -1164,6 +1201,22 @@ public class Algorithm {
         return dogsToAssign;
     }
 
+    public int GetDogsToAssign(int irow)
+    {
+        int dogsToAssign = 0;
+        ArrayList<Integer> cagesInCleanRow = new ArrayList<Integer>();
+        for(int i = 0; i < this.cleanTable.get(irow).size(); ++i)
+        {
+            Dog dog = this.cleanTable.get(irow).get(i);
+            if(!cagesInCleanRow.contains(dog.idCage))
+            {
+                dogsToAssign = dogsToAssign + this.GetExteriorDogs(dog.idCage);
+                cagesInCleanRow.add(dog.idCage);
+            }
+        }
+        return dogsToAssign;
+    }
+
     public void OrderWalksTableByWalksCount()
     {
         ArrayList<WalksInfo> walksMapping = new ArrayList<WalksInfo>();
@@ -1196,30 +1249,51 @@ public class Algorithm {
             newWalksConfig.add(iwalkConfig);
         }
         this.walksConfig = newWalksConfig;
-        this.walksMapping = walksMapping;
+        this.walksMapping = (ArrayList<WalksInfo>) walksCountList;
     }
 
     public ArrayList<ArrayList<Dog>> GetInteriorFriendsGroupsDomain()
     {
-        ArrayList<ArrayList<Dog>> interiorFriendsGroups = new ArrayList<ArrayList<Dog>>();
-
         VertexCage[] vertexs = this.cageGraph.vertexList();
         Dictionary<VertexCage,Boolean> visitedVertexs = new Hashtable<VertexCage,Boolean>();
         ArrayList<VertexCage> cagesGroup = new ArrayList<VertexCage>();
         ArrayList<Dog> dogGroup = new ArrayList<Dog>();
 
         for(int i = 0; i < vertexs.length; ++i) {
-            visitedVertexs = new Hashtable<VertexCage, Boolean>();
-            for (int j = 0; j < vertexs.length; ++j) {
-                visitedVertexs.put(vertexs[j], false);
-            }
+            if(vertexs[i].friendDogs.size() > 0) {
+                visitedVertexs = new Hashtable<VertexCage, Boolean>();
+                for (int j = 0; j < vertexs.length; ++j) {
+                    visitedVertexs.put(vertexs[j], false);
+                }
 
-            cagesGroup.add(vertexs[i]);
-            dogGroup.addAll(vertexs[i].interiorDogsInCage);
-            this.RecursiveGetInteriorFriendsGroupsDomain(vertexs[i], vertexs, visitedVertexs, cagesGroup, dogGroup);
+                cagesGroup.add(vertexs[i]);
+                dogGroup.addAll(vertexs[i].interiorDogsInCage);
+                this.RecursiveGetInteriorFriendsGroupsDomain(vertexs[i], vertexs, visitedVertexs, cagesGroup, dogGroup);
+            }
         }
 
-        return interiorFriendsGroups;
+        ArrayList<ArrayList<Dog>> newInteriorFriendGroups = (ArrayList<ArrayList<Dog>>) interiorFriendGroups.clone();
+        for(int i = 0; i < interiorFriendGroups.size(); ++i)
+        {
+            for(int j = i+1; j < interiorFriendGroups.size(); ++j)
+            {
+                if(interiorFriendGroups.get(i).size() == interiorFriendGroups.get(j).size() &&
+                   interiorFriendGroups.get(i).containsAll(interiorFriendGroups.get(j)))
+                {
+                    newInteriorFriendGroups.remove(interiorFriendGroups.get(j));
+                }
+
+                if(interiorFriendGroups.get(j).size() == interiorFriendGroups.get(i).size() &&
+                   interiorFriendGroups.get(j).containsAll(interiorFriendGroups.get(i)))
+                {
+                    newInteriorFriendGroups.remove(interiorFriendGroups.get(i));
+                }
+            }
+        }
+
+        MergeUtils.MergeBySizeElements(newInteriorFriendGroups);
+        this.interiorFriendGroups = newInteriorFriendGroups;
+        return (ArrayList<ArrayList<Dog>>)this.interiorFriendGroups.clone();
     }
 
     public void RecursiveGetInteriorFriendsGroupsDomain(VertexCage vertex, VertexCage[] vertexs, Dictionary<VertexCage,Boolean> visitedVertexs,  ArrayList<VertexCage> cagesGroup, ArrayList<Dog> dogGroup)
@@ -1238,7 +1312,7 @@ public class Algorithm {
             //Obtenir vertex2
             EdgeCage edge = edges.get(i);
             VertexCage vertex2 = null;
-            if (edge.v1 == vertex) {
+            if (edge.v1.idCage == vertex.idCage) {
                 vertex2 = edge.v2;
             } else {
                 vertex2 = edge.v1;
@@ -1250,36 +1324,38 @@ public class Algorithm {
                 List<EdgeCage> edges2 = this.cageGraph.edgesOfByWeight(vertex2, Constants.CAGE_EDGE_INTERIOR_FRIENDS_VALUE);
                 ArrayList<VertexCage> cagesGroupClone = (ArrayList<VertexCage>) cagesGroup.clone();
                 for (int j = 0; j < edges2.size(); ++j) {
-                    EdgeCage edge2 = edges2.get(i);
+                    EdgeCage edge2 = edges2.get(j);
                     VertexCage notVertex2 = null;
-                    if (edge2.v1 == vertex2) {
+                    if (edge2.v1.idCage == vertex2.idCage) {
                         notVertex2 = edge2.v2;
                     } else {
                         notVertex2 = edge2.v1;
                     }
-                    if (cagesGroupClone.contains(notVertex2.idCage)) {
+                    if (cagesGroupClone.contains(notVertex2)) {
                         cagesGroupClone.remove(notVertex2);
                     }
                 }
 
                 ArrayList<Dog> dogGroupTest = (ArrayList<Dog>) dogGroup.clone();
                 dogGroupTest.addAll(vertex2.interiorDogsInCage);
-                boolean existsSubGroup = false;
+                boolean existsGroup = false;
                 for(int j = 0; j < interiorFriendGroups.size(); ++j)
                 {
-                    if(interiorFriendGroups.get(j).containsAll(dogGroupTest))
+                    if(interiorFriendGroups.get(j).size() == dogGroupTest.size() &&
+                       interiorFriendGroups.get(j).containsAll(dogGroupTest))
                     {
-                        existsSubGroup = true;
+                        existsGroup = true;
                     }
                 }
 
                 //Si es compatible amb totes
-                if (cagesGroupClone.size() == 0 && !existsSubGroup) {
+                if (cagesGroupClone.size() == 0 && !existsGroup) {
                     oneCompatible = true;
                     cagesGroup.add(vertex2);
                     //Afegir gossos de la gàbia a la llista
                     dogGroup.addAll(vertex2.interiorDogsInCage);
 
+                    interiorFriendGroups.add((ArrayList<Dog>)dogGroup.clone());
                     //Crida recursiva
                     this.RecursiveGetInteriorFriendsGroupsDomain(vertex2, vertexs, visitedVertexs, cagesGroup, dogGroup);
                 }
@@ -1287,11 +1363,67 @@ public class Algorithm {
         }
         //Si no hi ha més vèrtexs a visitar o tots els possibles a visitar són imconpatibles
         //afegim la llista de gossos actuals
-        if(endRoad || !oneCompatible)
+        //if(cagesGroup.size() > 1 && (endRoad || !oneCompatible))
         {
-            interiorFriendGroups.add(dogGroup);
+            //interiorFriendGroups.add((ArrayList<Dog>)dogGroup.clone());
         }
         dogGroup.removeAll(vertex.interiorDogsInCage);
         cagesGroup.remove(vertex);
+    }
+
+    public ArrayList<Volunteer> GetSortedVolunteersWithDogs(int iRow, ArrayList<Dog> idogs, ArrayList<Volunteer> volunteers, boolean special)
+    {
+        ArrayList<Volunteer> volunteersRow = new ArrayList<Volunteer>();
+        ArrayList<Dog> itmpDogs = new ArrayList<Dog>();
+
+        if(special) {
+            for (int i = 0; i < idogs.size(); ++i) {
+                Dog dog = idogs.get(i);
+                if (dog.special) {
+                    itmpDogs.add(dog);
+                }
+            }
+        }
+        else
+        {
+            itmpDogs = (ArrayList<Dog>)idogs.clone();
+        }
+
+        for(int i = 0; i < walksTable[iRow].length; ++i)
+        {
+            if(this.walksConfig.get(iRow).get(i) == 1)
+            {
+                Volunteer volunteer = volunteers.get(i);
+                boolean addvolunteer = false;
+                ArrayList<Dog> tmpSpecialDogs = new ArrayList<Dog>();
+                for(int j = 0; j < itmpDogs.size(); ++j)
+                {
+                    Dog dog = itmpDogs.get(j);
+                    if(volunteer.favouriteDogs.contains(dog))
+                    {
+                        addvolunteer = true;
+                        tmpSpecialDogs.add(dog);
+                    }
+
+                }
+                if(addvolunteer)
+                {
+                    //Creamos un voluntario temporal que tenga como favoritos los perros favoritos/especiales que tiene el voluntario
+                    //real como favoritos y que estan asignados en el paseo iRow
+                    Volunteer tmpVolunteer = new Volunteer(volunteer.name, null, null, null);
+                    tmpVolunteer.favouriteDogs = tmpSpecialDogs;
+                    volunteersRow.add(tmpVolunteer);
+                }
+            }
+        }
+
+        MergeUtils.MergeByFavouriteDogsSize(volunteersRow);
+
+        return volunteersRow;
+    }
+
+    public ArrayList<VolunteerDog> AssignDogsByFavourites(ArrayList<Volunteer> volunteers, ArrayList<Dog> idogs, boolean special)
+    {
+        return null;
     }
 }

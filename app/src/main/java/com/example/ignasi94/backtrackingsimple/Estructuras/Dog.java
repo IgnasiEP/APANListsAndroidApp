@@ -2,6 +2,7 @@ package com.example.ignasi94.backtrackingsimple.Estructuras;
 
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Dog {
@@ -32,6 +33,7 @@ public class Dog {
         this.special = special;
         this.walktype = walktype;
         this.observations = observations;
+        this.friends = new ArrayList<Dog>();
     }
 
     public Dog(String name, int idCage, int age, String link, Boolean special, Short walktype, String observations)

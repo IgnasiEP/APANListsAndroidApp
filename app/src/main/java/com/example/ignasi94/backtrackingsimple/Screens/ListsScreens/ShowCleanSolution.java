@@ -1,4 +1,4 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.Screens.ListsScreens;
 
 import android.app.Activity;
 import android.content.Context;
@@ -20,6 +20,7 @@ import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
+import com.example.ignasi94.backtrackingsimple.R;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class ShowCleanSolution extends Activity {
     ArrayList<VolunteerDog> cleanGridArray;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_show_clean_solution);
+        setContentView(R.layout.lists_activity_show_clean_solution);
         gridColumns = 5;
         this.ReadMakeListsParameters(getIntent());
 
@@ -136,7 +137,7 @@ public class ShowCleanSolution extends Activity {
             View gridViewAndroid = view;
             if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                gridViewAndroid = inflater.inflate(R.layout.griditem_dogs, null);
+                gridViewAndroid = inflater.inflate(R.layout.lists_griditem_dogs, null);
             }
             TextView textViewAndroid = (TextView) gridViewAndroid.findViewById(R.id.android_gridview_text);
             ImageView imageViewAndroid = (ImageView) gridViewAndroid.findViewById(R.id.android_gridview_image);

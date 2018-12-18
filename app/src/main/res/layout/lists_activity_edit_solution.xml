@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EditCleanSolution">
+    android:id="@+id/EditSolutionFull"
+    tools:context=".Screens.ListsScreens.EditSolution">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="529dp"
+        android:layout_height="599dp"
         android:layout_marginBottom="56dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
@@ -21,17 +22,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <TextView
+            android:id="@+id/textView_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Perros no asignados a la lista"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="16dp" />
+
         <HorizontalScrollView
             android:id="@+id/dogsview_notassigned"
             android:layout_width="fill_parent"
-            android:layout_height="176dp"
+            android:layout_height="215dp"
             android:layout_alignParentTop="true"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
-            android:background="#808080"
             android:fillViewport="true"
             android:measureAllChildren="false"
             android:scrollbars="none"
@@ -44,17 +52,57 @@
             <GridView
                 android:id="@+id/grid_dogs_notassigned"
                 android:layout_width="wrap_content"
-                android:layout_height="160dp"
+                android:layout_height="200dp"
+                android:layout_marginBottom="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:background="#f88080"
                 android:columnWidth="110dp"
                 android:gravity="center"
                 android:horizontalSpacing="10dp"
                 android:tag="grid_dogs_notassigned"
+                android:verticalSpacing="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </HorizontalScrollView>
+
+        <View style="@style/Divider" />
+
+        <HorizontalScrollView
+            android:id="@+id/dogsview"
+            android:layout_width="fill_parent"
+            android:layout_height="357dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="76dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:fillViewport="true"
+            android:measureAllChildren="false"
+            android:scrollbars="none"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <GridView
+                android:id="@+id/grid_dogs"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_marginEnd="16dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="16dp"
+                android:columnWidth="110dp"
+                android:focusable="true"
+                android:gravity="center"
+                android:horizontalSpacing="10dp"
+                android:paddingBottom="20dp"
+                android:tag="grid_dogs"
                 android:verticalSpacing="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -92,9 +140,9 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:horizontalSpacing="10dp"
+                android:paddingBottom="20dp"
                 android:tag="grid_clean_dogs"
                 android:verticalSpacing="10dp"
-                android:paddingBottom="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -102,4 +150,40 @@
         </HorizontalScrollView>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/button_guardar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="Guardar cambios"
+        android:tag="button_guardar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/button_limpieza"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Limpieza"
+        android:tag="button_limpieza"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/button_paseos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="104dp"
+        android:layout_marginStart="104dp"
+        android:text="Paseos"
+        android:tag="button_paseos"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </android.support.constraint.ConstraintLayout>

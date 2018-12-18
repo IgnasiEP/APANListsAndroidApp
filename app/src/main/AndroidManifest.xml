@@ -10,63 +10,70 @@
         android:roundIcon="@mipmap/ic_dog_default"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MakeLists">
+        <activity android:name=".Screens.MakeLists">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
-        <activity android:name=".ShowSolution">
+        <activity android:name=".Screens.ListsScreens.ShowSolution">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
-        <activity android:name=".EditSolution">
+        <activity android:name=".Screens.ListsScreens.EditSolution">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
-        <activity android:name=".ShowCleanSolution">
+        <activity android:name=".Screens.ListsScreens.ShowCleanSolution">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
-        <activity android:name=".EditCleanSolution">
+        <activity android:name=".Screens.ListsScreens.EditCleanSolution">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
-        <activity android:name=".SelectVolunteers">
+        <activity android:name=".Screens.ListsScreens.SelectVolunteers">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
-        <activity android:name=".ConfigureWalks">
+        <activity android:name=".Screens.ListsScreens.ConfigureWalks">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
-        <activity android:name=".FirstScreen">
+        <activity android:name=".Screens.FirstScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ListsScreen">
+        <activity android:name=".Screens.ListsScreens.ListsScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".Screens.DogsDistributionScreens.XenilesDistribution">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

@@ -1,4 +1,4 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.Screens.ListsScreens;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,6 +10,7 @@ import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
+import com.example.ignasi94.backtrackingsimple.R;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 import com.example.ignasi94.backtrackingsimple.Utils.RunnableThread;
 
@@ -23,7 +24,7 @@ public class ListsScreen extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_lists_screen);
+        setContentView(R.layout.lists_activity_lists_screen);
 
         DBAdapter dbAdapter = new DBAdapter(this);
 
@@ -52,7 +53,7 @@ public class ListsScreen extends Activity {
             @Override
             public void onClick(View v) {
                 List<Dog> dogs = dbAdapter.getAllDogs();
-                TESTINTERIORFRIENDS(dogs);
+                TESTINTERIORFRIENDS(dogs, dbAdapter);
                 List<Cage> cages = GetCages();
                 List<VolunteerWalks> volunteers = dbAdapter.getAllSelectedVolunteers();
                 int npaseos = volunteers.get(0).nPaseos;
@@ -118,7 +119,7 @@ public class ListsScreen extends Activity {
     // |  \                   /   |
     // |   --------- 4 -----/     |
     // |--------------------------|
-    public void TESTINTERIORFRIENDS(List<Dog> dogs)
+    public void TESTINTERIORFRIENDS(List<Dog> dogs, DBAdapter dbAdapter)
     {
         for(int i = 0; i < dogs.size(); ++i)
         {
@@ -159,16 +160,17 @@ public class ListsScreen extends Activity {
 
         dog21.friends.add(dog1);
         dog21.friends.add(dog3);
-        dog21.friends.add(dog4);
 
         dog22.friends.add(dog1);
         dog22.friends.add(dog3);
-        dog22.friends.add(dog5);
 
         dog3.friends.add(dog1);
         dog3.friends.add(dog21);
         dog3.friends.add(dog22);
         dog3.friends.add(dog4);
+
+        dog4.friends.add(dog1);
+        dog4.friends.add(dog3);
 
         dog5.friends.add(dog1);
         dog5.friends.add(dog6);
@@ -182,6 +184,8 @@ public class ListsScreen extends Activity {
         dogs.add(dog4);
         dogs.add(dog5);
         dogs.add(dog6);
+
+        dbAdapter.SaveDogs(dogs);
     }
 
     //public Cage(int id, int numCage, String zone)

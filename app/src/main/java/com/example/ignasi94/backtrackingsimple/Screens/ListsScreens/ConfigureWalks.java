@@ -1,36 +1,28 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.Screens.ListsScreens;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.Filterable;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.Toast;
 
 import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
+import com.example.ignasi94.backtrackingsimple.R;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -50,7 +42,7 @@ public class ConfigureWalks extends Activity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_configure_walks);
+        setContentView(R.layout.lists_activity_configure_walks);
         newConfig= getIntent().getBooleanExtra("NEW", true);
         wasNewConfig = newConfig;
         dbAdapter = new DBAdapter(this);
@@ -155,7 +147,7 @@ public class ConfigureWalks extends Activity {
             View gridViewAndroid = view;
             if (view == null) {
                     LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    gridViewAndroid = inflater.inflate(R.layout.griditem_configure_walks, null);
+                    gridViewAndroid = inflater.inflate(R.layout.lists_griditem_configure_walks, null);
             }
 
             ImageView imageViewAndroid = (ImageView) gridViewAndroid.findViewById(R.id.android_gridview_image);

@@ -1,9 +1,8 @@
-package com.example.ignasi94.backtrackingsimple;
+package com.example.ignasi94.backtrackingsimple.Screens;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 
 import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
@@ -11,6 +10,8 @@ import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
+import com.example.ignasi94.backtrackingsimple.R;
+import com.example.ignasi94.backtrackingsimple.Screens.ListsScreens.ShowSolution;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 import com.example.ignasi94.backtrackingsimple.Utils.RunnableThread;
 
@@ -30,7 +31,7 @@ public class MakeLists extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_make_lists);
+        setContentView(R.layout.lists_activity_make_lists);
 
         dbAdapter = new DBAdapter(this);
         List<Dog> dogs = dbAdapter.getAllDogs();

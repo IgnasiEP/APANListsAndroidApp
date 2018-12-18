@@ -1,11 +1,15 @@
 package com.example.ignasi94.backtrackingsimple.Estructuras;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class Volunteer {
     public int id;
     public String name;
     public String phone;
     public String volunteerDay;
     public String observations;
+    public ArrayList<Dog> favouriteDogs;
 
     //empty constructor
     public Volunteer(){}
