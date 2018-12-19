@@ -58,10 +58,14 @@ public class DBAdapter{
         return volunteersDictionary;
     }
 
-    public Dictionary<Integer,Cage> getAllCagesDictionary()
+    public Dictionary<Integer,Cage> getAllCagesDictionary() {
+            return this.getAllCagesDictionaryByZone(null);
+    }
+
+    public Dictionary<Integer,Cage> getAllCagesDictionaryByZone(String zone)
     {
         Dictionary<Integer,Cage> cagesDictionary = new Hashtable<Integer, Cage>();
-        List<Cage> cages = getAllCages();
+        List<Cage> cages = getAllCagesByZone(zone);
         for(int i = 0; i < cages.size(); ++i)
         {
             Cage cage = cages.get(i);
@@ -70,11 +74,22 @@ public class DBAdapter{
         return cagesDictionary;
     }
 
+    //Devuelve una lista con todos los perros
     public List<Dog> getAllDogs()
+    {
+        return this.getAllDogsByZone(null);
+    }
+
+    //Devuelve una lista con todos los perros existentes en la zona 'zone'
+    //Si 'zone' = null devuelve una lista con todos los perros
+    public List<Dog> getAllDogsByZone(String zone)
     {
         List<Dog> dogs = new ArrayList<Dog>();
         SQLiteDatabase db = dbHandler.getWritableDatabase();
+        String selection = null;
+        String[] params = null;
         String[] columns = {dbHandler.KEY_DOG_ID,dbHandler.KEY_DOG_NAME, dbHandler.KEY_DOG_ID_CAGE, dbHandler.KEY_DOG_AGE, dbHandler.KEY_DOG_LINK, dbHandler.KEY_DOG_SPECIAL, dbHandler.KEY_DOG_WALKTYPE, dbHandler.KEY_DOG_OBSERVATIONS};
+
         Cursor cursor =db.query(dbHandler.TABLE_DOGS,columns,null, null,null,null,null);
         StringBuffer buffer= new StringBuffer();
         while (cursor.moveToNext())
@@ -111,6 +126,21 @@ public class DBAdapter{
             }
             Dog dog = new Dog(id,name,cage,age,link,special,walkType,observations);
             dogs.add(dog);
+        }
+
+        if(zone != null)
+        {
+            Dictionary<Integer,Cage> cages = this.getAllCagesDictionaryByZone(zone);
+            List<Dog> onlyZoneDogs = new ArrayList<Dog>();
+            for(int i = 0; i < dogs.size(); ++i)
+            {
+                Dog dog = dogs.get(i);
+                if(cages.get(dog.idCage) != null && cages.get(dog.idCage).zone.equals(zone))
+                {
+                    onlyZoneDogs.add(dog);
+                }
+            }
+            dogs = onlyZoneDogs;
         }
 
         for(int i = 0; i < dogs.size(); ++i)
@@ -206,20 +236,34 @@ public class DBAdapter{
         dog.friends = friends;
     }
 
+    //Devuelve una lista con todas las jaulas
     public List<Cage> getAllCages()
+    {
+        return this.getAllCagesByZone(null);
+    }
+
+    //Devuelve una lista con todas las jaulas existentes en la zona 'zone'
+    //Si 'zone' = null devuelve una lista con todas las jaulas
+    public List<Cage> getAllCagesByZone(String zone)
     {
         List<Cage> cages = new ArrayList<Cage>();
         SQLiteDatabase db = dbHandler.getWritableDatabase();
         String[] columns = {dbHandler.KEY_CAGE_ID, dbHandler.KEY_CAGE_NUM, dbHandler.KEY_CAGE_ZONE};
-        Cursor cursor =db.query(dbHandler.TABLE_CAGES,columns,null, null,null,null,null);
+        String selection = null;
+        String[] params = null;
+        if(zone != null) {
+            selection = dbHandler.KEY_CAGE_ZONE + "=?";
+            params = new String[]{zone};
+        }
+        Cursor cursor =db.query(dbHandler.TABLE_CAGES,columns, selection, params,null,null,null);
         StringBuffer buffer= new StringBuffer();
         while (cursor.moveToNext())
         {
             int id = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_CAGE_ID));
             int num = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_CAGE_NUM));
-            String zone = cursor.getString(cursor.getColumnIndex(dbHandler.KEY_CAGE_ZONE));
+            String iZone = cursor.getString(cursor.getColumnIndex(dbHandler.KEY_CAGE_ZONE));
 
-            Cage cage = new Cage(id,num,zone);
+            Cage cage = new Cage(id,num,iZone);
             cages.add(cage);
         }
         return cages;
@@ -460,8 +504,8 @@ public class DBAdapter{
     public ArrayList<CageDog> GetDogsPerCage(int nColumns, String zone)
     {
         ArrayList<CageDog> cageDogs = new ArrayList<CageDog>();
-        List<Dog> dogs = this.getAllDogs();
-        Dictionary<Integer,Cage> cages = this.getAllCagesDictionary();
+        List<Dog> dogs = this.getAllDogsByZone(zone);
+        Dictionary<Integer,Cage> cages = this.getAllCagesDictionaryByZone(zone);
 
         Dog[] dogsArray = new Dog[dogs.size()];
         MergeUtils.MergeByIdCage(dogs.toArray(dogsArray));
@@ -473,6 +517,12 @@ public class DBAdapter{
 
         int position = 0;
         int lastDogIdCage = 0;
+
+        if(dogsList.size() > 0)
+        {
+            lastDogIdCage = dogsList.get(0).idCage - 1;
+        }
+
         for(int i = 0; i < dogsList.size(); ++i)
         {
             Dog dog = dogsList.get(i);

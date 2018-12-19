@@ -73,7 +73,7 @@
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
-        <activity android:name=".Screens.DogsDistributionScreens.XenilesDistribution">
+        <activity android:name=".Screens.DogsDistributionScreens.ShowDistribution">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
