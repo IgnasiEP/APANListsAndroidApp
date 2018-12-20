@@ -3,6 +3,7 @@ package com.example.ignasi94.backtrackingsimple.MergeUtils;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Grafo.DogGraf.TupleDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
+import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 
 import java.util.ArrayList;
 
@@ -61,11 +62,11 @@ public final class MergeUtils {
         }
     }
 
-    public static void MergeByFavouriteDogsSize(ArrayList<Volunteer> data) {
+    public static void MergeByFavouriteDogsSize(ArrayList<VolunteerWalks> data) {
         if (data.size() <= 1) return;               // Base case: just 1 elt
 
-        ArrayList<Volunteer> a = new ArrayList<Volunteer>();        // Split array into two
-        ArrayList<Volunteer> b = new ArrayList<Volunteer>(); //   halves, a and b
+        ArrayList<VolunteerWalks> a = new ArrayList<VolunteerWalks>();        // Split array into two
+        ArrayList<VolunteerWalks> b = new ArrayList<VolunteerWalks>(); //   halves, a and b
         for (int i = 0; i < data.size(); i++) {
             if (i < (data.size()/2)) a.add(data.get(i));
             else b.add(data.get(i));

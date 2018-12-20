@@ -21,6 +21,7 @@ public class Volunteer {
         this.phone = phone;
         this.volunteerDay = volunteerDay;
         this.observations = observations;
+        this.favouriteDogs = new ArrayList<Dog>();
     }
 
     public Volunteer(String name, String phone, String volunteerDay, String observations)

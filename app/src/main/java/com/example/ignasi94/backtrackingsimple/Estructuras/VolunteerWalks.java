@@ -1,8 +1,8 @@
 package com.example.ignasi94.backtrackingsimple.Estructuras;
 
+import java.util.ArrayList;
+
 public class VolunteerWalks extends Volunteer {
-    public int id;
-    public String name;
     public int clean;
     public int walk1;
     public int walk2;
@@ -24,6 +24,7 @@ public class VolunteerWalks extends Volunteer {
         this.walk4 = walk4;
         this.walk5 = walk5;
         this.nPaseos = nPaseos;
+        this.favouriteDogs = new ArrayList<Dog>();
     }
 
 }

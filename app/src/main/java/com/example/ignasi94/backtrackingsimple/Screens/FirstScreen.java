@@ -8,6 +8,7 @@ import android.widget.Button;
 
 import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.R;
+import com.example.ignasi94.backtrackingsimple.Screens.DogsDistributionScreens.DistributionOptionsScreen;
 import com.example.ignasi94.backtrackingsimple.Screens.DogsDistributionScreens.ShowDistribution;
 import com.example.ignasi94.backtrackingsimple.Screens.ListsScreens.ListsScreen;
 
@@ -33,7 +34,7 @@ public class FirstScreen extends Activity {
         goDistributionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent launchactivity= new Intent(FirstScreen.this,ShowDistribution.class);
+                Intent launchactivity= new Intent(FirstScreen.this,DistributionOptionsScreen.class);
                 startActivity(launchactivity);
             }
         });

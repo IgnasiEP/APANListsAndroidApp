@@ -60,6 +60,7 @@ public class Algorithm {
     //Others
     public final Logger Log = Logger.getLogger("Logger");
     public FileHandler fh;
+    List<VolunteerWalks> volunteers;
 
     public Algorithm() {}
 
@@ -76,6 +77,7 @@ public class Algorithm {
         listDogsPerCage = new ArrayList<ArrayList<Dog>>();
         cleanDogsAssigned = new Hashtable<Dog,Integer>();
         interiorFriendGroups = new ArrayList<ArrayList<Dog>>();
+        this.volunteers = volunteers;
         this.CreateListDogsPerCage(dogs,cages);
 
         //Grafo
@@ -107,7 +109,7 @@ public class Algorithm {
         this.Backtracking(0,0,0,nPaseos,volunteers.size(),dogs.size());
 
         //Modificar solución
-        //this.ReOrderWalksTableSolution(volunteers.size());
+        this.ReOrderWalksTableSolution(volunteers.size());
     }
 
     //Creación del grafo.
@@ -456,6 +458,8 @@ public class Algorithm {
         {
             Dog assigned = this.cleanTable.get(irow).get(0);
             int dogsToAssign = 0;
+            ArrayList<Dog> specialDogsInWalkRow = this.GetSpecialDogs(new ArrayList<Integer>(),irow);
+
             if(cleanTable.get(irow).size() > 0 && this.MoreThanOneCageClean(irow)) {
                 dogsToAssign = GetDogsToAssign(irow);
             }
@@ -464,7 +468,11 @@ public class Algorithm {
                 dogsToAssign = this.GetExteriorDogs(assigned.idCage);
             }
 
-            if (dogsToAssign > this.iWalks(irow)) {
+            if(!this.AllSpecialDogsHaveAUniqueFavouriteVolunteer(specialDogsInWalkRow,irow))
+            {
+                return false;
+            }
+            else if (dogsToAssign > this.iWalks(irow)) {
                 return false;
             }
         }
@@ -483,8 +491,16 @@ public class Algorithm {
                     }
                 }
             }
+            //Perros especialies (y exteriores) no asignados a la cleanTable. O sea, perros especiales
+            //asignados o por asignar
+            ArrayList<Dog> specialDogsInWalkRow = this.GetSpecialDogs(cagesValidated,irow);
+
             //Si se ha asignado a limpieza más de una jaula
-            if(cleanTable.get(irow).size() > 0 && this.MoreThanOneCageClean(irow))
+            if(!this.AllSpecialDogsHaveAUniqueFavouriteVolunteer(specialDogsInWalkRow,irow))
+            {
+                return false;
+            }
+            else if(cleanTable.get(irow).size() > 0 && this.MoreThanOneCageClean(irow))
             {
                 int dogsToAssign = GetDogsUnassignedToAssign(cagesValidated, irow);
                 if(totalDogsiRow + dogsToAssign > this.iWalks(irow)) {
@@ -832,6 +848,58 @@ public class Algorithm {
         return dogs;
     }
 
+    public ArrayList<Dog> GetSpecialDogs(ArrayList<Integer> cagesInRow, int iRow)
+    {
+        ArrayList<Dog> specialDogs = new ArrayList<Dog>();
+        ArrayList<Dog> exteriorSpecialDogsInCleanTable = new ArrayList<Dog>();
+        for(int i = 0; i < cleanTable.get(iRow).size(); ++i)
+        {
+            Dog dog = cleanTable.get(iRow).get(i);
+            if(dog.walktype == Constants.WT_EXTERIOR && dog.special)
+            {
+                exteriorSpecialDogsInCleanTable.add(dog);
+            }
+
+            if(!cagesInRow.contains(dog.idCage))
+            {
+                cagesInRow.add(dog.idCage);
+            }
+        }
+        for(int i = 0; i < cagesInRow.size(); ++i)
+        {
+            ArrayList<Dog> allCagesInRowDogs = listDogsPerCage.get(cagesInRow.get(i));
+            for(int j = 0; j < allCagesInRowDogs.size(); ++j)
+            {
+                Dog dog = allCagesInRowDogs.get(j);
+                if(dog.special && dog.walktype == Constants.WT_EXTERIOR)
+                {
+                    specialDogs.add(dog);
+                }
+            }
+        }
+        specialDogs.removeAll(exteriorSpecialDogsInCleanTable);
+        return specialDogs;
+    }
+
+    public boolean AllSpecialDogsHaveAUniqueFavouriteVolunteer(ArrayList<Dog> specialDogsInWalkRow, int iRow)
+    {
+        ArrayList<VolunteerWalks> volunteersAssignediRow = this.GetVolunteersAssignedIRow(iRow, volunteers);
+        ArrayList<Dog> specialDogsAsFavourite = new ArrayList<Dog>();
+        for(int j = 0; j < specialDogsInWalkRow.size(); ++j)
+        {
+            Dog dog = specialDogsInWalkRow.get(j);
+            for(int i = 0; i < volunteersAssignediRow.size(); ++i)
+            {
+                Volunteer volunteer = volunteersAssignediRow.get(i);
+                if(volunteer.favouriteDogs.contains(dog) && !specialDogsAsFavourite.contains(dog))
+                {
+                    specialDogsAsFavourite.add(dog);
+                }
+            }
+        }
+        return specialDogsInWalkRow.size() == specialDogsAsFavourite.size();
+    }
+
     public ArrayList<Dog> GetInteriorCommonFriends(int cageId)
     {
         ArrayList<Dog> friendsDogs = new ArrayList<Dog>();
@@ -1084,7 +1152,7 @@ public class Algorithm {
         return totalWalks;
     }
 
-    public void ReOrderWalksTableSolution(int nVolunteers, ArrayList<Volunteer> volunteers)
+    public void ReOrderWalksTableSolution(int nVolunteers)
     {
         for(int i = 0; i < nPaseos; ++i)
         {
@@ -1092,37 +1160,83 @@ public class Algorithm {
             ArrayList<Dog> specials = new ArrayList<Dog>();
             //Recuperamos los perros asignados al paseo i
             for(int j = 0; j < walksTable[i].length; ++j) {
-                idogs.add(walksTable[i][j]);
-                if (walksTable[i][j].special) {
-                    specials.add(walksTable[i][j]);
+                if(walksTable[i][j] != null) {
+                    if (walksTable[i][j].special) {
+                        specials.add(walksTable[i][j]);
+                    } else {
+                        idogs.add(walksTable[i][j]);
+                    }
+                    walksTable[i][j] = null;
                 }
-                walksTable[i][j] = null;
             }
-
+            ArrayList<VolunteerWalks> volunteersAssigned = this.GetVolunteersAssignedIRow(i,volunteers);
+            ArrayList<VolunteerDog> newAssing = new ArrayList<VolunteerDog>();
+            Dictionary<Integer,Dog> newAssingDictionary = new Hashtable<Integer, Dog>();
             //Crear lista de voluntarios de orden creciente segun la cantidad de perros especiales
             //asignados en comparación con los del paseo
-            ArrayList<Volunteer> volunteersWithSpecialDogs = this.GetSortedVolunteersWithDogs(i,idogs,volunteers, true);
-            //Crear lista de voluntarios de orden creciente segun la cantidad de perros especiales
-            //asignados en comparación con los del paseo
-            ArrayList<Volunteer> volunteersWithFavouriteDogs = this.GetSortedVolunteersWithDogs(i, idogs, volunteers, false);
-
+            ArrayList<VolunteerWalks> volunteersWithSpecialDogs = this.GetSortedVolunteersWithDogs(i,specials, volunteersAssigned, true, volunteersAssigned);
             //Asignar especiales
-            //this.AssignDogsByFavourites(volunteersWithSpecialDogs, true);
+            newAssing.addAll(this.AssignDogsByFavourites(volunteersWithSpecialDogs, specials,true));
 
+            //Crear lista de voluntarios de orden creciente segun la cantidad de perros especiales
+            //asignados en comparación con los del paseo
+
+            ArrayList<VolunteerWalks> volunteersStillToAssign = (ArrayList<VolunteerWalks>) volunteersAssigned.clone();
+            for(int j = 0; j < volunteersWithSpecialDogs.size(); ++j) {
+                int id = volunteersWithSpecialDogs.get(j).id;
+                for(int z = 0; z < volunteersStillToAssign.size(); ++z)
+                {
+                    int id2 = volunteersStillToAssign.get(z).id;
+                    if(id == id2)
+                    {
+                        volunteersStillToAssign.remove(z);
+                    }
+                }
+            }
+            ArrayList<VolunteerWalks> volunteersWithFavouriteDogs = this.GetSortedVolunteersWithDogs(i, idogs, volunteersStillToAssign, false, volunteersAssigned);
             //Asignar favoritos
-            //this.AssignDogsByFavourites(volunteersWithSpecialDogs, false);
+            newAssing.addAll(this.AssignDogsByFavourites(volunteersWithFavouriteDogs, idogs, true));
 
             //Asignar resto
+            ArrayList<VolunteerWalks> volunteersStillToAssign2 = (ArrayList<VolunteerWalks>) volunteersStillToAssign.clone();
+            for(int j = 0; j < volunteersWithFavouriteDogs.size(); ++j) {
+                int id = volunteersWithFavouriteDogs.get(j).id;
+                for(int z = 0; z < volunteersStillToAssign2.size(); ++z)
+                {
+                    int id2 = volunteersStillToAssign2.get(z).id;
+                    if(id == id2)
+                    {
+                        volunteersStillToAssign2.remove(z);
+                    }
+                }
+            }
+            newAssing.addAll(this.AssignDogsByFavourites(volunteersStillToAssign2, idogs, false));
 
+            for(int j = 0; j < newAssing.size(); ++j)
+            {
+                VolunteerDog volunteerDog = newAssing.get(j);
+                int id = volunteerDog.volunteer.id;
+                newAssingDictionary.put(id,volunteerDog.dog);
+            }
+
+            for(int j = 0; j < volunteers.size(); ++j)
+            {
+                Volunteer volunteer = volunteers.get(j);
+                Dog assigned = newAssingDictionary.get(volunteer.id);
+                if(assigned != null)
+                {
+                    walksTable[i][j] = assigned;
+                }
+            }
             //Reasignamos estos perros a los voluntarios que hacen el paseo i
-            for(int j = 0; j < walksTable[i].length; ++j)
+            /*for(int j = 0; j < walksTable[i].length; ++j)
             {
                 if(this.walksConfig.get(i).get(j) == 1)
                 {
                     walksTable[i][j] = idogs.get(0);
                     idogs.remove(0);
                 }
-            }
+            }*/
         }
 
         //Volvemos a ordenar los paseos en el orden original
@@ -1371,48 +1485,37 @@ public class Algorithm {
         cagesGroup.remove(vertex);
     }
 
-    public ArrayList<Volunteer> GetSortedVolunteersWithDogs(int iRow, ArrayList<Dog> idogs, ArrayList<Volunteer> volunteers, boolean special)
+    public ArrayList<VolunteerWalks> GetSortedVolunteersWithDogs(int iRow, ArrayList<Dog> idogs, ArrayList<VolunteerWalks> volunteers, boolean special, ArrayList<VolunteerWalks> allAssignedVolunteers)
     {
-        ArrayList<Volunteer> volunteersRow = new ArrayList<Volunteer>();
-        ArrayList<Dog> itmpDogs = new ArrayList<Dog>();
-
-        if(special) {
-            for (int i = 0; i < idogs.size(); ++i) {
-                Dog dog = idogs.get(i);
-                if (dog.special) {
-                    itmpDogs.add(dog);
-                }
-            }
-        }
-        else
-        {
-            itmpDogs = (ArrayList<Dog>)idogs.clone();
-        }
-
+        ArrayList<VolunteerWalks> volunteersRow = new ArrayList<VolunteerWalks>();
+        int ivolunteer = -1;
         for(int i = 0; i < walksTable[iRow].length; ++i)
         {
             if(this.walksConfig.get(iRow).get(i) == 1)
             {
-                Volunteer volunteer = volunteers.get(i);
-                boolean addvolunteer = false;
-                ArrayList<Dog> tmpSpecialDogs = new ArrayList<Dog>();
-                for(int j = 0; j < itmpDogs.size(); ++j)
+                ivolunteer++;
+                VolunteerWalks volunteer = allAssignedVolunteers.get(ivolunteer);
+                for(int j = 0; j < volunteers.size(); ++j)
                 {
-                    Dog dog = itmpDogs.get(j);
-                    if(volunteer.favouriteDogs.contains(dog))
-                    {
-                        addvolunteer = true;
-                        tmpSpecialDogs.add(dog);
-                    }
+                    if(volunteer.id == volunteers.get(j).id) {
+                        boolean addvolunteer = false;
+                        ArrayList<Dog> tmpSpecialDogs = new ArrayList<Dog>();
+                        for (int z = 0; z < idogs.size(); ++z) {
+                            Dog dog = idogs.get(z);
+                            if (volunteer.favouriteDogs.contains(dog)) {
+                                addvolunteer = true;
+                                tmpSpecialDogs.add(dog);
+                            }
 
-                }
-                if(addvolunteer)
-                {
-                    //Creamos un voluntario temporal que tenga como favoritos los perros favoritos/especiales que tiene el voluntario
-                    //real como favoritos y que estan asignados en el paseo iRow
-                    Volunteer tmpVolunteer = new Volunteer(volunteer.name, null, null, null);
-                    tmpVolunteer.favouriteDogs = tmpSpecialDogs;
-                    volunteersRow.add(tmpVolunteer);
+                        }
+                        if (addvolunteer) {
+                            //Creamos un voluntario temporal que tenga como favoritos los perros favoritos/especiales que tiene el voluntario
+                            //real como favoritos y que estan asignados en el paseo iRow
+                            VolunteerWalks tmpVolunteer = new VolunteerWalks(volunteer.id, volunteer.name, volunteer.clean, volunteer.walk1, volunteer.walk2, volunteer.walk3, volunteer.walk4, volunteer.walk5, volunteer.nPaseos);
+                            tmpVolunteer.favouriteDogs = tmpSpecialDogs;
+                            volunteersRow.add(tmpVolunteer);
+                        }
+                    }
                 }
             }
         }
@@ -1422,8 +1525,42 @@ public class Algorithm {
         return volunteersRow;
     }
 
-    public ArrayList<VolunteerDog> AssignDogsByFavourites(ArrayList<Volunteer> volunteers, ArrayList<Dog> idogs, boolean special)
+    public ArrayList<VolunteerDog> AssignDogsByFavourites(ArrayList<VolunteerWalks> volunteers, ArrayList<Dog> iDogs, boolean favourites)
     {
-        return null;
+        ArrayList<VolunteerDog> assignRow = new ArrayList<VolunteerDog>();
+        ArrayList<VolunteerWalks> assignedVolunteers = new ArrayList<VolunteerWalks>();
+
+        for(int i = 0; i < iDogs.size(); ++i)
+        {
+            Dog dog = iDogs.get(i);
+            for (int j = 0; j < volunteers.size(); ++j) {
+                VolunteerWalks volunteer = volunteers.get(j);
+                if (favourites && !assignedVolunteers.contains(volunteer) && volunteer.favouriteDogs.contains(dog)) {
+                    assignRow.add(new VolunteerDog(dog, volunteer));
+                    assignedVolunteers.add(volunteer);
+                    break;
+                }
+                else if(!favourites && !assignedVolunteers.contains(volunteer))
+                {
+                    assignRow.add(new VolunteerDog(dog, volunteer));
+                    assignedVolunteers.add(volunteer);
+                    break;
+                }
+            }
+        }
+        volunteers = assignedVolunteers;
+
+        return assignRow;
+    }
+
+    public ArrayList<VolunteerWalks> GetVolunteersAssignedIRow(int iRow, List<VolunteerWalks> volunteers) {
+        ArrayList<VolunteerWalks> volunteersAssigned = new ArrayList<VolunteerWalks>();
+        for (int j = 0; j < walksTable[walksMapping.get(iRow).iWalk].length; ++j) {
+            VolunteerWalks volunteer = volunteers.get(j);
+            if (walksConfig.get(iRow).get(j) == 1) {
+                volunteersAssigned.add(volunteer);
+            }
+        }
+        return  volunteersAssigned;
     }
 }

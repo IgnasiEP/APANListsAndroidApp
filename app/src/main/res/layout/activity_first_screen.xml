@@ -47,7 +47,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:text="Distribución perros(TO-DO)"
+        android:text="Distribución perros"
         app:layout_constraintBottom_toTopOf="@+id/button_listas"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"

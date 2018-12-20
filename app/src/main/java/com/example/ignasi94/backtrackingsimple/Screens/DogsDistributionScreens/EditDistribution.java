@@ -1,37 +1,27 @@
 package com.example.ignasi94.backtrackingsimple.Screens.DogsDistributionScreens;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.view.View.OnClickListener;
 
 import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.Estructuras.CageDog;
-import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
-import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 import com.example.ignasi94.backtrackingsimple.R;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
-
 import java.util.ArrayList;
 
-public class ShowDistribution extends Activity {
+public class EditDistribution extends Activity{
 
     Integer gridColumns;
     DBAdapter dbAdapter;
@@ -168,7 +158,7 @@ public class ShowDistribution extends Activity {
         }
     }
 
-    public class ChangeScreenVisibilityClickListener implements OnClickListener{
+    public class ChangeScreenVisibilityClickListener implements View.OnClickListener {
 
         boolean isLeftButton;
         public ChangeScreenVisibilityClickListener(boolean isLeftButton)

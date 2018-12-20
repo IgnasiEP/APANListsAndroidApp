@@ -9,6 +9,7 @@ import android.widget.Button;
 import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Cage;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 import com.example.ignasi94.backtrackingsimple.R;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
@@ -53,9 +54,10 @@ public class ListsScreen extends Activity {
             @Override
             public void onClick(View v) {
                 List<Dog> dogs = dbAdapter.getAllDogs();
-                TESTINTERIORFRIENDS(dogs, dbAdapter);
+                //TESTINTERIORFRIENDS(dogs, dbAdapter);
                 List<Cage> cages = GetCages();
                 List<VolunteerWalks> volunteers = dbAdapter.getAllSelectedVolunteers();
+                TESTINTERIORSANDSPECIALS1(volunteers,dogs,dbAdapter);
                 int npaseos = volunteers.get(0).nPaseos;
                 ArrayList<VolunteerWalks> volunteerWalks = new ArrayList<VolunteerWalks>();
                 volunteerWalks = EraseCleaningVolunteers(volunteers);
@@ -186,6 +188,40 @@ public class ListsScreen extends Activity {
         dogs.add(dog6);
 
         dbAdapter.SaveDogs(dogs);
+    }
+
+    public void TESTINTERIORSANDSPECIALS1(List<VolunteerWalks> volunteers, List<Dog> dogs, DBAdapter dbAdapter)
+    {
+        volunteers.get(0).favouriteDogs = new ArrayList<Dog>();
+        volunteers.get(0).favouriteDogs.add(dogs.get(0));
+        volunteers.get(0).favouriteDogs.add(dogs.get(1));
+        volunteers.get(0).favouriteDogs.add(dogs.get(2));
+
+        volunteers.get(1).favouriteDogs = new ArrayList<Dog>();
+        volunteers.get(1).favouriteDogs.add(dogs.get(1));
+        volunteers.get(1).favouriteDogs.add(dogs.get(3));
+
+        volunteers.get(2).favouriteDogs = new ArrayList<Dog>();
+        volunteers.get(2).favouriteDogs.add(dogs.get(0));
+
+        dogs.get(0).special = true;
+        dogs.get(1).special = true;
+    }
+
+    public void TESTINTERIORSANDSPECIALS2(List<VolunteerWalks> volunteers, List<Dog> dogs, DBAdapter dbAdapter)
+    {
+        volunteers.get(0).favouriteDogs = new ArrayList<Dog>();
+        volunteers.get(0).favouriteDogs.add(dogs.get(0));
+        volunteers.get(0).favouriteDogs.add(dogs.get(1));
+        volunteers.get(0).favouriteDogs.add(dogs.get(2));
+
+        volunteers.get(1).favouriteDogs = new ArrayList<Dog>();
+        volunteers.get(1).favouriteDogs.add(dogs.get(3));
+        volunteers.get(1).favouriteDogs.add(dogs.get(4));
+        volunteers.get(1).favouriteDogs.add(dogs.get(5));
+
+        volunteers.get(2).favouriteDogs = new ArrayList<Dog>();
+        volunteers.get(2).favouriteDogs.add(dogs.get(0));
     }
 
     //public Cage(int id, int numCage, String zone)

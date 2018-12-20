@@ -73,7 +73,21 @@
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
+        <activity android:name=".Screens.DogsDistributionScreens.DistributionOptionsScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </activity>
         <activity android:name=".Screens.DogsDistributionScreens.ShowDistribution">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".Screens.DogsDistributionScreens.EditDistribution">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
