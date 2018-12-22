@@ -523,41 +523,62 @@ public class DBAdapter{
             lastDogIdCage = dogsList.get(0).idCage - 1;
         }
 
+        int iRow = 1;
         for(int i = 0; i < dogsList.size(); ++i)
         {
             Dog dog = dogsList.get(i);
 
             if(lastDogIdCage != dog.idCage) {
-                while ((position % nColumns) != 0) {
-                    cageDogs.add(new CageDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
-                    ++position;
-                }
-
-                int tmpId = lastDogIdCage + 1;
-                while(tmpId != dog.idCage)
-                {
-                    cageDogs.add(new CageDog(cages.get(tmpId), true));
-                    ++position;
+                if((position % nColumns) != 0) {
                     while ((position % nColumns) != 0) {
                         cageDogs.add(new CageDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
                         ++position;
                     }
+                    ++iRow;
+                }
+
+
+                int tmpId = lastDogIdCage + 1;
+                while(tmpId != dog.idCage)
+                {
+                    cageDogs.add(new CageDog(cages.get(tmpId), iRow, true));
+                    ++position;
+                    if((position % nColumns) != 0)
+                    {
+                        while ((position % nColumns) != 0) {
+                            cageDogs.add(new CageDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
+                            ++position;
+                        }
+                        ++iRow;
+                    }
+
                     tmpId++;
                 }
             }
 
             if ((position % nColumns) == 0 && lastDogIdCage != dog.idCage) {
-                cageDogs.add(new CageDog(cages.get(dog.idCage), true));
+                cageDogs.add(new CageDog(cages.get(dog.idCage), iRow, true));
                 ++position;
             } else if ((position % nColumns) == 0) {
-                cageDogs.add(new CageDog(cages.get(dog.idCage), false));
+                cageDogs.add(new CageDog(cages.get(dog.idCage), iRow, false));
                 ++position;
             }
             cageDogs.add(new CageDog(dog, null));
             ++position;
+            if((position % nColumns) == 0)
+            {
+                ++iRow;
+            }
             lastDogIdCage = dog.idCage;
         }
 
+        if((position % nColumns) != 0) {
+            while ((position % nColumns) != 0) {
+                cageDogs.add(new CageDog(new Dog(Constants.DEFAULT_DOG_NAME), null));
+                ++position;
+            }
+            ++iRow;
+        }
         return cageDogs;
     }
 

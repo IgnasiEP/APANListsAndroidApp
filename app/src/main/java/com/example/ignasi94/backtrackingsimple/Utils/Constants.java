@@ -20,5 +20,7 @@ public final class Constants {
     public static Integer GRID_DOGS = 1;
     public static Integer GRID_DOGS_UNASSIGNED = 2;
     public static Integer GRID_CLEAN = 3;
+    public static Integer GRID_CAGE_DOGS = 1;
+    public static Integer GRID_CAGE_DOGS_UNASSIGNED = 2;
 }
 
