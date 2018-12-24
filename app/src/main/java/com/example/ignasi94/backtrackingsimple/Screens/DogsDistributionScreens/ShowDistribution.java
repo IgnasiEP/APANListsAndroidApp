@@ -101,9 +101,9 @@ public class ShowDistribution extends Activity {
 
     public void ReadMakeListsParameters(Intent intent) {
         dbAdapter = new DBAdapter(this);
-        xenilesCageDogsArray = dbAdapter.GetDogsPerCage(gridColumns, Constants.CAGE_ZONE_XENILES);
-        patiosCageDogsArray = dbAdapter.GetDogsPerCage(gridColumns, Constants.CAGE_ZONE_PATIOS);
-        cuarentenasCageDogsArray = dbAdapter.GetDogsPerCage(gridColumns, Constants.CAGE_ZONE_CUARENTENAS);
+        xenilesCageDogsArray = dbAdapter.getDogsPerCage(gridColumns, Constants.CAGE_ZONE_XENILES);
+        patiosCageDogsArray = dbAdapter.getDogsPerCage(gridColumns, Constants.CAGE_ZONE_PATIOS);
+        cuarentenasCageDogsArray = dbAdapter.getDogsPerCage(gridColumns, Constants.CAGE_ZONE_CUARENTENAS);
     }
 
     public class CageDogsAdapter extends BaseAdapter {

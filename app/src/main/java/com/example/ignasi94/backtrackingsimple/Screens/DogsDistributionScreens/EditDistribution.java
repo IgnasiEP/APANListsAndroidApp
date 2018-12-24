@@ -26,6 +26,8 @@ import com.example.ignasi94.backtrackingsimple.Estructuras.CageDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
 import com.example.ignasi94.backtrackingsimple.R;
+import com.example.ignasi94.backtrackingsimple.Screens.ListsScreens.EditSolution;
+import com.example.ignasi94.backtrackingsimple.Screens.ListsScreens.ShowSolution;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
 import java.util.ArrayList;
@@ -106,7 +108,7 @@ public class EditDistribution extends Activity{
         unassignedCageDogGrid = (GridView) findViewById(R.id.grid_unassigned_cage_dogs);
         unassignedCageDogGrid.setNumColumns(gridColumns);
         // Crear Adapter
-        unassignedCageDogsAdapter = new CageDogsAdapter(getApplicationContext(), new ArrayList<CageDog>(), Constants.GRID_CAGE_DOGS_UNASSIGNED, gridColumns,true);
+        unassignedCageDogsAdapter = new CageDogsAdapter(getApplicationContext(), this.unassignedCageDogsArray, Constants.GRID_CAGE_DOGS_UNASSIGNED, gridColumns,true);
         // Relacionar el adapter a la grid
         unassignedCageDogGrid.setAdapter(unassignedCageDogsAdapter);
         unassignedCageDogGrid.setOnItemLongClickListener(new UnassignedDogsTouchListener());
@@ -124,13 +126,28 @@ public class EditDistribution extends Activity{
         buttonLeft.setOnDragListener(new DragListener());
         buttonRight.setText(Constants.CAGE_ZONE_CUARENTENAS);
         buttonRight.setOnDragListener(new DragListener());
+
+        Button buttonSafe = (Button) findViewById(R.id.button_guardar);
+        buttonSafe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent launchactivity= new Intent(EditDistribution.this,DistributionOptionsScreen.class);
+                //dbAdapter.CleanDogs();
+                dbAdapter.updateDogCages(xenilesCageDogsAdapter.matrixList, true);
+                dbAdapter.updateDogCages(cuarentenasCageDogsAdapter.matrixList, true);
+                dbAdapter.updateDogCages(patiosCageDogsAdapter.matrixList, true);
+                dbAdapter.updateDogCages(unassignedCageDogsAdapter.matrixList, false);
+                startActivity(launchactivity);
+            }
+        });
     }
 
     public void ReadMakeListsParameters(Intent intent) {
         dbAdapter = new DBAdapter(this);
-        xenilesCageDogsArray = dbAdapter.GetDogsPerCage(gridColumns, Constants.CAGE_ZONE_XENILES);
-        patiosCageDogsArray = dbAdapter.GetDogsPerCage(gridColumns, Constants.CAGE_ZONE_PATIOS);
-        cuarentenasCageDogsArray = dbAdapter.GetDogsPerCage(gridColumns, Constants.CAGE_ZONE_CUARENTENAS);
+        xenilesCageDogsArray = dbAdapter.getDogsPerCage(gridColumns, Constants.CAGE_ZONE_XENILES);
+        patiosCageDogsArray = dbAdapter.getDogsPerCage(gridColumns, Constants.CAGE_ZONE_PATIOS);
+        cuarentenasCageDogsArray = dbAdapter.getDogsPerCage(gridColumns, Constants.CAGE_ZONE_CUARENTENAS);
+        unassignedCageDogsArray = dbAdapter.getUnassignedDogs();
     }
 
     public class CageDogsAdapter extends BaseAdapter {
@@ -874,13 +891,13 @@ public class EditDistribution extends Activity{
             }
         }
 
-        /*for(int i = 0; i < patiosCageDogsAdapter.matrixList.size(); i = i + gridColumns)
+        for(int i = 0; i < patiosCageDogsAdapter.matrixList.size(); i = i + gridColumns)
         {
             if(patiosCageDogsAdapter.isFullRow(i))
             {
                 patiosCageDogsAdapter.addRow(i);
             }
-        }*/
+        }
 
         for(int i = 0; i < cuarentenasCageDogsAdapter.matrixList.size(); i = i + gridColumns)
         {

@@ -206,7 +206,7 @@ public class SelectVolunteers extends Activity {
             Context context;
             ArrayList<VolunteerWalks> matrixList;
             ArrayList<VolunteerWalks> allmatrixList;
-        ArrayList<VolunteerWalks> allmatrixOptionList;
+            ArrayList<VolunteerWalks> allmatrixOptionList;
             boolean allList;
             ValueFilter valueFilter;
 

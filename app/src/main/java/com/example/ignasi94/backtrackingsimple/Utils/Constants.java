@@ -4,6 +4,7 @@ public final class Constants {
     public static String CAGE_ZONE_XENILES = "XENILES";
     public static String CAGE_ZONE_CUARENTENAS = "CUARENTENAS";
     public static String CAGE_ZONE_PATIOS = "PATIOS";
+    public static String CAGE_ZONE_NONE = "NONE";
     public static Short WT_NONE = 0;
     public static Short WT_INTERIOR = 1;
     public static Short WT_EXTERIOR = 2;

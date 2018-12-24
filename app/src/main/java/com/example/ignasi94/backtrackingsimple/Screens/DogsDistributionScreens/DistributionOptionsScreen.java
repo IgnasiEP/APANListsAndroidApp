@@ -17,9 +17,6 @@ public class DistributionOptionsScreen extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.distribution_options_screen);
 
-        DBAdapter dbAdapter = new DBAdapter(this);
-        dbAdapter.onUpgrade();
-
         Button goShowDistributionButton = (Button) findViewById(R.id.button_show_distribucion);
         goShowDistributionButton.setOnClickListener(new View.OnClickListener() {
             @Override
