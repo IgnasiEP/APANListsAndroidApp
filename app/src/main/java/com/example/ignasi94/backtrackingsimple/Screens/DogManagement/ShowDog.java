@@ -144,7 +144,7 @@ public class ShowDog extends Activity {
         lastDogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int newDogId = dogId--;
+                int newDogId = dogId - 1;
                 while(true)
                 {
                     dog = dogs.get(newDogId);
@@ -172,7 +172,7 @@ public class ShowDog extends Activity {
         nextDogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int newDogId = dogId++;
+                int newDogId = dogId + 1;
                 while(true)
                 {
                     dog = dogs.get(newDogId);

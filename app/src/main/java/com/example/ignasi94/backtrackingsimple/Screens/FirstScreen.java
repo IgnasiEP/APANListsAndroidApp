@@ -12,6 +12,7 @@ import com.example.ignasi94.backtrackingsimple.Screens.DogManagement.DogList;
 import com.example.ignasi94.backtrackingsimple.Screens.DogsDistributionScreens.DistributionOptionsScreen;
 import com.example.ignasi94.backtrackingsimple.Screens.DogsDistributionScreens.ShowDistribution;
 import com.example.ignasi94.backtrackingsimple.Screens.ListsScreens.ListsScreen;
+import com.example.ignasi94.backtrackingsimple.Screens.VolunteerManagement.VolunteerList;
 
 public class FirstScreen extends Activity {
 
@@ -45,6 +46,15 @@ public class FirstScreen extends Activity {
             @Override
             public void onClick(View v) {
                 Intent launchactivity= new Intent(FirstScreen.this,DogList.class);
+                startActivity(launchactivity);
+            }
+        });
+
+        Button goVolunteersManagementButton = (Button) findViewById(R.id.button_gestion_voluntarios);
+        goVolunteersManagementButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent launchactivity= new Intent(FirstScreen.this,VolunteerList.class);
                 startActivity(launchactivity);
             }
         });

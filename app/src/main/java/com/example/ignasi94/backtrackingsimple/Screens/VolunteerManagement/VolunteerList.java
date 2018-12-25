@@ -1,4 +1,4 @@
-package com.example.ignasi94.backtrackingsimple.Screens.DogManagement;
+package com.example.ignasi94.backtrackingsimple.Screens.VolunteerManagement;
 
 import android.app.Activity;
 import android.content.Context;
@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
@@ -15,9 +16,13 @@ import android.widget.TextView;
 
 import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
+import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 import com.example.ignasi94.backtrackingsimple.R;
+import com.example.ignasi94.backtrackingsimple.Screens.DogManagement.DogList;
+import com.example.ignasi94.backtrackingsimple.Screens.DogManagement.EditDog;
+import com.example.ignasi94.backtrackingsimple.Screens.DogManagement.ShowDog;
 import com.example.ignasi94.backtrackingsimple.Screens.DogsDistributionScreens.DistributionOptionsScreen;
 import com.example.ignasi94.backtrackingsimple.Screens.DogsDistributionScreens.EditDistribution;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
@@ -25,39 +30,38 @@ import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class DogList extends Activity {
+public class VolunteerList extends Activity {
 
     GridView gridView;
-    ArrayList<Dog> dogs;
-    DogAdapter dogAdapter;
+    ArrayList<Volunteer> volunteers;
+    VolunteerAdapter volunteerAdapter;
     DBAdapter dbAdapter;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dog_management_dog_list);
+        setContentView(R.layout.volunteer_management_volunteer_list);
 
         this.ReadMakeListsParameters(getIntent());
 
-        // DOGGRID
-        gridView = (GridView) findViewById(R.id.grid_dog_lists);
+        gridView = (GridView) findViewById(R.id.grid_volunteer_lists);
         gridView.setNumColumns(1);
         // Adapter
-        dogAdapter = new DogAdapter(getApplicationContext(), dogs);
-        gridView.setAdapter(dogAdapter);
+        volunteerAdapter = new VolunteerAdapter(getApplicationContext(), volunteers);
+        gridView.setAdapter(volunteerAdapter);
     }
 
     public void ReadMakeListsParameters(Intent intent)
     {
         dbAdapter = new DBAdapter(this);
-        dogs = (ArrayList<Dog>) dbAdapter.getAllDogs();
+        volunteers = (ArrayList<Volunteer>) dbAdapter.getAllVolunteers();
     }
 
-    public class DogAdapter extends BaseAdapter {
+    public class VolunteerAdapter extends BaseAdapter {
         Context context;
-        ArrayList<Dog> matrixList;
+        ArrayList<Volunteer> matrixList;
 
-        public DogAdapter(Context context, ArrayList<Dog> matrixList) {
+        public VolunteerAdapter(Context context, ArrayList<Volunteer> matrixList) {
             this.context = context;
-            matrixList.add(0, new Dog());
+            matrixList.add(0, new Volunteer());
             this.matrixList = matrixList;
         }
 
@@ -81,10 +85,10 @@ public class DogList extends Activity {
             View gridViewAndroid = view;
             if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                gridViewAndroid = inflater.inflate(R.layout.dog_management_dog_item, null);
+                gridViewAndroid = inflater.inflate(R.layout.volunteer_management_volunteer_item, null);
             }
-            TextView textViewAndroid = (TextView) gridViewAndroid.findViewById(R.id.dog_name);
-            ImageView imageViewAndroid = (ImageView) gridViewAndroid.findViewById(R.id.dog_image);
+            TextView textViewAndroid = (TextView) gridViewAndroid.findViewById(R.id.volunteer_name);
+            ImageView imageViewAndroid = (ImageView) gridViewAndroid.findViewById(R.id.volunteer_image);
             if(position == 0)
             {
                 //'Add element' element
@@ -94,7 +98,7 @@ public class DogList extends Activity {
             else {
                 String dogName = matrixList.get(position).name;
                 textViewAndroid.setText(dogName);
-                imageViewAndroid.setImageResource(R.mipmap.ic_dog_default);
+                imageViewAndroid.setImageResource(R.mipmap.ic_volunteer_default);
             }
 
             gridViewAndroid.setOnClickListener(new View.OnClickListener() {
@@ -103,13 +107,13 @@ public class DogList extends Activity {
                     Intent launchactivity;
                     if(position == 0)
                     {
-                        launchactivity = new Intent(DogList.this,EditDog.class);
+                        launchactivity = new Intent(VolunteerList.this,EditVolunteer.class);
                         launchactivity.putExtra("NEW", true);
                     }
                     else
                     {
-                        launchactivity = new Intent(DogList.this,ShowDog.class);
-                        launchactivity.putExtra("DOGID", matrixList.get(position).id);
+                        launchactivity = new Intent(VolunteerList.this,ShowVolunteer.class);
+                        launchactivity.putExtra("VOLUNTEERID", matrixList.get(position).id);
                     }
                     startActivity(launchactivity);
                 }
@@ -123,12 +127,12 @@ public class DogList extends Activity {
     public void onRestart() {
         super.onRestart();
 
-        dogs = (ArrayList<Dog>) dbAdapter.getAllDogs();
+        volunteers = (ArrayList<Volunteer>) dbAdapter.getAllVolunteers();
 
-        gridView = (GridView) findViewById(R.id.grid_dog_lists);
+        gridView = (GridView) findViewById(R.id.grid_volunteer_lists);
         gridView.setNumColumns(1);
         // Adapter
-        dogAdapter = new DogAdapter(getApplicationContext(), dogs);
-        gridView.setAdapter(dogAdapter);
+        volunteerAdapter = new VolunteerAdapter(getApplicationContext(), volunteers);
+        gridView.setAdapter(volunteerAdapter);
     }
 }
