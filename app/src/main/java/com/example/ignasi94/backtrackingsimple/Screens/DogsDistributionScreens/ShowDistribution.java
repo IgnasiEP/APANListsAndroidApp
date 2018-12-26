@@ -17,6 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.view.View.OnClickListener;
@@ -26,6 +27,8 @@ import com.example.ignasi94.backtrackingsimple.Estructuras.CageDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerDog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 import com.example.ignasi94.backtrackingsimple.R;
+import com.example.ignasi94.backtrackingsimple.Screens.DogManagement.DogList;
+import com.example.ignasi94.backtrackingsimple.Screens.FirstScreen;
 import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 
 
@@ -97,6 +100,15 @@ public class ShowDistribution extends Activity {
         cuarentenasGridView.setVisibility(View.GONE);
         xenilesGridView.setVisibility(View.VISIBLE);
         title.setText("Jaulas xeniles");
+
+        ImageButton button = (ImageButton) findViewById(R.id.image_cage_map);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent launchactivity= new Intent(ShowDistribution.this,ShowMap.class);
+                startActivity(launchactivity);
+            }
+        });
     }
 
     public void ReadMakeListsParameters(Intent intent) {

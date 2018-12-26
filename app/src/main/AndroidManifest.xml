@@ -94,6 +94,13 @@
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
+        <activity android:name=".Screens.DogsDistributionScreens.ShowMap">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </activity>
         <activity android:name=".Screens.DogManagement.DogList">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

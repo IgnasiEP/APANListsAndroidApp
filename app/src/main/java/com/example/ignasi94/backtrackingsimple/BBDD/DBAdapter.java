@@ -36,8 +36,12 @@ public class DBAdapter{
 
     public Dictionary<Integer,Dog> getAllDogsDictionary()
     {
+        return getAllDogsDictionary(true);
+    }
+    public Dictionary<Integer,Dog> getAllDogsDictionary(boolean getFriends)
+    {
         Dictionary<Integer,Dog> dogsDictionary = new Hashtable<Integer, Dog>();
-        List<Dog> dogs = getAllDogs();
+        List<Dog> dogs = getAllDogs(getFriends);
         for(int i = 0; i < dogs.size(); ++i)
         {
             Dog dog = dogs.get(i);
@@ -78,12 +82,21 @@ public class DBAdapter{
     //Devuelve una lista con todos los perros
     public List<Dog> getAllDogs()
     {
-        return this.getAllDogsByZone(null);
+        return this.getAllDogsByZone(null, true);
+    }
+
+    public List<Dog> getAllDogs(boolean getFriends)
+    {
+        return this.getAllDogsByZone(null, getFriends);
+    }
+
+    public List<Dog> getAllDogsByZone(String zone) {
+        return this.getAllDogsByZone(zone, true);
     }
 
     //Devuelve una lista con todos los perros existentes en la zona 'zone'
     //Si 'zone' = null devuelve una lista con todos los perros
-    public List<Dog> getAllDogsByZone(String zone)
+    public List<Dog> getAllDogsByZone(String zone, boolean getFriends)
     {
         List<Dog> dogs = new ArrayList<Dog>();
         SQLiteDatabase db = dbHandler.getWritableDatabase();
@@ -91,7 +104,7 @@ public class DBAdapter{
         String[] params = null;
         String[] columns = {dbHandler.KEY_DOG_ID,dbHandler.KEY_DOG_NAME, dbHandler.KEY_DOG_ID_CAGE, dbHandler.KEY_DOG_AGE, dbHandler.KEY_DOG_LINK, dbHandler.KEY_DOG_SPECIAL, dbHandler.KEY_DOG_WALKTYPE, dbHandler.KEY_DOG_OBSERVATIONS};
 
-        Cursor cursor =db.query(dbHandler.TABLE_DOGS,columns,null, null,null,null,null);
+        Cursor cursor = db.query(dbHandler.TABLE_DOGS,columns,null, null,null,null,null);
         StringBuffer buffer= new StringBuffer();
         while (cursor.moveToNext())
         {
@@ -146,9 +159,10 @@ public class DBAdapter{
             }
         }
 
-        for(int i = 0; i < dogs.size(); ++i)
-        {
+        if(getFriends) {
+            for (int i = 0; i < dogs.size(); ++i) {
                 this.getDogFriends(dogs, i);
+            }
         }
         return dogs;
     }
@@ -296,6 +310,7 @@ public class DBAdapter{
         SQLiteDatabase db = dbHandler.getWritableDatabase();
 
         db.delete(dbHandler.TABLE_DOGS, DBHandler.KEY_DOG_ID + "=?", new String[]{Integer.toString(dog.id)});
+        db.delete(dbHandler.TABLE_DOG_FAVOURITES, DBHandler.KEY_DOGFAVOURITES_DOG_ID + "=?", new String[]{Integer.toString(dog.id)});
 
         for(int j = 0; j < dog.friends.size(); ++j)
         {
@@ -392,7 +407,7 @@ public class DBAdapter{
     }
 
     public void getDogFavourites(Volunteer volunteer) {
-        Dictionary<Integer,Dog> allDogs = this.getAllDogsDictionary();
+        Dictionary<Integer,Dog> allDogs = this.getAllDogsDictionary(false);
         ArrayList<Dog> friends = new ArrayList<Dog>();
         String[] args = {Integer.toString(volunteer.id)};
         SQLiteDatabase db = dbHandler.getWritableDatabase();
@@ -804,6 +819,7 @@ public class DBAdapter{
             int nPaseos = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_SELECTEDVOLUNTEERS_NWALKS));
 
             VolunteerWalks volunteer = new VolunteerWalks(idVolunteer, nameVolunteer, clean, walk1, walk2, walk3, walk4, walk5, nPaseos);
+            this.getDogFavourites(volunteer);
             volunteers.add(volunteer);
         }
         return volunteers;

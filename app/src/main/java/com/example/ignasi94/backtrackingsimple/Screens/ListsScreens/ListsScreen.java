@@ -22,14 +22,18 @@ public class ListsScreen extends Activity {
 
     ArrayList<ArrayList<Dog>>  clean;
     Dog[][] walks;
+    DBAdapter dbAdapter;
+    Button goConfigureListsButton;
+    Button goEditConfigureListsButton;
+    Button goMakeListsButton;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lists_activity_lists_screen);
 
-        DBAdapter dbAdapter = new DBAdapter(this);
+        dbAdapter = new DBAdapter(this);
 
-        Button goConfigureListsButton = (Button) findViewById(R.id.button_configurar_lista);
+        goConfigureListsButton = (Button) findViewById(R.id.button_configurar_lista);
         goConfigureListsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -39,7 +43,7 @@ public class ListsScreen extends Activity {
             }
         });
 
-        Button goEditConfigureListsButton = (Button) findViewById(R.id.button_editar_configuracion);
+        goEditConfigureListsButton = (Button) findViewById(R.id.button_editar_configuracion);
         goEditConfigureListsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,7 +53,7 @@ public class ListsScreen extends Activity {
             }
         });
 
-        Button goMakeListsButton = (Button) findViewById(R.id.button_crear_lista);
+        goMakeListsButton = (Button) findViewById(R.id.button_crear_lista);
         goMakeListsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,7 +61,7 @@ public class ListsScreen extends Activity {
                 //TESTINTERIORFRIENDS(dogs, dbAdapter);
                 List<Cage> cages = GetCages();
                 List<VolunteerWalks> volunteers = dbAdapter.getAllSelectedVolunteers();
-                TESTINTERIORSANDSPECIALS1(volunteers,dogs,dbAdapter);
+                //TESTINTERIORSANDSPECIALS1(volunteers,dogs,dbAdapter);
                 int npaseos = volunteers.get(0).nPaseos;
                 ArrayList<VolunteerWalks> volunteerWalks = new ArrayList<VolunteerWalks>();
                 volunteerWalks = EraseCleaningVolunteers(volunteers);
@@ -84,6 +88,24 @@ public class ListsScreen extends Activity {
             }
         });
 
+        List<VolunteerWalks> volunteers = dbAdapter.getAllSelectedVolunteers();
+        if(volunteers.size() == 0)
+        {
+            goEditConfigureListsButton.setVisibility(View.INVISIBLE);
+            goMakeListsButton.setVisibility(View.INVISIBLE);
+        }
+        else
+        {
+            goEditConfigureListsButton.setVisibility(View.VISIBLE);
+            goMakeListsButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        //When BACK BUTTON is pressed, the activity on the stack is restarted
+        //Do what you want on the refresh procedure here
         List<VolunteerWalks> volunteers = dbAdapter.getAllSelectedVolunteers();
         if(volunteers.size() == 0)
         {

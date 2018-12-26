@@ -88,8 +88,8 @@ public class DogList extends Activity {
             if(position == 0)
             {
                 //'Add element' element
-                textViewAndroid.setText("NEW");
-                imageViewAndroid.setImageResource(R.mipmap.ic_white_dog);
+                textViewAndroid.setText("Añadir perro");
+                imageViewAndroid.setImageResource(R.mipmap.ic_cruz);
             }
             else {
                 String dogName = matrixList.get(position).name;

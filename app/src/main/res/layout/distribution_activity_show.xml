@@ -246,7 +246,7 @@
         app:layout_constraintStart_toStartOf="@+id/guideline5"
         app:layout_constraintTop_toTopOf="@+id/guideline9" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/image_cage_map"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -255,7 +255,9 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:src="@color/colorGreen"
+        android:src="@mipmap/ic_map"
+        android:scaleType="fitCenter"
+        android:background="@color/colorScreen"
         app:layout_constraintBottom_toTopOf="@+id/guideline1"
         app:layout_constraintEnd_toStartOf="@+id/guideline6"
         app:layout_constraintStart_toStartOf="@+id/guideline10"

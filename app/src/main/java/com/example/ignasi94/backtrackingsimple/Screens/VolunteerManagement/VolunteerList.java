@@ -92,8 +92,8 @@ public class VolunteerList extends Activity {
             if(position == 0)
             {
                 //'Add element' element
-                textViewAndroid.setText("NEW");
-                imageViewAndroid.setImageResource(R.mipmap.ic_white_dog);
+                textViewAndroid.setText("Añadir voluntario/a");
+                imageViewAndroid.setImageResource(R.mipmap.ic_cruz);
             }
             else {
                 String dogName = matrixList.get(position).name;

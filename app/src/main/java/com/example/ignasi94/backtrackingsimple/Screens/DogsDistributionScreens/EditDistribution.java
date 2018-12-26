@@ -131,13 +131,11 @@ public class EditDistribution extends Activity{
         buttonSafe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent launchactivity= new Intent(EditDistribution.this,DistributionOptionsScreen.class);
-                //dbAdapter.CleanDogs();
                 dbAdapter.updateDogCages(xenilesCageDogsAdapter.matrixList, true);
                 dbAdapter.updateDogCages(cuarentenasCageDogsAdapter.matrixList, true);
                 dbAdapter.updateDogCages(patiosCageDogsAdapter.matrixList, true);
                 dbAdapter.updateDogCages(unassignedCageDogsAdapter.matrixList, false);
-                startActivity(launchactivity);
+                finish();
             }
         });
     }

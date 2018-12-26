@@ -160,9 +160,28 @@ public class SelectVolunteers extends Activity {
                 dbAdapter.SaveSelectedVolunteers(selectedVolunteersAdapter.matrixList);
                 Intent launchactivity= new Intent(SelectVolunteers.this,ConfigureWalks.class);
                 launchactivity.putExtra("NEW", newConfig);
-                startActivity(launchactivity);
+                startActivityForResult(launchactivity, 1);
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case (1) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    String text = data.getStringExtra("BUTTON");
+
+                    if(text.equals("BUTTON"))
+                    {
+                        finish();
+                    }
+
+                }
+                break;
+            }
+        }
     }
 
     private void InitializeGridArrays(boolean newConfig)

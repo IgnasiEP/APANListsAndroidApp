@@ -507,6 +507,7 @@
             android:gravity="center"
             android:horizontalSpacing="10dp"
             android:tag="grid_selected_dogs"
+            android:paddingBottom="20dp"
             android:verticalSpacing="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

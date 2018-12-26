@@ -891,9 +891,16 @@ public class Algorithm {
             for(int i = 0; i < volunteersAssignediRow.size(); ++i)
             {
                 Volunteer volunteer = volunteersAssignediRow.get(i);
-                if(volunteer.favouriteDogs.contains(dog) && !specialDogsAsFavourite.contains(dog))
+                if(!specialDogsAsFavourite.contains(dog))
                 {
-                    specialDogsAsFavourite.add(dog);
+                    for(int z = 0; z < volunteer.favouriteDogs.size(); ++z)
+                    {
+                        Dog favourite = volunteer.favouriteDogs.get(z);
+                        if(dog.id == favourite.id) {
+                            specialDogsAsFavourite.add(dog);
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -1195,7 +1202,13 @@ public class Algorithm {
             }
             ArrayList<VolunteerWalks> volunteersWithFavouriteDogs = this.GetSortedVolunteersWithDogs(i, idogs, volunteersStillToAssign, false, volunteersAssigned);
             //Asignar favoritos
-            newAssing.addAll(this.AssignDogsByFavourites(volunteersWithFavouriteDogs, idogs, true));
+            ArrayList<VolunteerDog> favouritesAssigned = this.AssignDogsByFavourites(volunteersWithFavouriteDogs, idogs, true);
+            newAssing.addAll(favouritesAssigned);
+
+            for(int z = 0; z < favouritesAssigned.size(); ++z)
+            {
+                idogs.remove(favouritesAssigned.get(z).dog);
+            }
 
             //Asignar resto
             ArrayList<VolunteerWalks> volunteersStillToAssign2 = (ArrayList<VolunteerWalks>) volunteersStillToAssign.clone();
@@ -1502,11 +1515,16 @@ public class Algorithm {
                         ArrayList<Dog> tmpSpecialDogs = new ArrayList<Dog>();
                         for (int z = 0; z < idogs.size(); ++z) {
                             Dog dog = idogs.get(z);
-                            if (volunteer.favouriteDogs.contains(dog)) {
-                                addvolunteer = true;
-                                tmpSpecialDogs.add(dog);
+                            for(int k = 0; k < volunteer.favouriteDogs.size(); ++k)
+                            {
+                                Dog iFavourite = volunteer.favouriteDogs.get(k);
+                                if(dog.id == iFavourite.id)
+                                {
+                                    addvolunteer = true;
+                                    tmpSpecialDogs.add(dog);
+                                    break;
+                                }
                             }
-
                         }
                         if (addvolunteer) {
                             //Creamos un voluntario temporal que tenga como favoritos los perros favoritos/especiales que tiene el voluntario
@@ -1529,6 +1547,7 @@ public class Algorithm {
     {
         ArrayList<VolunteerDog> assignRow = new ArrayList<VolunteerDog>();
         ArrayList<VolunteerWalks> assignedVolunteers = new ArrayList<VolunteerWalks>();
+        ArrayList<Dog> dogsUnassigned = (ArrayList<Dog>) iDogs.clone();
 
         for(int i = 0; i < iDogs.size(); ++i)
         {

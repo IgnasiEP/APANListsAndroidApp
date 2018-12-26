@@ -65,6 +65,21 @@ public class ShowSolution extends Activity {
         });
     }
 
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        //When BACK BUTTON is pressed, the activity on the stack is restarted
+        //Do what you want on the refresh procedure here
+        this.ReadMakeListsParameters(getIntent());
+        // Inicializar grid
+        GridView dogGrid = (GridView) findViewById(R.id.grid_dogs);
+        dogGrid.setNumColumns(nPaseos+1);
+        // Crear Adapter
+        DogAdapter dogAdapter = new DogAdapter(getApplicationContext(), walkSolutionArray);
+        // Relacionar el adapter a la grid
+        dogGrid.setAdapter(dogAdapter);
+    }
+
     public void ReadMakeListsParameters(Intent intent)
     {
         dbAdapter = new DBAdapter(this);

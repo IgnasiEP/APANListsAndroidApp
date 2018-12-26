@@ -96,8 +96,10 @@ public class ConfigureWalks extends Activity {
             @Override
             public void onClick(View v) {
                 dbAdapter.SaveSelectedVolunteers(volunteerWalksAdapter.matrixList);
-                Intent launchactivity= new Intent(ConfigureWalks.this,ListsScreen.class);
-                startActivity(launchactivity);
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("BUTTON", "BUTTON");
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
             }
         });
 
@@ -106,8 +108,10 @@ public class ConfigureWalks extends Activity {
             @Override
             public void onClick(View v) {
                 dbAdapter.CleanSelectedVolunteers();
-                Intent launchactivity= new Intent(ConfigureWalks.this,ListsScreen.class);
-                startActivity(launchactivity);
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("BUTTON", "BUTTON");
+                setResult(Activity.RESULT_OK, resultIntent);
+                finish();
             }
         });
     }

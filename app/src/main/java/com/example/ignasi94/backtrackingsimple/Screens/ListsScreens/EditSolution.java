@@ -128,12 +128,10 @@ public class EditSolution extends Activity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent launchactivity= new Intent(EditSolution.this,ShowSolution.class);
                 dbAdapter.CleanSolutionsTables();
                 dbAdapter.SaveWalkSolution(dogAdapter.matrixList);
                 dbAdapter.SaveCleanSolution(cleanDogAdapter.matrixList);
-                launchactivity.putExtras(getIntent().getExtras());
-                startActivity(launchactivity);
+                finish();
             }
         });
     }
