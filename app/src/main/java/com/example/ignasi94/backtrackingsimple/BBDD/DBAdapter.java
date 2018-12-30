@@ -1022,6 +1022,17 @@ public class DBAdapter{
             db.execSQL(insertCages + 30 + "," + 30 + "," + "'PATIOS');");
             db.execSQL(insertCages + 31 + "," + 31 + "," + "'PATIOS');");
             db.execSQL(insertCages + 32 + "," + 32 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 33 + "," + 33 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 34 + "," + 34 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 35 + "," + 35 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 36 + "," + 36 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 37 + "," + 37 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 38 + "," + 38 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 39 + "," + 39 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 40 + "," + 40 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 41 + "," + 41 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 42 + "," + 42 + "," + "'CUARENTENAS');");
+            db.execSQL(insertCages + 43 + "," + 43 + "," + "'CUARENTENAS');");
 
 
         }

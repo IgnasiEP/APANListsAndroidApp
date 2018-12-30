@@ -60,6 +60,7 @@ public class ShowDog extends Activity {
     public Button datosButton;
     public Button jaulaButton;
     public Button showDogFriendsButton;
+    public ImageView cageView;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +89,7 @@ public class ShowDog extends Activity {
         dogObservations = (TextView) findViewById(R.id.textView9);
         divider = (View) findViewById(R.id.view2);
         dogImage = (ImageView) findViewById(R.id.dog_image);
+        cageView = (ImageView) findViewById(R.id.cage_image);
 
         UpdateView();
 
@@ -311,6 +313,8 @@ public class ShowDog extends Activity {
             this.spinner.setSelection(2);
             showDogFriendsButton.setVisibility(View.INVISIBLE);
         }
+
+        this.SetCageImage();
     }
 
     @Override
@@ -418,6 +422,193 @@ public class ShowDog extends Activity {
             imageViewAndroid.setImageResource(R.mipmap.ic_dog_default);
 
             return gridViewAndroid;
+        }
+    }
+
+    public void SetCageImage()
+    {
+        if(dog != null)
+        {
+            if(dog.idCage == 1)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles1);
+            }
+            else if(dog.idCage == 2)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles2);
+            }
+            else if(dog.idCage == 3)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles3);
+            }
+            else if(dog.idCage == 4)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles4);
+            }
+            else if(dog.idCage == 5)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles5);
+            }
+            else if(dog.idCage == 6)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles6);
+            }
+            else if(dog.idCage == 7)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles7);
+            }
+            else if(dog.idCage == 8)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles8);
+            }
+            else if(dog.idCage == 9)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles9);
+            }
+            else if(dog.idCage == 10)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles10);
+            }
+            else if(dog.idCage == 11)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles11);
+            }
+            else if(dog.idCage == 12)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles12);
+            }
+            else if(dog.idCage == 13)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles13);
+            }
+            else if(dog.idCage == 14)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles14);
+            }
+            else if(dog.idCage == 15)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles15);
+            }
+            else if(dog.idCage == 16)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles16);
+            }
+            else if(dog.idCage == 17)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles17);
+            }
+            else if(dog.idCage == 18)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles18);
+            }
+            else if(dog.idCage == 19)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles19);
+            }
+            else if(dog.idCage == 20)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles20);
+            }
+            else if(dog.idCage == 21)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles21);
+            }
+            else if(dog.idCage == 22)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles22);
+            }
+            else if(dog.idCage == 23)
+            {
+                cageView.setImageResource(R.drawable.ic_xeniles23);
+            }
+            else if(dog.idCage == 24)
+            {
+                cageView.setImageResource(R.drawable.ic_patios1);
+            }
+            else if(dog.idCage == 25)
+            {
+                cageView.setImageResource(R.drawable.ic_patios2);
+            }
+            else if(dog.idCage == 26)
+            {
+                cageView.setImageResource(R.drawable.ic_patios3);
+            }
+            else if(dog.idCage == 27)
+            {
+                cageView.setImageResource(R.drawable.ic_patios4);
+            }
+            else if(dog.idCage == 28)
+            {
+                cageView.setImageResource(R.drawable.ic_patios5);
+            }
+            else if(dog.idCage == 29)
+            {
+                cageView.setImageResource(R.drawable.ic_patios6);
+            }
+            else if(dog.idCage == 30)
+            {
+                cageView.setImageResource(R.drawable.ic_patios7);
+            }
+            else if(dog.idCage == 31)
+            {
+                cageView.setImageResource(R.drawable.ic_patios8);
+            }
+            else if(dog.idCage == 32)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes1);
+            }
+            else if(dog.idCage == 33)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes2);
+            }
+            else if(dog.idCage == 34)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes3);
+            }
+            else if(dog.idCage == 35)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes4);
+            }
+            else if(dog.idCage == 36)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes5);
+            }
+            else if(dog.idCage == 37)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes6);
+            }
+            else if(dog.idCage == 38)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes7);
+            }
+            else if(dog.idCage == 39)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes8);
+            }
+            else if(dog.idCage == 40)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes9);
+            }
+            else if(dog.idCage == 41)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes10);
+            }
+            else if(dog.idCage == 42)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes11);
+            }
+            else if(dog.idCage == 43)
+            {
+                cageView.setImageResource(R.drawable.ic_quarentenes12);
+            }
+            else
+            {
+                cageView.setImageResource(R.color.colorGray);
+            }
+        }
+        else
+        {
+            cageView.setImageResource(R.color.colorGray);
         }
     }
 }

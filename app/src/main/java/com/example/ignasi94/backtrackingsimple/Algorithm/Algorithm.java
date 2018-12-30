@@ -410,7 +410,7 @@ public class Algorithm {
                         //gos de la walkTable[irow-1][nVolunteers-1] afegir a la resta de dominis on no hi ha gos assignat
                         //this.ReassignWalkDomain(irow - 1, nVolunteers - 1, irow, icolumn, nPaseos, nVolunteers);
                         this.ReassignCleanDomain(iClean, irow, icolumn, nPaseos, nVolunteers);
-                        this.Backtracking(iClean, irow - 1, this.iWalks(irow) - 1, nPaseos, nVolunteers, ndogs);
+                        this.Backtracking(iClean, irow - 1, this.iWalks(irow-1) - 1, nPaseos, nVolunteers, ndogs);
                     } else {
                         //Walkdomains[irow][icolumn] = Tots els gossos - gossos ja al walkTable + gos de la walkTable[irow][icolumn-1]
                         //gos de la walkTable[irow][icolumn-1] afegir a la resta de dominis on no hi ha gos assignat
@@ -446,7 +446,7 @@ public class Algorithm {
             {
                 return false;
             }
-            else if(iClean > irow && ndogs < nPaseos * nVolunteers)
+            else if(iClean > irow && ndogs < this.totalWalks)
             {
                    return true;
             }
@@ -1583,3 +1583,156 @@ public class Algorithm {
         return  volunteersAssigned;
     }
 }
+
+/*
+Crida inicial: Backtracking(0,0,0);
+
+procediment Backtracking(Posició taula neteja , Fila taula passejos, Columna taula passejos) ; si Posició taula neteja == Fila taula passejos s'asignen gossos a la taula de neteja
+                                                                                                si Posició taula neteja > Fila taula passejos s'asigna gos a la taula de passejos
+inici
+dominiBuit = DominiBuit(Posició taula neteja , Fila taula passejos, Columna taula passejos) ; En el cas que hi hagi menys gossos que passejos i es permetin assignacions buides hem de consultar si el domini es buit
+Selecció(Posició taula neteja , Fila taula passejos, Columna taula passejos, dominiBuit) ; Assigna un gos a la taula de passejos o una llista de gossos a la taula de neteja
+si Validació(Posició taula neteja , Fila taula passejos, Columna taula passejos, dominiBuit)
+    AsignarRestaDeLaGàbia(Posició taula neteja , Fila taula passejos, Columna taula passejos, dominiBuit) ;
+    ActualitzarDomini(Posició taula neteja , Fila taula passejos, Columna taula passejos, dominiBuit) ; S'elimina del domini de passejos o del de neteja el/els gos/gossos asignat/s de
+                                                                                                        les següents posicions a assignar
+    si (S'ha asignat un gos/gossos a la taula de passejos)
+        gossosAfegits = ObtenirNumeroGossosAfegits();
+    si (Posició taula neteja == Quantitat passejos && Fila taula passejos == Quantitat passejos - 1 && Columna taula passejos + gossosAfegits >= Quantitat de passejos del passeig(Fila taula passejos))
+        No fer res -> Tant la taula de neteja com la de passejos han asignat un valor a cada una de les posicions -> Es una SOLUCIÓ
+    si no
+        si (Asignat gos/gossos a taula neteja)
+            Backtracking(Posició taula neteja + 1, Fila taula passejos, Columna taula passejos)
+        si no
+            si(Columna taula passejos + gossosAfegits >= Quantitat de passejos del passeig(Fila taula passejos))
+                Backtracking(Posició taula neteja, Fila taula passejos +1, 0)
+            si no
+                Backtracking(Posició taula neteja, Fila taula passejos, Columna taula passejos + gossosAfegits)
+            fi si
+        fi si
+    fi si
+si no
+    si !DominiBuit(Posició taula neteja, Fila taula passejos, Columna taula passejos) ; Encara queden valor al domini. S'asigna un nou valor a la mateixa posició de la taula
+        Backtracking(Posició taula neteja, Fila taula passejos, Columna taula passejos)
+    si no
+        si (Posició taula neteja == 0 &&  Fila taula passejos == 0 && Columna taula passejos == 0) //Posició inicial de les 2 taules
+            return; //No existeix solució
+        si no
+            si (Quantitat de gossos < Total passejos a assignar) ; Si hi ha mmenys gossos que passejos a assignar s'han de permetre els valors buits a la taula de passejos;
+                si(Fila de la taula de passejos plena)
+                    Backtracking(Posició taula neteja, Fila taula passejos + 1, Columna taula passejos)
+                si no
+                    Backtracking(Posició taula neteja, Fila taula passejos, Columna taula passejos + 1)
+                fi si
+            si (Columna taula passejos == 0 && Posició taula neteja > Fila taula passejos) ; Al passeig i no s'ha pogut asignar cap gos vàlid a la taula de passejos. Fem backtracking d'aquests gos.
+                                                                                             S'ha de modificar el/s gos/gossos assignats a la taula de neteja
+                Desassignem el gos que s'acaba d'asignar de la taula de passejos.
+                Actualitzem el domini de la taula de passejos en aquesta posició           ; de tal manera que hi hagi de nou tots els gossos no assignats a la taula de passejos
+                Eliminem de la taula de neteja la llista de l'última posició ja que s'han d'assignar gossos de nou
+                Backtracking(Posició taula neteja - 1, Fila taula passejos, Columna taula passejos)
+            si (Columna taula passejos == 0)                                               ; Al passeig i no s'ha pogut asignar cap gos/gossos vàlids a la taula de neteja. Fem backtracking d'aquest/s gos/gosos.
+                                                                                             S'ha de modificar els gossos de l'última gàbia assignada al passeig i-1
+                Actualitzem el domini de la taula de neteja
+                Backtracking(Posició taula neteja, Fila taula passejos - 1, Quantitat passejos(Fila taula passejos) - 1)
+            si no                                                                          ; Eliminem els gossos de l'última gàbia assignada i assignem una gàbia al mateix passeig
+                gossosÚltimaGàbiaAssignada = ObtenirNumeroGossosÚltimaGàbiaAssignada();
+                Actualitzem el domini de la taula de passejos de les posicions on hem desassignat gossos i de les posicions sense gossos assignats
+                Backtracking(Posició taula neteja, Fila taula passejos, Columna taula passejos - gossosÚltimaGàbiaAssignada)
+            fi si
+       fi si
+   fi si
+fi si
+fi
+
+
+
+procediment Validació(Posició taula neteja , Fila taula passejos, Columna taula passejos, dominiBuit)
+
+inici
+si dominiBuit
+    si(Posició taula neteja == Fila taula passejos) ; A la taula de neteja sempre s'ha d'assignar una subllista de gossos
+        retorna fals
+    si(Posició taula neteja == Fila taula passejos && Quantitat gossos < Quantitat passejos) ; Si hi ha més passejos que gossos hem de permetre les assignacions sense gossos a la taula de passejos
+        retorna cert
+    si no
+        retorna fals
+si(Posició taula neteja == Fila taula passejos) ; S'han assignat gossos a la taula de neteja
+    gossosPerAssignar = Obtenir gossos que s'hauran d'assignar a la taula de passejos ; Si sabem els gossos que s'han assignat a la taula de neteja podem obtenir quins gossos dels que surten a passejar s'hauran
+                                                                                       d'assignar obligatoriament al passeig 'Fila taula passejos'
+    gossosEspecialsPerAssignar = Obtenir gossos especials que s'hauran d'assignar a la taula de passejos
+
+    si(EsPodenAssignarEspecials(gossosEspecialsPerAssignar)) ; Un gos especial només es pot assignar si hi ha algún voluntari que el té com a preferit.
+        retorna fals
+    si(gossosPerAssignar > Quantitat passejos del passeig(Fila taula passejos)) ; No es poden assignar tots els gossos al passeig
+        retorna fals
+    fi si
+si no ; S'ha assignat un gos a la taula de passejos
+    gàbiesAssignades = ObtenirGàbiesJaAssignades()
+    quantitatGossosAssignats = ObtenirGossosJaAssignats() ; S'inclouen tots els gossos que surten a passejar de la gàbia de l'últim gos assignat
+    gossosEspecialsPerAssignar = Obtenir gossos especials que s'hauran d'assignar a la taula de passejos
+
+    si(EsPodenAssignarEspecials(gssosEspecialsPerAssignar)) ; Un gos especial només es pot assignar si hi ha algún voluntari que el té com a preferit.
+        retorna fals
+    si(Hi ha més d'una gàbia assignada a la taula de neteja al passeig(Fila taula passejos))
+        gossosPerAssignar = Obtenir gossos que s'hauran d'assignar a la taula de passejos
+        si(cuantitatGossosAssignats + gossosPerAssignar > Quantitat passejos del passeig(Fila taula passejos))
+            retorna fals
+        fi si
+    si(Si només hi ha una gàbia assignada a la taula de neteja i els gossos que surten a passejar que comparteixen gàbia amb el gos/gossos asignats a la taula de neteja ja estan assignats
+    && quantitatGossosAssignats > Quantitat passejos del passeig(Fila taula passejos))
+       retorna fals
+    si(Si només hi ha una gàbia assignada a la taula de neteja i els gossos que surten a passejar que comparteixen gàbia amb el gos/gossos asignats a la taula de neteja NO estan assignats
+    && quantitatGossosAssignats + gossos que surten a passejar que comparteixen gàbia amb el gos/gossos asignats a la taula de neteja > Quantitat passejos del passeig(Fila taula passejos))
+       retorna fals
+    si(Si només hi ha una gàbia assignada a la taula de neteja i s'hi han assignats tots els gossos (els que surten a passejar i els que no
+    && quantitatGossosAssignats > Quantitat passejos del passeig(Fila taula passejos))
+       retorna fals
+    si(Els gossos que surten per la zona interior de la gàbia del gos que s'acaba d'assignar no estan assignats a la taula de neteja)
+        retorna fals
+    fi si
+    retorna cert
+fi
+
+
+procediment EsPodenAssignarEspecials(gossosEspecialsPerAssignar)
+inici
+    si (per cada gos especial de gossosEspecialsPerAssignar hi ha un voluntari que el té com a preferit i
+    el tamany de l'unió de voluntaris > Quantitat gossos en gossosEspecialsPerAssignar)
+        retorna cert
+    sino
+        retorna fals
+fi
+
+
+Per cada vèrtex del graf es fa la crida: ObtenirGrupGabiesDomini(iVertex, vertexs, vertexsVisitats, gàbiesGrupActual, gossosGrupActual)
+
+global GrafJaulas
+global GrupsJaTrobats
+procediment ObtenirGrupGabiesDomini(vertex, vertexs, vertexsVisitats, gàbiesGrupActual, gossosGrupActual)
+
+inici
+    vertexsVisitats = Marcar 'vertex' com a visitat
+
+    arestes = ObtenerAristasPorPeso(GrafJaulas, pes == 3)
+
+    Per cada aresta
+        segonVertex = aresta.ObtenirVertexDestí(vertex)
+        si (vertexsVisitats no conté segonVertex)
+            //Mirar si el segonVertex no es incompatible amb cap gabia de la llista 'gàbiesGrupActual'
+            arestesSegonVertex = ObtenerAristasPorPeso(GrafJaulas, pes == 3)
+            Comprovar que segonVertex tingui arestes a totes les gàbies de 'gàbiesGrupActual'
+            jaExisteixGrup = Comprovar si GrupsJaTrobats té un grup igual a gàbiesGrupActual
+
+            si (segonVertex és compatible amb les gàbies de vertexsVisitats i !jaExisteixGrup)
+                Afegir a gàbiesGrupActual la gàbia del vertex actual
+                Afegir a gossosGrupActual tots els gossos que s'han d'asignar a la zona interior de la gàbia del vertex actual
+                Afegir a GrupsJaTrobats la llista gossosGrupActual
+                ObtenirGrupGabiesDomini(segonVertex, vertexs, vertexsVisitats, gàbiesGrupActual, gossosGrupActual)
+            fi si
+        fi si
+    fi bucle
+    Treure de gàbiesGrupActual la gàbia del vertex 'iVertex'
+    Treure de gossosGrupActual tots els gossos que s'han d'asignar a la zona interior de la gàbia del vertex 'iVertex
+fi
+*
+ */

@@ -106,6 +106,7 @@ public class ShowDistribution extends Activity {
             @Override
             public void onClick(View v) {
                 Intent launchactivity= new Intent(ShowDistribution.this,ShowMap.class);
+                launchactivity.putExtra("ZONE", visibleZone);
                 startActivity(launchactivity);
             }
         });
