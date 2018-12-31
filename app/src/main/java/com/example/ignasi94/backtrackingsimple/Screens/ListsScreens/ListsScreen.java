@@ -82,6 +82,7 @@ public class ListsScreen extends Activity {
                 Intent launchactivity= new Intent(ListsScreen.this,ShowSolution.class);
                 //SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
                 launchactivity.putExtra("nPaseos", npaseos);
+                dbAdapter.CleanSolutionsTables();
                 dbAdapter.SaveWalkSolution(walks, volunteerWalks);
                 dbAdapter.SaveCleanSolution(clean);
                 startActivity(launchactivity);

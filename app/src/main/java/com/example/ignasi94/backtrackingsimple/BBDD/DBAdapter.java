@@ -878,16 +878,34 @@ public class DBAdapter{
         return minId;
     }
 
-    public void onUpgrade()
+    public boolean IsFirstTime()
     {
         SQLiteDatabase db = dbHandler.getWritableDatabase();
-        dbHandler.onUpgrade(db,2,2);
+
+        Cursor cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"+ dbHandler.TABLE_DOGS +"'", null);
+        if(cursor!=null) {
+            if(cursor.getCount()>0) {
+                cursor.close();
+                return false;
+            }
+            cursor.close();
+        }
+        return true;
     }
 
     public void CleanSolutionsTables()
     {
         SQLiteDatabase db = dbHandler.getWritableDatabase();
-        dbHandler.onUpgrade(db,2,2, true);
+        dbHandler.EraseSolutionTables(db);
+    }
+
+    public void onUpgrade()
+    {
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        if(this.IsFirstTime())
+        {
+            dbHandler.onUpgrade(db,0,0);
+        }
     }
 
     public void CleanSelectedVolunteers()
@@ -1039,60 +1057,69 @@ public class DBAdapter{
 
         private void insertDogs(SQLiteDatabase db)
         {
-            String insertDogs = "INSERT INTO " + TABLE_DOGS + "(" + KEY_DOG_ID + "," + KEY_DOG_NAME + "," + KEY_DOG_ID_CAGE + "," + KEY_DOG_WALKTYPE +") VALUES(";
+            String insertDogs = "INSERT INTO " + TABLE_DOGS + "(" + KEY_DOG_ID + "," + KEY_DOG_NAME + "," + KEY_DOG_ID_CAGE + "," + KEY_DOG_WALKTYPE + "," + KEY_DOG_SPECIAL +") VALUES(";
             //0 No sale
             //1 Interior
             //2 Exterior
-            db.execSQL(insertDogs + "1,'Puyol',1,2);");
-            db.execSQL(insertDogs + "2,'Vida',2,2);");
-            db.execSQL(insertDogs + "3,'Trixie',3,2);");
-            db.execSQL(insertDogs + "4,'Thor',4,2);");
-            db.execSQL(insertDogs + "5,'Looney',5,2);");
-            db.execSQL(insertDogs + "6,'Atenea',6,1);");
-            db.execSQL(insertDogs + "7,'Quim',7,2);");
-            db.execSQL(insertDogs + "8,'Kratos',7,2);");
-            db.execSQL(insertDogs + "9,'Rista',8,2);");
-            db.execSQL(insertDogs + "10,'Milady',9,2);");
-            db.execSQL(insertDogs + "11,'Maxi',10,2);");
-            db.execSQL(insertDogs + "12,'Nika',11,2);");
-            db.execSQL(insertDogs + "13,'Mara',12,2);");
-            db.execSQL(insertDogs + "14,'Geralt',13,1);");
-            db.execSQL(insertDogs + "15,'Ralts',14,2);");
-            db.execSQL(insertDogs + "16,'Luc',15,2);");
-            db.execSQL(insertDogs + "17,'Pontos',16,2);");
-            db.execSQL(insertDogs + "18,'Chelin',17,2);");
-            db.execSQL(insertDogs + "19,'Dogos',18,2);");
-            db.execSQL(insertDogs + "20,'Chelsea',19,2);");
-            db.execSQL(insertDogs + "21,'Argus',20,1);");
-            db.execSQL(insertDogs + "22,'Jess',20,1);");
-            db.execSQL(insertDogs + "23,'Max',21,2);");
-            db.execSQL(insertDogs + "24,'Canela',21,2);");
-            db.execSQL(insertDogs + "25,'Blacky',21,1);");
-            db.execSQL(insertDogs + "26,'Titus',22,2);");
-            db.execSQL(insertDogs + "27,'Amiguets',22,2);");
-            db.execSQL(insertDogs + "28,'Miam',23,0);");
-            db.execSQL(insertDogs + "29,'Dardo',23,0);");
+            db.execSQL(insertDogs + "1,'Lori',1,2,0);");
+            db.execSQL(insertDogs + "2,'Puyol',2,2,0);");
+            db.execSQL(insertDogs + "3,'Thor',3,2,0);");
+            db.execSQL(insertDogs + "4,'Trixie',5,2,0);");
+            db.execSQL(insertDogs + "5,'Quim',6,2,0);");
+            db.execSQL(insertDogs + "6,'Kratos',6,2,1);");
+            db.execSQL(insertDogs + "7,'Maxi',7,1,0);");
+            db.execSQL(insertDogs + "8,'Milady',8,2,0);");
+            db.execSQL(insertDogs + "9,'Atenea',10,2,0);");
+            db.execSQL(insertDogs + "10,'Pèsol',11,2,0);");
+            db.execSQL(insertDogs + "11,'Cristal',11,2,0);");
+            db.execSQL(insertDogs + "12,'Geralt',12,1,0);");
+            db.execSQL(insertDogs + "13,'Ralts',13,2,0);");
+            db.execSQL(insertDogs + "14,'Nika',14,2,0);");
+            db.execSQL(insertDogs + "15,'Mara',15,2,0);");
+            db.execSQL(insertDogs + "16,'Vida',16,2,0);");
+            db.execSQL(insertDogs + "17,'Nicky',17,2,0);");
+            db.execSQL(insertDogs + "18,'Chelin',18,2,0);");
+            db.execSQL(insertDogs + "19,'Chelsea',19,2,0);");
+            db.execSQL(insertDogs + "20,'Argus',20,1,0);");
+            db.execSQL(insertDogs + "21,'Jess',20,1,0);");
+            db.execSQL(insertDogs + "22,'Max',21,2,0);");
+            db.execSQL(insertDogs + "23,'Canela',21,2,0);");
+            db.execSQL(insertDogs + "24,'Blacky',21,1,0);");
+            db.execSQL(insertDogs + "25,'Titus',22,2,0);");
+            db.execSQL(insertDogs + "26,'Amiguets',22,1,0);");
+            db.execSQL(insertDogs + "27,'Penny',23,1,0);");
+            db.execSQL(insertDogs + "28,'Miam',23,1,0);");
+            db.execSQL(insertDogs + "29,'Dardo',23,1,0);");
 
-            db.execSQL(insertDogs + "30,'Vito',24,2);");
-            db.execSQL(insertDogs + "31,'Corleone',24,2);");
-            db.execSQL(insertDogs + "32,'Ter',24,0);");
-            db.execSQL(insertDogs + "33,'Perla',24,2);");
+            db.execSQL(insertDogs + "30,'Ter',24,0,0);");
+            db.execSQL(insertDogs + "31,'Sweet',24,0,0);");
+            db.execSQL(insertDogs + "32,'Dàlia',24,0,0);");
 
-            db.execSQL(insertDogs + "34,'Canelo',26,2);");
-            db.execSQL(insertDogs + "35,'Saga',26,2);");
-            db.execSQL(insertDogs + "36,'Tunes',26,2);");
-            db.execSQL(insertDogs + "37,'Sira',26,0);");
+            db.execSQL(insertDogs + "34,'Minimax',25,2,0);");
+            db.execSQL(insertDogs + "35,'Dolça',25,2,0);");
+            db.execSQL(insertDogs + "36,'Bamba',25,2,0);");
+            db.execSQL(insertDogs + "37,'Calipa',25,0,0);");
 
-            db.execSQL(insertDogs + "38,'Pésol',29,2);");
-            db.execSQL(insertDogs + "39,'Cristal',29,2);");
-            db.execSQL(insertDogs + "40,'Bull',30,2);");
-            db.execSQL(insertDogs + "41,'Maya',30,2);");
-            db.execSQL(insertDogs + "42,'Stracciatela',31,2);");
+            db.execSQL(insertDogs + "38,'Widow',26,2,0);");
+            db.execSQL(insertDogs + "39,'Onar',26,0,0);");
+            db.execSQL(insertDogs + "40,'Marró',26,0,0);");
 
-            db.execSQL(insertDogs + "43,'Mar',32,2);");
-            db.execSQL(insertDogs + "44,'Roc',32,2);");
+            db.execSQL(insertDogs + "41,'Toones',27,2,0);");
+            db.execSQL(insertDogs + "42,'Canelo',27,2,0);");
+            db.execSQL(insertDogs + "43,'Sira',27,0,0);");
 
-            db.execSQL(insertDogs + "45,'NO_CAGE',-1,2);");
+            db.execSQL(insertDogs + "44,'Bull',30,2,0);");
+            db.execSQL(insertDogs + "45,'Maya',30,2,0);");
+            db.execSQL(insertDogs + "46,'6 hunters',29,0,0);");
+
+            db.execSQL(insertDogs + "47,'Roc',32,2,0);");
+            db.execSQL(insertDogs + "48,'Ida',32,2,0);");
+            db.execSQL(insertDogs + "49,'Juliette',33,2,0);");
+            db.execSQL(insertDogs + "50,'Mar',34,2,0);");
+            db.execSQL(insertDogs + "51,'Dartacan',35,2,0);");
+            db.execSQL(insertDogs + "52,'Silke',37,2,0);");
+            db.execSQL(insertDogs + "53,'Stan',37,2,0);");
+
         }
 
         private void insertVolunteers(SQLiteDatabase db)
@@ -1101,24 +1128,74 @@ public class DBAdapter{
             db.execSQL(insertVolunteers + 1 + ",'Ignasi','S');");
             db.execSQL(insertVolunteers + 2 + ",'Esther','S');");
             db.execSQL(insertVolunteers + 3 + ",'Sònia','S');");
-            db.execSQL(insertVolunteers + 4 + ",'Àlex','S');");
+            db.execSQL(insertVolunteers + 4 + ",'Àlex Bravo','S');");
             db.execSQL(insertVolunteers + 5 + ",'Guillem','S');");
-            db.execSQL(insertVolunteers + 6 + ",'Lídia','D');");
-            db.execSQL(insertVolunteers + 7 + ",'Alba1','S');");
-            db.execSQL(insertVolunteers + 8 + ",'Alba2','D');");
+            db.execSQL(insertVolunteers + 6 + ",'Lídia','S');");
+            db.execSQL(insertVolunteers + 7 + ",'Sergio','S');");
+            db.execSQL(insertVolunteers + 8 + ",'Núria','S');");
+            db.execSQL(insertVolunteers + 9 + ",'Laura','S');");
+            db.execSQL(insertVolunteers + 10 + ",'Eli','S');");
+            db.execSQL(insertVolunteers + 11 + ",'Laia','S');");
+            db.execSQL(insertVolunteers + 12 + ",'Dani','S');");
+            db.execSQL(insertVolunteers + 13 + ",'Alba Roig','S');");
+            db.execSQL(insertVolunteers + 14 + ",'Alba L','S');");
+
+            db.execSQL(insertVolunteers + 15 + ",'Àlex','D');");
+            db.execSQL(insertVolunteers + 16 + ",'Andrea','D');");
+            db.execSQL(insertVolunteers + 17 + ",'Elena','D');");
+            db.execSQL(insertVolunteers + 18 + ",'Asun','D');");
+            db.execSQL(insertVolunteers + 19 + ",'Anna B.','D');");
+            db.execSQL(insertVolunteers + 20 + ",'Ramón','D');");
+            db.execSQL(insertVolunteers + 21 + ",'Elisenda','D');");
+            db.execSQL(insertVolunteers + 22 + ",'Montse Mambo','D');");
+            db.execSQL(insertVolunteers + 23 + ",'Yannick','D');");
+            db.execSQL(insertVolunteers + 24 + ",'Carles','D');");
+            db.execSQL(insertVolunteers + 25 + ",'Anna','D');");
+            db.execSQL(insertVolunteers + 26 + ",'Alba Rom','D');");
+            db.execSQL(insertVolunteers + 27 + ",'Josep','D');");
+            db.execSQL(insertVolunteers + 28 + ",'Abel','D');");
+            db.execSQL(insertVolunteers + 29 + ",'Jara','D');");
+            db.execSQL(insertVolunteers + 30 + ",'Albert','D');");
         }
 
-        private void insertDogFriends(SQLiteDatabase db)
+        private void insertDogFavourites(SQLiteDatabase db)
         {
-            String insertVolunteers = "INSERT INTO " + TABLE_DOG_FRIENDS + "(" + KEY_DOGFRIENDS_ID + "," + KEY_DOGFRIENDS_DOG_ID + "," + KEY_DOGFRIENDS_FRIENDDOG_ID +") VALUES(";
-            db.execSQL(insertVolunteers + 1 + ",'Ignasi','S');");
-            db.execSQL(insertVolunteers + 2 + ",'Esther','S');");
-            db.execSQL(insertVolunteers + 3 + ",'Sònia','S');");
-            db.execSQL(insertVolunteers + 4 + ",'Àlex','S');");
-            db.execSQL(insertVolunteers + 5 + ",'Guillem','S');");
-            db.execSQL(insertVolunteers + 6 + ",'Lídia','D');");
-            db.execSQL(insertVolunteers + 7 + ",'Alba1','S');");
-            db.execSQL(insertVolunteers + 8 + ",'Alba2','D');");
+            String insertVolunteers = "INSERT INTO " + TABLE_DOG_FAVOURITES + "(" + KEY_DOGFAVOURITES_ID + "," + KEY_DOGFAVOURITES_VOLUNTEER_ID + "," + KEY_DOGFAVOURITES_DOG_ID +") VALUES(";
+
+
+            db.execSQL(insertVolunteers + 1 + "," + 17 + "," + 44 + ");");
+            db.execSQL(insertVolunteers + 2 + "," + 15 + "," + 14 + ");");
+            db.execSQL(insertVolunteers + 3 + "," + 15 + "," + 5 + ");");
+            db.execSQL(insertVolunteers + 4 + "," + 15 + "," + 6 + ");");
+            db.execSQL(insertVolunteers + 5 + "," + 15 + "," + 15 + ");");
+            db.execSQL(insertVolunteers + 6 + "," + 19 + "," + 16 + ");");
+            db.execSQL(insertVolunteers + 7 + "," + 19 + "," + 30 + ");");
+            db.execSQL(insertVolunteers + 8 + "," + 22 + "," + 2 + ");");
+            db.execSQL(insertVolunteers + 9 + "," + 22 + "," + 38 + ");");
+            db.execSQL(insertVolunteers + 10 + "," + 18 + "," + 18 + ");");
+            db.execSQL(insertVolunteers + 11 + "," + 21 + "," + 51 + ");");
+            db.execSQL(insertVolunteers + 12 + "," + 21 + "," + 10 + ");");
+            db.execSQL(insertVolunteers + 13 + "," + 16 + "," + 36 + ");");
+            db.execSQL(insertVolunteers + 14 + "," + 16 + "," + 25 + ");");
+            db.execSQL(insertVolunteers + 15 + "," + 16 + "," + 5 + ");");
+            db.execSQL(insertVolunteers + 16 + "," + 16 + "," + 22 + ");");
+            db.execSQL(insertVolunteers + 17 + "," + 7 + "," + 3 + ");");
+            db.execSQL(insertVolunteers + 18 + "," + 29 + "," + 25 + ");");
+            db.execSQL(insertVolunteers + 19 + "," + 30 + "," + 4 + ");");
+            db.execSQL(insertVolunteers + 20 + "," + 30 + "," + 17 + ");");
+            db.execSQL(insertVolunteers + 21 + "," + 20 + "," + 45 + ");");
+            db.execSQL(insertVolunteers + 22 + "," + 20 + "," + 42 + ");");
+
+            db.execSQL(insertVolunteers + 23 + "," + 1 + "," + 15 + ");");
+            db.execSQL(insertVolunteers + 24 + "," + 1 + "," + 6 + ");");
+            db.execSQL(insertVolunteers + 25 + "," + 2 + "," + 25 + ");");
+            db.execSQL(insertVolunteers + 26 + "," + 2 + "," + 5 + ");");
+            db.execSQL(insertVolunteers + 27 + "," + 2 + "," + 6 + ");");
+            db.execSQL(insertVolunteers + 28 + "," + 5 + "," + 16 + ");");
+            db.execSQL(insertVolunteers + 29 + "," + 6 + "," + 18 + ");");
+            db.execSQL(insertVolunteers + 30 + "," + 10 + "," + 10 + ");");
+            db.execSQL(insertVolunteers + 31 + "," + 13 + "," + 25 + ");");
+            db.execSQL(insertVolunteers + 32 + "," + 14 + "," + 22 + ");");
         }
 
         private void insertFriendDogs(SQLiteDatabase db)
@@ -1199,6 +1276,7 @@ public class DBAdapter{
             this.insertDogs(db);
             this.insertVolunteers(db);
             this.insertFriendDogs(db);
+            this.insertDogFavourites(db);
         }
 
         @Override
@@ -1215,26 +1293,6 @@ public class DBAdapter{
 
             //Create tables again
             onCreate(db);
-        }
-
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion, boolean saveSolutions) {
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_WALKS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CLEAN);
-
-            String CREATE_WALKS_TABLE = "CREATE TABLE " + TABLE_WALKS + "("
-                    + KEY_WALKS_ID + " INTEGER PRIMARY KEY,"
-                    + KEY_WALKS_ROW + " INTEGER,"
-                    + KEY_WALKS_COLUMN + " INTEGER,"
-                    + KEY_WALKS_DOG_ID + " INTEGER,"
-                    + KEY_WALKS_VOLUNTEER_ID + " INTEGER" + ")";
-            String CREATE_CLEAN_TABLE = "CREATE TABLE " + TABLE_CLEAN + "("
-                    + KEY_CLEAN_ID + " INTEGER PRIMARY KEY,"
-                    + KEY_CLEAN_ROW + " INTEGER,"
-                    + KEY_CLEAN_COLUMN + " INTEGER,"
-                    + KEY_CLEAN_DOG_ID + " INTEGER" + ")";
-
-            db.execSQL(CREATE_WALKS_TABLE);
-            db.execSQL(CREATE_CLEAN_TABLE);
         }
 
         public void CleanSelectedVolunteers(SQLiteDatabase db)
@@ -1271,6 +1329,27 @@ public class DBAdapter{
                     + KEY_DOG_OBSERVATIONS + " TEXT" + ")";
 
             db.execSQL(CREATE_DOGS_TABLE);
+        }
+
+        public void EraseSolutionTables(SQLiteDatabase db)
+        {
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_WALKS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CLEAN);
+
+            String CREATE_WALKS_TABLE = "CREATE TABLE " + TABLE_WALKS + "("
+                    + KEY_WALKS_ID + " INTEGER PRIMARY KEY,"
+                    + KEY_WALKS_ROW + " INTEGER,"
+                    + KEY_WALKS_COLUMN + " INTEGER,"
+                    + KEY_WALKS_DOG_ID + " INTEGER,"
+                    + KEY_WALKS_VOLUNTEER_ID + " INTEGER" + ")";
+            String CREATE_CLEAN_TABLE = "CREATE TABLE " + TABLE_CLEAN + "("
+                    + KEY_CLEAN_ID + " INTEGER PRIMARY KEY,"
+                    + KEY_CLEAN_ROW + " INTEGER,"
+                    + KEY_CLEAN_COLUMN + " INTEGER,"
+                    + KEY_CLEAN_DOG_ID + " INTEGER" + ")";
+
+            db.execSQL(CREATE_WALKS_TABLE);
+            db.execSQL(CREATE_CLEAN_TABLE);
         }
     }
 }

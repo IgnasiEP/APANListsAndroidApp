@@ -56,6 +56,7 @@ public class Algorithm {
     //Important Values
     int nPaseos;
     int totalWalks;
+    int exteriorDogs;
 
     //Others
     public final Logger Log = Logger.getLogger("Logger");
@@ -105,6 +106,14 @@ public class Algorithm {
         //Reordenamos los paseos de más paseos a menos
         this.OrderWalksTableByWalksCount();
 
+        exteriorDogs = 0;
+        for(int i = 0; i < dogs.size(); ++i)
+        {
+            if(dogs.get(i).walktype == Constants.WT_EXTERIOR)
+            {
+                ++exteriorDogs;
+            }
+        }
 
         this.Backtracking(0,0,0,nPaseos,volunteers.size(),dogs.size());
 
@@ -390,9 +399,13 @@ public class Algorithm {
                 if (iClean == 0 && irow == 0 && icolumn == 0) {
                     return;
                 } else {
-                    if (ndogs < this.totalWalks) {
+                    if (exteriorDogs < this.totalWalks) {
                         this.walksTable[irow][icolumn] = null;
-                        if (icolumn + 1 == nVolunteers) {
+                        if (iClean == nPaseos && irow == nPaseos - 1 && icolumn + 1 >= this.iWalks(irow)) {
+                            //Solución
+                            //no hacer nada
+                        }
+                        else if (icolumn + 1 == nVolunteers) {
                             this.Backtracking(iClean, irow + 1, 0, nPaseos, nVolunteers, ndogs);
                         } else {
                             this.Backtracking(iClean, irow, icolumn + 1, nPaseos, nVolunteers, ndogs);
@@ -727,7 +740,7 @@ public class Algorithm {
             }
             if(eraseGroup)
             {
-                newCleanDomain.remove(this.cleanDomains.get(i));
+                newCleanDomain.remove(cleanDomain.get(i));
             }
         }
 
@@ -1189,8 +1202,8 @@ public class Algorithm {
             //asignados en comparación con los del paseo
 
             ArrayList<VolunteerWalks> volunteersStillToAssign = (ArrayList<VolunteerWalks>) volunteersAssigned.clone();
-            for(int j = 0; j < volunteersWithSpecialDogs.size(); ++j) {
-                int id = volunteersWithSpecialDogs.get(j).id;
+            for(int j = 0; j < newAssing.size(); ++j) {
+                int id = newAssing.get(j).volunteer.id;
                 for(int z = 0; z < volunteersStillToAssign.size(); ++z)
                 {
                     int id2 = volunteersStillToAssign.get(z).id;
