@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.support.constraint.Guideline;
 
 
 import com.example.ignasi94.backtrackingsimple.BBDD.DBAdapter;
@@ -69,6 +73,12 @@ public class EditSolution extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lists_activity_edit_solution);
 
+        Button buttonShowNotAssigned = (Button) findViewById(R.id.button_show_no_assigned);
+        Button buttonHideNotAssigned = (Button) findViewById(R.id.button_hide_notassigned);
+        LinearLayout linearLayoutNotAssigned = (LinearLayout) findViewById(R.id.layoutnotassigned);
+        LinearLayout linearLayoutAssigned = (LinearLayout) findViewById(R.id.layoutdogsassigned);
+        TextView topText = (TextView) findViewById(R.id.textView_title);
+
         cleanGridColumns = 5;
         dogsUnassignedColumns = 5;
 
@@ -110,6 +120,10 @@ public class EditSolution extends Activity {
         cleanGrid.setAdapter(cleanDogAdapter);
         cleanGrid.setOnItemLongClickListener(new CleanSolutionTouchListener());
 
+        List<Dog> dogs = dbAdapter.getAllDogs();
+        List<Cage> cages = dbAdapter.getAllCages();
+        CreateListDogsPerCage(dogs, cages);
+
         buttonShowClean.setOnDragListener(new DragListener());
         buttonShowClean.setTag("button_limpieza");
         buttonShowClean.setOnClickListener(new View.OnClickListener() {
@@ -119,7 +133,6 @@ public class EditSolution extends Activity {
                 cleanGridView.setVisibility(View.VISIBLE);
                 buttonShowClean.setVisibility(View.GONE);
                 buttonShowPaseos.setVisibility(View.VISIBLE);
-
             }
         });
 
@@ -132,6 +145,38 @@ public class EditSolution extends Activity {
                 cleanGridView.setVisibility(View.GONE);
                 buttonShowClean.setVisibility(View.VISIBLE);
                 buttonShowPaseos.setVisibility(View.GONE);
+            }
+        });
+
+        buttonHideNotAssigned.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dogGridUnassigned.setVisibility(View.GONE);
+                buttonHideNotAssigned.setVisibility(View.GONE);
+                topText.setVisibility(View.GONE);
+                buttonShowNotAssigned.setVisibility(View.VISIBLE);
+                linearLayoutNotAssigned.setVisibility(View.GONE);
+
+                Guideline guideLine12 = (Guideline) findViewById(R.id.guideline12);
+                ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) guideLine12.getLayoutParams();
+                params.guidePercent = 0.1f;
+                guideLine12.setLayoutParams(params);
+            }
+        });
+
+        buttonShowNotAssigned.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dogGridUnassigned.setVisibility(View.VISIBLE);
+                buttonHideNotAssigned.setVisibility(View.VISIBLE);
+                topText.setVisibility(View.VISIBLE);
+                buttonShowNotAssigned.setVisibility(View.GONE);
+                linearLayoutNotAssigned.setVisibility(View.VISIBLE);
+
+                Guideline guideLine12 = (Guideline) findViewById(R.id.guideline12);
+                ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) guideLine12.getLayoutParams();
+                params.guidePercent = 0.4f;
+                guideLine12.setLayoutParams(params);
             }
         });
 
@@ -273,7 +318,7 @@ public class EditSolution extends Activity {
             this.context = context;
             this.gridType = gridType;
             this.columns = columns;
-            if(gridType == Constants.GRID_DOGS_UNASSIGNED && (matrixList.size() % dogsUnassignedColumns) == 0)
+            if(gridType == Constants.GRID_DOGS_UNASSIGNED /*&& (matrixList.size() % dogsUnassignedColumns) == 0*/)
             {
                 VolunteerDog volunteerDog = new VolunteerDog(new Dog(Constants.DEFAULT_DOG_NAME), null);
                 matrixList.add(volunteerDog);
@@ -552,7 +597,38 @@ public class EditSolution extends Activity {
                 textViewAndroid.setLayoutParams(loparams);
                 textViewAndroid.setTextSize(13);
 
-                imageViewAndroid2.setImageResource(R.mipmap.ic_noerror);
+                if(volunteerDog.walksError && volunteerDog.specialError && volunteerDog.interiorError)
+                {
+                    imageViewAndroid2.setImageResource(R.mipmap.ic_error_triple);
+                }
+                else if(volunteerDog.walksError && volunteerDog.specialError)
+                {
+                    imageViewAndroid2.setImageResource(R.mipmap.ic_error_red_blue);
+                }
+                else if(volunteerDog.walksError && volunteerDog.interiorError)
+                {
+                    imageViewAndroid2.setImageResource(R.mipmap.ic_error_red_orange);
+                }
+                else if(volunteerDog.specialError && volunteerDog.interiorError)
+                {
+                    imageViewAndroid2.setImageResource(R.mipmap.ic_error_blue_orange);
+                }
+                else if(volunteerDog.walksError)
+                {
+                    imageViewAndroid2.setImageResource(R.mipmap.ic_error_red);
+                }
+                else if(volunteerDog.specialError)
+                {
+                    imageViewAndroid2.setImageResource(R.mipmap.ic_error_blue);
+                }
+                else if(volunteerDog.interiorError)
+                {
+                    imageViewAndroid2.setImageResource(R.mipmap.ic_error_orange);
+                }
+                else
+                {
+                    imageViewAndroid2.setImageResource(R.mipmap.ic_noerror);
+                }
                 imageViewAndroid2.setVisibility(View.VISIBLE);
             }
             else
@@ -946,7 +1022,7 @@ public class EditSolution extends Activity {
                     gridViewDestino.invalidate();
                     // if an item has already been dropped here, there will be a tag
                     Object tag = gridViewDestino.getTag();
-                    CheckErrors(draggedIndex, indexDestino, dogDragged, dogMoved, origenAdapter, gridOrigenName, destinoAdapter, gridDestinoName);
+                    CheckErrors(draggedIndex, indexDestino, dogDragged, dogMoved, origenAdapter, gridOrigenName, gridViewOrigen, destinoAdapter, gridDestinoName, gridViewDestino);
                     /*
                      * //if there is already an item here, set it back visible in
                      * its original place if(tag!=null) { //the tag is the view id
@@ -978,25 +1054,55 @@ public class EditSolution extends Activity {
         }
     }
 
-    public void CheckErrors(int origenPosition, int destinoPosition, VolunteerDog dogDragged, VolunteerDog dogMoved, DogAdapter origenAdapter, String gridOrigenName, DogAdapter destinoAdapter, String gridDestinoName)
+    public void CheckErrors(int origenPosition, int destinoPosition, VolunteerDog dogDragged, VolunteerDog dogMoved, DogAdapter origenAdapter, String gridOrigenName,
+                            GridView gridViewOrigen, DogAdapter destinoAdapter, String gridDestinoName, GridView gridViewDestino)
     {
-        if(gridOrigenName.equals("grid_dogs") && dogMoved != null)
+        if(gridOrigenName.equals("grid_dogs") && dogMoved != null && dogMoved.dog.id > 0)
         {
             if(dogMoved.dog.special)
             {
                 VolunteerDog volunteer = origenAdapter.matrixList.get((origenPosition/origenAdapter.columns)* origenAdapter.columns);
-                if(!volunteer.volunteer.favouriteDogs.contains(dogMoved))
+                boolean containsDog = false;
+
+                for(int i = 0; i < volunteer.volunteer.favouriteDogs.size(); ++i)
                 {
-                    //dogMoved.Error(BLUE)
+                    if(volunteer.volunteer.favouriteDogs.get(i).name.equals(dogMoved.dog.name))
+                    {
+                        containsDog = true;
+                        break;
+                    }
+                }
+
+                for(int i = 0; i < dogAdapter.matrixList.size(); ++i)
+                {
+                    VolunteerDog volunteerDog = dogAdapter.matrixList.get(i);
+                    if(volunteerDog.dog != null && volunteerDog.dog.id == dogMoved.dog.id)
+                    {
+                        if(containsDog) {
+                            volunteerDog.specialError = false;
+                        }
+                        else
+                        {
+                            volunteerDog.specialError = true;
+                        }
+
+                    }
                 }
             }
 
             if(dogMoved.dog.walktype != Constants.WT_EXTERIOR)
             {
-                //dogMoved.Error(Orange)
+                for(int i = 0; i < dogAdapter.matrixList.size(); ++i)
+                {
+                    VolunteerDog volunteerDog = dogAdapter.matrixList.get(i);
+                    if(volunteerDog.dog != null && volunteerDog.dog.id == dogMoved.dog.id)
+                    {
+                        volunteerDog.interiorError = true;
+                    }
+                }
             }
 
-            //CheckIfCageDogsSameWalk()
+            CheckIfCageDogsSameWalk(dogMoved.dog.idCage);
         }
 
         if(gridDestinoName.equals("grid_dogs"))
@@ -1004,39 +1110,205 @@ public class EditSolution extends Activity {
             if(dogDragged.dog.special)
             {
                 VolunteerDog volunteer = destinoAdapter.matrixList.get((destinoPosition/destinoAdapter.columns)*destinoAdapter.columns);
-                if(!volunteer.volunteer.favouriteDogs.contains(dogDragged))
+                boolean containsDog = false;
+
+                for(int i = 0; i < volunteer.volunteer.favouriteDogs.size(); ++i)
                 {
-                    //dogDragged.Error(BLUE)
+                    if(volunteer.volunteer.favouriteDogs.get(i).name.equals(dogDragged.dog.name))
+                    {
+                        containsDog = true;
+                        break;
+                    }
+                }
+
+                for(int i = 0; i < dogAdapter.matrixList.size(); ++i)
+                {
+                    VolunteerDog volunteerDog = dogAdapter.matrixList.get(i);
+                    if(volunteerDog.dog != null && volunteerDog.dog.id == dogDragged.dog.id)
+                    {
+                        if(containsDog) {
+                            volunteerDog.specialError = false;
+                        }
+                        else
+                        {
+                            volunteerDog.specialError = true;
+                        }
+
+                    }
                 }
             }
 
             if(dogDragged.dog.walktype != Constants.WT_EXTERIOR)
             {
-                //dogDragged.Error(Orange)
+                for(int i = 0; i < dogAdapter.matrixList.size(); ++i)
+                {
+                    VolunteerDog volunteerDog = dogAdapter.matrixList.get(i);
+                    if(volunteerDog.dog != null && volunteerDog.dog.id == dogDragged.dog.id)
+                    {
+                        volunteerDog.interiorError = true;
+                    }
+                }
             }
 
-            //CheckIfCageDogsSameWalk()
+            CheckIfCageDogsSameWalk(dogDragged.dog.idCage);
         }
 
-        if(gridOrigenName.equals("grid_clean_dogs") && dogMoved != null)
+        if(gridOrigenName.equals("grid_clean_dogs") && dogMoved != null && dogMoved.dog.id > 0)
         {
-            //CheckIfCageDogsSameWalk()
+            if(dogMoved.interiorError)
+            {
+                for(int i = 0; i < cleanDogAdapter.matrixList.size(); ++i)
+                {
+                    VolunteerDog volunteerDog = cleanDogAdapter.matrixList.get(i);
+                    if(volunteerDog.dog != null && volunteerDog.dog.id == dogMoved.dog.id)
+                    {
+                        volunteerDog.interiorError = false;
+                    }
+                }
+            }
+            CheckIfCageDogsSameWalk(dogMoved.dog.idCage);
         }
 
         if(gridDestinoName.equals("grid_clean_dogs"))
         {
-            //CheckIfCageDogsSameWalk()
+            if(dogDragged.interiorError)
+            {
+                for(int i = 0; i < cleanDogAdapter.matrixList.size(); ++i)
+                {
+                    VolunteerDog volunteerDog = cleanDogAdapter.matrixList.get(i);
+                    if(volunteerDog.dog != null && volunteerDog.dog.id == dogDragged.dog.id)
+                    {
+                        volunteerDog.interiorError = false;
+                    }
+                }
+            }
+            CheckIfCageDogsSameWalk(dogDragged.dog.idCage);
         }
 
+        if(gridDestinoName.equals("grid_dogs_notassigned")) {
+            CheckIfCageDogsSameWalk(dogDragged.dog.idCage);
+        }
+
+        if(gridOrigenName.equals("grid_dogs_notassigned") && dogMoved != null && dogMoved.dog.id > 0) {
+            CheckIfCageDogsSameWalk(dogMoved.dog.idCage);
+        }
+
+        destinoAdapter.notifyDataSetChanged();
+        origenAdapter.notifyDataSetChanged();
+        gridViewOrigen.invalidateViews();
+        gridViewDestino.invalidateViews();
     }
 
     public void CheckIfCageDogsSameWalk(int idCage)
     {
+        ArrayList<Dog> cageDogs = listDogsPerCage.get(idCage);
 
+        ArrayList<Dog> exteriorCageDogs = GetExteriorDogs(idCage);
+
+        ArrayList<Integer> walks = new ArrayList<Integer>();
+
+        ArrayList<Integer> positions = new ArrayList<Integer>();
+        ArrayList<Dog> dogsInTable = new ArrayList<Dog>();
+
+        ArrayList<Integer> cleanPositions = new ArrayList<Integer>();
+        ArrayList<Dog> dogsInCleanTable = new ArrayList<Dog>();
+        int iPaseo = -1;
+
+        for(int i = 0; i < dogAdapter.matrixList.size(); ++i)
+        {
+            VolunteerDog volunteerDog = dogAdapter.matrixList.get(i);
+            if(volunteerDog.volunteer != null)
+            {
+                iPaseo = 0;
+            }
+            if(volunteerDog.dog != null && volunteerDog.dog.idCage == idCage)
+            {
+                dogsInTable.add(volunteerDog.dog);
+                positions.add(i);
+                if(!walks.contains(iPaseo))
+                {
+                    walks.add(iPaseo);
+                }
+            }
+            iPaseo++;
+        }
+
+        iPaseo = 0;
+        for(int i = 0; i < cleanDogAdapter.matrixList.size(); ++i)
+        {
+            VolunteerDog volunteerDog = cleanDogAdapter.matrixList.get(i);
+            if((i % cleanDogAdapter.columns) == 0)
+            {
+                iPaseo++;
+            }
+            if(volunteerDog.dog != null && volunteerDog.dog.idCage == idCage)
+            {
+                dogsInCleanTable.add(volunteerDog.dog);
+                cleanPositions.add(i);
+                if(!walks.contains(iPaseo))
+                {
+                    walks.add(iPaseo);
+                }
+            }
+        }
+
+        boolean dogsInCageUnassigned = false;
+        for(int i = 0; i < dogAdapterUnassigned.matrixList.size(); ++i)
+        {
+            VolunteerDog volunteerDog = dogAdapterUnassigned.matrixList.get(i);
+            if(volunteerDog.dog != null && volunteerDog.dog.idCage == idCage && volunteerDog.dog.walktype != Constants.WT_NONE)
+            {
+                dogsInCageUnassigned = true;
+            }
+        }
+
+
+
+        if(walks.size() > 1 || dogsInCageUnassigned)
+        {
+            for(int i = 0; i < positions.size(); ++i)
+            {
+                VolunteerDog volunteerDog = dogAdapter.matrixList.get(positions.get(i));
+                if(volunteerDog.dog != null && volunteerDog.dog.idCage == idCage)
+                {
+                    volunteerDog.walksError = true;
+                }
+            }
+
+            for(int i = 0; i < cleanPositions.size(); ++i)
+            {
+                VolunteerDog volunteerDog = cleanDogAdapter.matrixList.get(cleanPositions.get(i));
+                if(volunteerDog.dog != null && volunteerDog.dog.idCage == idCage)
+                {
+                    volunteerDog.walksError = true;
+                }
+            }
+        }
+        else if(walks.size() == 1 || !dogsInCageUnassigned)
+        {
+            for(int i = 0; i < positions.size(); ++i)
+            {
+                VolunteerDog volunteerDog = dogAdapter.matrixList.get(positions.get(i));
+                if(volunteerDog.dog != null && volunteerDog.dog.idCage == idCage)
+                {
+                    volunteerDog.walksError = false;
+                }
+            }
+
+            for(int i = 0; i < cleanPositions.size(); ++i)
+            {
+                VolunteerDog volunteerDog = cleanDogAdapter.matrixList.get(cleanPositions.get(i));
+                if(volunteerDog.dog != null && volunteerDog.dog.idCage == idCage)
+                {
+                    volunteerDog.walksError = false;
+                }
+            }
+        }
     }
 
     public void CreateListDogsPerCage(List<Dog> dogs, List<Cage> cages)
     {
+        listDogsPerCage = new ArrayList<ArrayList<Dog>>();
         listDogsPerCage.add(new ArrayList<Dog>());
         for(int i = 0; i < cages.size(); ++i)
         {
@@ -1053,13 +1325,13 @@ public class EditSolution extends Activity {
         }
     }
 
-    public ArrayList<Dog> GetExteriorDogs(int cageId)
+    public ArrayList<Dog> GetExteriorDogs(int idCage)
     {
         ArrayList<Dog> dogs = new ArrayList<Dog>();
         int count = 0;
-        for (int i = 0; i < this.listDogsPerCage.get(cageId).size(); ++i)
+        for (int i = 0; i < this.listDogsPerCage.get(idCage).size(); ++i)
         {
-            Dog dog = this.listDogsPerCage.get(cageId).get(i);
+            Dog dog = this.listDogsPerCage.get(idCage).get(i);
             if(dog.walktype == Constants.WT_EXTERIOR)
             {
                 dogs.add(dog);

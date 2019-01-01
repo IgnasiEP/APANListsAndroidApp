@@ -195,7 +195,6 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:weightSum="10"
         android:id="@+id/layoutnotassigned"
         app:layout_constraintBottom_toTopOf="@+id/guideline12"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
@@ -206,8 +205,7 @@
         <TextView
             android:id="@+id/textView_title"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:text="Perros no asignados a la lista"
             tools:layout_editor_absoluteX="16dp"
             tools:layout_editor_absoluteY="16dp" />
@@ -215,8 +213,7 @@
         <HorizontalScrollView
             android:id="@+id/dogsview_notassigned"
             android:layout_width="384dp"
-            android:layout_height="0dp"
-            android:layout_weight="7"
+            android:layout_height="157dp"
             android:layout_alignParentTop="true"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
@@ -254,8 +251,7 @@
         <Button
             android:id="@+id/button_hide_notassigned"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"
+            android:layout_height="wrap_content"
             android:text="..." />
 
         <View
@@ -271,7 +267,6 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:orientation="vertical"
-        android:weightSum="10"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintStart_toStartOf="@+id/guideline3"
@@ -280,8 +275,7 @@
         <HorizontalScrollView
             android:id="@+id/dogsview"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="20"
+            android:layout_height="260dp"
             android:layout_alignParentTop="true"
             android:layout_marginBottom="76dp"
             android:layout_marginEnd="8dp"
@@ -299,7 +293,7 @@
             <GridView
                 android:id="@+id/grid_dogs"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginEnd="16dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
@@ -320,8 +314,7 @@
         <HorizontalScrollView
             android:id="@+id/dogscleanview"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="20"
+            android:layout_height="260dp"
             android:layout_alignParentTop="true"
             android:layout_marginBottom="76dp"
             android:layout_marginEnd="8dp"

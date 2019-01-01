@@ -6,6 +6,9 @@ public class VolunteerDog implements Cloneable
     public boolean visibility;
     public Volunteer volunteer;
     public Dog dog;
+    public boolean walksError;
+    public boolean specialError;
+    public boolean interiorError;
 
     public VolunteerDog() {}
 

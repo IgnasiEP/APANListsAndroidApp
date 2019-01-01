@@ -46,8 +46,8 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="foregroundImage" value="C:\Users\Ignasi\Desktop\Error Red.png" />
-                                      <entry key="foregroundLayerName" value="ic_error_red" />
+                                      <entry key="foregroundImage" value="C:\Users\Ignasi\Desktop\TripleError.png" />
+                                      <entry key="foregroundLayerName" value="ic_error_triple" />
                                     </map>
                                   </option>
                                 </PersistentState>
