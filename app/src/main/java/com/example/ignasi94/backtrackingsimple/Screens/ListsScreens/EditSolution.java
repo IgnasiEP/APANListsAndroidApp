@@ -16,6 +16,7 @@ import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -1262,8 +1263,6 @@ public class EditSolution extends Activity {
             }
         }
 
-
-
         if(walks.size() > 1 || dogsInCageUnassigned)
         {
             for(int i = 0; i < positions.size(); ++i)
@@ -1273,6 +1272,8 @@ public class EditSolution extends Activity {
                 {
                     volunteerDog.walksError = true;
                 }
+                dogAdapter.notifyDataSetChanged();
+                dogGrid.invalidateViews();
             }
 
             for(int i = 0; i < cleanPositions.size(); ++i)
@@ -1282,6 +1283,8 @@ public class EditSolution extends Activity {
                 {
                     volunteerDog.walksError = true;
                 }
+                cleanDogAdapter.notifyDataSetChanged();
+                cleanGrid.invalidateViews();
             }
         }
         else if(walks.size() == 1 || !dogsInCageUnassigned)
@@ -1293,6 +1296,9 @@ public class EditSolution extends Activity {
                 {
                     volunteerDog.walksError = false;
                 }
+
+                dogAdapter.notifyDataSetChanged();
+                dogGrid.invalidateViews();
             }
 
             for(int i = 0; i < cleanPositions.size(); ++i)
@@ -1302,6 +1308,8 @@ public class EditSolution extends Activity {
                 {
                     volunteerDog.walksError = false;
                 }
+                cleanDogAdapter.notifyDataSetChanged();
+                cleanGrid.invalidateViews();
             }
         }
     }

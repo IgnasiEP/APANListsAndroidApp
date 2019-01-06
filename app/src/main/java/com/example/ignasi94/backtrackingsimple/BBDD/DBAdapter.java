@@ -1253,7 +1253,7 @@ public class DBAdapter{
                     + KEY_SELECTEDVOLUNTEERS_WALK_2 + " INTEGER,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_3 + " INTEGER,"
                     + KEY_SELECTEDVOLUNTEERS_WALK_4 + " INTEGER,"
-                    + KEY_SELECTEDVOLUNTEERS_WALK_5 + " BOOLEAN,"
+                    + KEY_SELECTEDVOLUNTEERS_WALK_5 + " INTEGER,"
                     + KEY_SELECTEDVOLUNTEERS_NWALKS + " INTEGER" + ")";
             String CREATE_DOG_FRIENDS_TABLE = "CREATE TABLE " + TABLE_DOG_FRIENDS + "("
                     + KEY_DOGFRIENDS_ID + " INTEGER PRIMARY KEY,"

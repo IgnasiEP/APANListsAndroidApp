@@ -59,7 +59,7 @@ public class ListsScreen extends Activity {
             public void onClick(View v) {
                 List<Dog> dogs = dbAdapter.getAllDogs();
                 //TESTINTERIORFRIENDS(dogs, dbAdapter);
-                List<Cage> cages = GetCages();
+                List<Cage> cages = dbAdapter.getAllCages();
                 List<VolunteerWalks> volunteers = dbAdapter.getAllSelectedVolunteers();
                 //TESTINTERIORSANDSPECIALS1(volunteers,dogs,dbAdapter);
                 int npaseos = volunteers.get(0).nPaseos;
