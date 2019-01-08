@@ -100,6 +100,16 @@ public class ListsScreen extends Activity {
             goEditConfigureListsButton.setVisibility(View.VISIBLE);
             goMakeListsButton.setVisibility(View.VISIBLE);
         }
+
+        Button testButton = (Button) findViewById(R.id.tests_algorithm_button);
+        testButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent launchactivity= new Intent(ListsScreen.this,TestsScreen.class);
+                launchactivity.putExtra("NEW", false);
+                startActivity(launchactivity);
+            }
+        });
     }
 
     @Override
