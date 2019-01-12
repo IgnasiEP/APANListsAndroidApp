@@ -82,29 +82,41 @@ public class DBAdapter{
     //Devuelve una lista con todos los perros
     public List<Dog> getAllDogs()
     {
-        return this.getAllDogsByZone(null, true);
+        return this.getAllDogsByZone(null, true, null);
     }
 
     public List<Dog> getAllDogs(boolean getFriends)
     {
-        return this.getAllDogsByZone(null, getFriends);
+        return this.getAllDogsByZone(null, getFriends, null);
     }
 
     public List<Dog> getAllDogsByZone(String zone) {
-        return this.getAllDogsByZone(zone, true);
+        return this.getAllDogsByZone(zone, true, null);
     }
 
     //Devuelve una lista con todos los perros existentes en la zona 'zone'
     //Si 'zone' = null devuelve una lista con todos los perros
-    public List<Dog> getAllDogsByZone(String zone, boolean getFriends)
+    public List<Dog> getAllDogsByZone(String zone, boolean getFriends, String type)
     {
+        String table = null;
+        String tableFriends = null;
+        if(type == null)
+        {
+            table = dbHandler.TABLE_DOGS;
+            tableFriends = dbHandler.TABLE_DOG_FRIENDS;
+        }
+        else if(type.equals("TEST"))
+        {
+            table = dbHandler.TABLE_DOGS_TEST;
+            tableFriends = dbHandler.TABLE_DOG_FRIENDS_TEST;
+        }
         List<Dog> dogs = new ArrayList<Dog>();
         SQLiteDatabase db = dbHandler.getWritableDatabase();
         String selection = null;
         String[] params = null;
         String[] columns = {dbHandler.KEY_DOG_ID,dbHandler.KEY_DOG_NAME, dbHandler.KEY_DOG_ID_CAGE, dbHandler.KEY_DOG_AGE, dbHandler.KEY_DOG_LINK, dbHandler.KEY_DOG_SPECIAL, dbHandler.KEY_DOG_WALKTYPE, dbHandler.KEY_DOG_OBSERVATIONS};
 
-        Cursor cursor = db.query(dbHandler.TABLE_DOGS,columns,null, null,null,null,null);
+        Cursor cursor = db.query(table,columns,null, null,null,null,null);
         StringBuffer buffer= new StringBuffer();
         while (cursor.moveToNext())
         {
@@ -161,26 +173,44 @@ public class DBAdapter{
 
         if(getFriends) {
             for (int i = 0; i < dogs.size(); ++i) {
-                this.getDogFriends(dogs, i);
+                this.getDogFriends(dogs, i, tableFriends);
             }
         }
         return dogs;
     }
 
+    public List<Dog> getAllDogsTest()
+    {
+        return this.getAllDogsByZone(Constants.CAGE_ZONE_XENILES, true, "TEST");
+    }
+
+
     public void SaveDogs(List<Dog> dogs)
     {
         for(int i = 0; i < dogs.size(); ++i) {
             Dog dog = dogs.get(i);
-            this.SaveOrUpdateDog(dog);
+            this.SaveOrUpdateDog(dog, DBHandler.TABLE_DOGS, DBHandler.TABLE_DOG_FRIENDS);
         }
     }
 
-    public void SaveOrUpdateDog(Dog dog)
+    public void SaveDogsTest(List<Dog> dogs)
+    {
+        for(int i = 0; i < dogs.size(); ++i) {
+            Dog dog = dogs.get(i);
+            this.SaveOrUpdateDog(dog, DBHandler.TABLE_DOGS_TEST, DBHandler.TABLE_DOG_FRIENDS_TEST);
+        }
+    }
+
+    public void SaveOrUpdateDog(Dog dog) {
+        this.SaveOrUpdateDog(dog, DBHandler.TABLE_DOGS, DBHandler.TABLE_DOG_FRIENDS);
+    }
+
+    public void SaveOrUpdateDog(Dog dog, String table, String friendsTable)
     {
         SQLiteDatabase db = dbHandler.getWritableDatabase();
         ContentValues initialValues = new ContentValues();
 
-        int maxIdDog = this.GetMaxId(dbHandler.TABLE_DOGS, dbHandler.KEY_DOG_ID);
+        int maxIdDog = this.GetMaxId(table, dbHandler.KEY_DOG_ID);
 
         if(dog.id == 0) {
             initialValues.put(DBHandler.KEY_DOG_ID, maxIdDog + 1);
@@ -197,14 +227,14 @@ public class DBAdapter{
         initialValues.put(DBHandler.KEY_DOG_WALKTYPE, dog.walktype);
         initialValues.put(DBHandler.KEY_DOG_OBSERVATIONS, dog.observations);
 
-        int id = (int) db.insertWithOnConflict(dbHandler.TABLE_DOGS, null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
+        int id = (int) db.insertWithOnConflict(table, null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
         if (id == -1) {
-            db.update(dbHandler.TABLE_DOGS, initialValues, DBHandler.KEY_DOG_ID + "=?", new String[]{Integer.toString(dog.id)});
+            db.update(table, initialValues, DBHandler.KEY_DOG_ID + "=?", new String[]{Integer.toString(dog.id)});
         }
 
-        db.delete(dbHandler.TABLE_DOG_FRIENDS, DBHandler.KEY_DOGFRIENDS_DOG_ID + "=?", new String[]{Integer.toString(dog.id)});
-        db.delete(dbHandler.TABLE_DOG_FRIENDS, DBHandler.KEY_DOGFRIENDS_FRIENDDOG_ID + "=?", new String[]{Integer.toString(dog.id)});
-        int maxId = this.GetMaxId(dbHandler.TABLE_DOG_FRIENDS, dbHandler.KEY_DOGFRIENDS_DOG_ID);
+        db.delete(friendsTable, DBHandler.KEY_DOGFRIENDS_DOG_ID + "=?", new String[]{Integer.toString(dog.id)});
+        db.delete(friendsTable, DBHandler.KEY_DOGFRIENDS_FRIENDDOG_ID + "=?", new String[]{Integer.toString(dog.id)});
+        int maxId = this.GetMaxId(friendsTable, dbHandler.KEY_DOGFRIENDS_DOG_ID);
 
         for(int j = 0; j < dog.friends.size(); ++j)
         {
@@ -227,7 +257,7 @@ public class DBAdapter{
 
                 String[] columns = {dbHandler.KEY_DOGFRIENDS_ID};
                 String selection = dbHandler.KEY_DOGFRIENDS_DOG_ID + "=? AND " + dbHandler.KEY_DOGFRIENDS_FRIENDDOG_ID + "=?";
-                Cursor cursor = db.query(dbHandler.TABLE_DOG_FRIENDS, columns, selection, params, null, null, null);
+                Cursor cursor = db.query(friendsTable, columns, selection, params, null, null, null);
                 boolean exists = false;
                 int rowId = 0;
                 while (cursor.moveToNext()) {
@@ -237,10 +267,10 @@ public class DBAdapter{
 
                 if (!exists) {
                     initialValues.put(DBHandler.KEY_DOGFRIENDS_ID, maxId+1);
-                    db.insertWithOnConflict(dbHandler.TABLE_DOG_FRIENDS, null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
+                    db.insertWithOnConflict(friendsTable, null, initialValues, SQLiteDatabase.CONFLICT_IGNORE);
                     maxId++;
                 } else {
-                    db.update(dbHandler.TABLE_DOG_FRIENDS, initialValues, DBHandler.KEY_DOGFRIENDS_DOG_ID + "=?;", new String[]{Integer.toString(rowId)});
+                    db.update(friendsTable, initialValues, DBHandler.KEY_DOGFRIENDS_DOG_ID + "=?;", new String[]{Integer.toString(rowId)});
                 }
             }
         }
@@ -407,6 +437,22 @@ public class DBAdapter{
         return result;
     }
 
+    public ArrayList<Dog> getAllInteriorDogsTest()
+    {
+        List<Dog> dogs = this.getAllDogsTest();
+        ArrayList<Dog> result = new ArrayList<Dog>();
+
+        for(int i = 0; i < dogs.size(); ++i)
+        {
+            if(dogs.get(i).walktype == Constants.WT_INTERIOR)
+            {
+                result.add(dogs.get(i));
+            }
+        }
+
+        return result;
+    }
+
     public void updateDogCages(ArrayList<CageDog> cageDogs, boolean isAssigned)
     {
         SQLiteDatabase db = dbHandler.getWritableDatabase();
@@ -441,13 +487,13 @@ public class DBAdapter{
         }
     }
 
-    public void getDogFriends(List<Dog> dogs, int position) {
+    public void getDogFriends(List<Dog> dogs, int position, String table) {
         Dog dog = dogs.get(position);
         List<Dog> friends = new ArrayList<Dog>();
         String[] args = {Integer.toString(dog.id)};
         SQLiteDatabase db = dbHandler.getWritableDatabase();
         String[] columns = {dbHandler.KEY_DOGFRIENDS_ID, dbHandler.KEY_DOGFRIENDS_DOG_ID, dbHandler.KEY_DOGFRIENDS_FRIENDDOG_ID};
-        Cursor cursor = db.query(dbHandler.TABLE_DOG_FRIENDS, columns, dbHandler.KEY_DOGFRIENDS_DOG_ID + "=?", args, null, null, null);
+        Cursor cursor = db.query(table, columns, dbHandler.KEY_DOGFRIENDS_DOG_ID + "=?", args, null, null, null);
         StringBuffer buffer = new StringBuffer();
         while (cursor.moveToNext()) {
             int id = cursor.getInt(cursor.getColumnIndex(dbHandler.KEY_DOGFRIENDS_ID));
@@ -1067,6 +1113,7 @@ public class DBAdapter{
 
         //Dogs table name
         private static final String TABLE_DOGS = "dogs";
+        private static final String TABLE_DOGS_TEST  = "dogsTest";
         //Dogs table column names
         private static final String KEY_DOG_ID = "id";
         private static final String KEY_DOG_NAME = "name";
@@ -1130,6 +1177,8 @@ public class DBAdapter{
 
         //Dog friends table name
         private static final String TABLE_DOG_FRIENDS = "dogFriends";
+        private static final String TABLE_DOG_FRIENDS_TEST = "dogFriendsTest";
+
 
         //Dog friends column names
         private static final String KEY_DOGFRIENDS_ID = "id";
@@ -1419,6 +1468,19 @@ public class DBAdapter{
                     + KEY_DOGFAVOURITES_ID + " INTEGER PRIMARY KEY,"
                     + KEY_DOGFAVOURITES_VOLUNTEER_ID + " INTEGER,"
                     + KEY_DOGFAVOURITES_DOG_ID + " INTEGER" + ")";
+            String CREATE_DOGS_TABLE_TEST = "CREATE TABLE " + TABLE_DOGS_TEST + "("
+                    + KEY_DOG_ID + " INTEGER PRIMARY KEY,"
+                    + KEY_DOG_NAME + " TEXT,"
+                    + KEY_DOG_ID_CAGE + " INTEGER,"
+                    + KEY_DOG_AGE + " INTEGER,"
+                    + KEY_DOG_LINK + " TEXT,"
+                    + KEY_DOG_SPECIAL + " BOOLEAN,"
+                    + KEY_DOG_WALKTYPE + " TINYINY,"
+                    + KEY_DOG_OBSERVATIONS + " TEXT" + ")";
+            String CREATE_DOG_FRIENDS_TABLE_TEST = "CREATE TABLE " + TABLE_DOG_FRIENDS_TEST + "("
+                    + KEY_DOGFRIENDS_ID + " INTEGER PRIMARY KEY,"
+                    + KEY_DOGFRIENDS_DOG_ID + " INTEGER,"
+                    + KEY_DOGFRIENDS_FRIENDDOG_ID + " INTEGER" + ")";
 
             db.execSQL(CREATE_DOGS_TABLE);
             db.execSQL(CREATE_CAGES_TABLE);
@@ -1431,6 +1493,8 @@ public class DBAdapter{
 
             db.execSQL(CREATE_SELECTED_VOLUNTEERS_TABLE_TEST);
             db.execSQL(CREATE_DOG_FAVOURITES_TABLE_TEST);
+            db.execSQL(CREATE_DOGS_TABLE_TEST);
+            db.execSQL(CREATE_DOG_FRIENDS_TABLE_TEST);
 
             this.insertCages(db);
             this.insertDogs(db);
@@ -1453,6 +1517,8 @@ public class DBAdapter{
 
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_SELECTED_VOLUNTEERS_TEST);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOG_FAVOURITES_TEST);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOG_FRIENDS_TEST);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOGS_TEST);
             //Create tables again
             onCreate(db);
         }
@@ -1518,6 +1584,8 @@ public class DBAdapter{
         {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_SELECTED_VOLUNTEERS_TEST);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOG_FAVOURITES_TEST);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOG_FRIENDS_TEST);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_DOGS_TEST);
 
             String CREATE_SELECTED_VOLUNTEERS_TABLE_TEST = "CREATE TABLE " + TABLE_SELECTED_VOLUNTEERS_TEST + "("
                     + KEY_SELECTEDVOLUNTEERS_ID + " INTEGER PRIMARY KEY,"
@@ -1536,8 +1604,25 @@ public class DBAdapter{
                     + KEY_DOGFAVOURITES_VOLUNTEER_ID + " INTEGER,"
                     + KEY_DOGFAVOURITES_DOG_ID + " INTEGER" + ")";
 
+            String CREATE_DOGS_TABLE_TEST = "CREATE TABLE " + TABLE_DOGS_TEST + "("
+                    + KEY_DOG_ID + " INTEGER PRIMARY KEY,"
+                    + KEY_DOG_NAME + " TEXT,"
+                    + KEY_DOG_ID_CAGE + " INTEGER,"
+                    + KEY_DOG_AGE + " INTEGER,"
+                    + KEY_DOG_LINK + " TEXT,"
+                    + KEY_DOG_SPECIAL + " BOOLEAN,"
+                    + KEY_DOG_WALKTYPE + " TINYINY,"
+                    + KEY_DOG_OBSERVATIONS + " TEXT" + ")";
+
+            String CREATE_DOG_FRIENDS_TABLE_TEST = "CREATE TABLE " + TABLE_DOG_FRIENDS_TEST + "("
+                    + KEY_DOGFRIENDS_ID + " INTEGER PRIMARY KEY,"
+                    + KEY_DOGFRIENDS_DOG_ID + " INTEGER,"
+                    + KEY_DOGFRIENDS_FRIENDDOG_ID + " INTEGER" + ")";
+
             db.execSQL(CREATE_SELECTED_VOLUNTEERS_TABLE_TEST);
             db.execSQL(CREATE_DOG_FAVOURITES_TABLE_TEST);
+            db.execSQL(CREATE_DOGS_TABLE_TEST);
+            db.execSQL(CREATE_DOG_FRIENDS_TABLE_TEST);
         }
     }
 }

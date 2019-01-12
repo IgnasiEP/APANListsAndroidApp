@@ -12,9 +12,11 @@ import com.example.ignasi94.backtrackingsimple.Estructuras.Dog;
 import com.example.ignasi94.backtrackingsimple.Estructuras.Volunteer;
 import com.example.ignasi94.backtrackingsimple.Estructuras.VolunteerWalks;
 import com.example.ignasi94.backtrackingsimple.R;
+import com.example.ignasi94.backtrackingsimple.Utils.Constants;
 import com.example.ignasi94.backtrackingsimple.Utils.RunnableThread;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.Random;
 
@@ -28,7 +30,6 @@ public class TestsScreen extends Activity {
         setContentView(R.layout.lists_activity_tests_screen);
 
         DBAdapter dbAdapter = new DBAdapter(this);
-        dbAdapter.CleanTestTables();
 
         Button walksTestButton = (Button) findViewById(R.id.button_walks_test);
         walksTestButton.setOnClickListener(new View.OnClickListener() {
@@ -59,8 +60,8 @@ public class TestsScreen extends Activity {
                 //SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
                 launchactivity.putExtra("nPaseos", npaseos);
                 launchactivity.putExtra("Test", "WALKS");
+                dbAdapter.CleanTestTables();
                 dbAdapter.SaveSelectedVolunteersTest(volunteerWalks);
-                dbAdapter.CleanSolutionsTables();
                 dbAdapter.SaveWalkSolution(walks, volunteerWalks);
                 dbAdapter.SaveCleanSolution(clean);
                 startActivity(launchactivity);
@@ -75,7 +76,7 @@ public class TestsScreen extends Activity {
                 List<Cage> cages = dbAdapter.getAllCages();
                 List<Volunteer> allVolunteers = dbAdapter.getAllVolunteers();
                 List<VolunteerWalks> volunteers = RandomSelectedVolunteers(allVolunteers, false);
-                RandomFavourites(volunteers);
+                RandomFavourites(volunteers, dbAdapter.getAllDogsDictionary());
                 int npaseos = volunteers.get(0).nPaseos;
                 ArrayList<VolunteerWalks> volunteerWalks = new ArrayList<VolunteerWalks>();
                 volunteerWalks = EraseCleaningVolunteers(volunteers);
@@ -97,17 +98,101 @@ public class TestsScreen extends Activity {
                 //SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
                 launchactivity.putExtra("nPaseos", npaseos);
                 launchactivity.putExtra("Test", "FAVOURITES");
+                dbAdapter.CleanTestTables();
                 dbAdapter.SaveSelectedVolunteersTest(volunteerWalks);
                 for(int i = 0; i < volunteerWalks.size(); ++i)
                 {
                     dbAdapter.SaveOrUpdateVolunteerTest(volunteerWalks.get(i));
                 }
-                dbAdapter.CleanSolutionsTables();
                 dbAdapter.SaveWalkSolution(walks, volunteerWalks);
                 dbAdapter.SaveCleanSolution(clean);
                 startActivity(launchactivity);
             }
         });
+
+        Button friendsTestButton = (Button) findViewById(R.id.button_friends_test);
+        friendsTestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Dog> dogs = dbAdapter.getAllDogs();
+                List<Cage> cages = dbAdapter.getAllCages();
+                List<Volunteer> allVolunteers = dbAdapter.getAllVolunteers();
+                List<VolunteerWalks> volunteers = RandomSelectedVolunteers(allVolunteers, false);
+                RandomFriendsFavourites(dogs);
+                int npaseos = volunteers.get(0).nPaseos;
+                ArrayList<VolunteerWalks> volunteerWalks = new ArrayList<VolunteerWalks>();
+                volunteerWalks = EraseCleaningVolunteers(volunteers);
+                RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteerWalks);
+                ThreadGroup tg = new ThreadGroup("TestGroup1");
+                Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
+                t.start();
+                try {
+                    t.join();
+                    walks = rT.walksTable;
+                    clean = rT.cleanTable;
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                //Pasamos la solución de paseos a matriz de id's
+                Intent launchactivity= new Intent(TestsScreen.this,ShowTestSolution.class);
+                //SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
+                launchactivity.putExtra("nPaseos", npaseos);
+                launchactivity.putExtra("Test", "FRIENDS");
+                dbAdapter.CleanTestTables();
+                dbAdapter.SaveDogsTest(dogs);
+                dbAdapter.SaveSelectedVolunteersTest(volunteerWalks);
+                dbAdapter.SaveWalkSolution(walks, volunteerWalks);
+                dbAdapter.SaveCleanSolution(clean);
+                startActivity(launchactivity);
+            }
+        });
+
+        Button specialTestButton = (Button) findViewById(R.id.button_special_test);
+        specialTestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Dog> dogs = dbAdapter.getAllDogs();
+                List<Cage> cages = dbAdapter.getAllCages();
+                List<Volunteer> allVolunteers = dbAdapter.getAllVolunteers();
+                List<VolunteerWalks> volunteers = RandomSelectedVolunteers(allVolunteers, false);
+                RandomSpecial(dogs);
+                RandomFavourites(volunteers, dbAdapter.getAllDogsDictionary());
+                int npaseos = volunteers.get(0).nPaseos;
+                ArrayList<VolunteerWalks> volunteerWalks = new ArrayList<VolunteerWalks>();
+                volunteerWalks = EraseCleaningVolunteers(volunteers);
+                RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteerWalks);
+                ThreadGroup tg = new ThreadGroup("TestGroup1");
+                Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
+                t.start();
+                try {
+                    t.join();
+                    walks = rT.walksTable;
+                    clean = rT.cleanTable;
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                //Pasamos la solución de paseos a matriz de id's
+                Intent launchactivity= new Intent(TestsScreen.this,ShowTestSolution3.class);
+                //SetOutputParameters(launchactivity, npaseos, volunteers.size(), rT);
+                launchactivity.putExtra("nPaseos", npaseos);
+                launchactivity.putExtra("Test", "SPECIAL");
+                dbAdapter.CleanTestTables();
+                dbAdapter.SaveSelectedVolunteersTest(volunteerWalks);
+                dbAdapter.SaveDogsTest(dogs);
+                for(int i = 0; i < volunteerWalks.size(); ++i)
+                {
+                    dbAdapter.SaveOrUpdateVolunteerTest(volunteerWalks.get(i));
+                }
+                dbAdapter.SaveWalkSolution(walks, volunteerWalks);
+                dbAdapter.SaveCleanSolution(clean);
+                startActivity(launchactivity);
+            }
+        });
+
 
     }
 
@@ -166,9 +251,95 @@ public class TestsScreen extends Activity {
         return volunteers;
     }
 
-    public void RandomFavourites(List<VolunteerWalks> selectedVolunteers)
+    public void RandomFavourites(List<VolunteerWalks> selectedVolunteers, Dictionary<Integer,Dog> dogs)
     {
+        Random random = new Random();
+        for(int i = 0; i < selectedVolunteers.size(); ++i)
+        {
+            VolunteerWalks volunteerWalks = selectedVolunteers.get(i);
 
+            volunteerWalks.favouriteDogs = new ArrayList<Dog>();
+
+            while(volunteerWalks.favouriteDogs.size() < 5)
+            {
+                int id = random.nextInt(dogs.size());
+
+                boolean contains = false;
+                for(int j = 0; j < volunteerWalks.favouriteDogs.size(); ++j)
+                {
+                    Dog dog = volunteerWalks.favouriteDogs.get(j);
+
+                    if(id == dog.id)
+                    {
+                        contains = true;
+                        break;
+                    }
+                }
+
+                if(!contains)
+                {
+                    Dog getDog = dogs.get(id);
+                    if(getDog != null) {
+                        volunteerWalks.favouriteDogs.add(getDog);
+                    }
+                }
+            }
+        }
+    }
+
+    public void RandomFriendsFavourites(List<Dog> dogs)
+    {
+        Random random = new Random();
+        for(int i = 0; i < dogs.size(); ++i) {
+            Dog idog = dogs.get(i);
+            idog.friends = new ArrayList<Dog>();
+        }
+
+        for (int i = 0; i < dogs.size(); ++i) {
+            Dog idog = dogs.get(i);
+
+            if (idog.walktype == Constants.WT_INTERIOR) {
+
+                for (int j = i + 1; j < dogs.size(); ++j) {
+                    Dog jdog = dogs.get(j);
+
+                    if (jdog.walktype == Constants.WT_INTERIOR) {
+                        int add = random.nextInt(2);
+
+                        if (add > 0) {
+                            idog.friends.add(jdog);
+                            jdog.friends.add(idog);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void RandomSpecial(List<Dog> dogs)
+    {
+        Random random = new Random();
+
+        int added = 0;
+        for(int i = 0; i < dogs.size(); ++i) {
+            Dog idog = dogs.get(i);
+
+            int add = random.nextInt(2);
+
+            if (add > 0) {
+                added++;
+                idog.special = true;
+            }
+            else
+            {
+                idog.special = false;
+            }
+
+            if(added >= 6)
+            {
+                break;
+            }
+        }
     }
 
 }

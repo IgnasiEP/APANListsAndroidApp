@@ -1002,7 +1002,7 @@ public class Algorithm {
             if(dog != null) {
                 List<EdgeDog> dogsInCage = dogGraph.edgesOfByWeight(dog, Constants.DOG_EDGE_SAME_CAGE_VALUE);
                 int exteriorDogsInCage = dogsInCage.size() + 1;
-                if (cage.zone == Constants.CAGE_ZONE_XENILES) {
+                if (cage.zone.equals(Constants.CAGE_ZONE_XENILES)) {
                     for (int j = 0; j < dogsInCage.size(); ++j) {
                         EdgeDog edgeDog = dogsInCage.get(j);
                         if (edgeDog.v1.id == dog.id && edgeDog.v2.walktype != Constants.WT_EXTERIOR) {
@@ -1012,9 +1012,9 @@ public class Algorithm {
                         }
                     }
                 }
-                if (cage.zone == Constants.CAGE_ZONE_XENILES) {
+                if (cage.zone.equals(Constants.CAGE_ZONE_XENILES)) {
                     xeniles.add(new TupleDog(dog, exteriorDogsInCage));
-                } else if (cage.zone == Constants.CAGE_ZONE_PATIOS) {
+                } else if (cage.zone.equals(Constants.CAGE_ZONE_PATIOS)) {
                     patios.add(new TupleDog(dog, exteriorDogsInCage));
                 } else {
                     cuarentenas.add(new TupleDog(dog, exteriorDogsInCage));
@@ -1278,7 +1278,7 @@ public class Algorithm {
             int assigniRow = this.walksMapping.get(i).iWalk;
             for(int j = 0; j < walksTable[assigniRow].length; ++j)
             {
-                newWalksTable[i][j] = walksTable[assigniRow][j];
+                newWalksTable[assigniRow][j] = walksTable[i][j];
             }
             newCleanTable.remove(i);
             newCleanTable.add(i,cleanTable.get(assigniRow));
