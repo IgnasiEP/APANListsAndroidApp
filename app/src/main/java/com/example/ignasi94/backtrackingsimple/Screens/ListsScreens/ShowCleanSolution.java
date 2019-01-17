@@ -35,6 +35,7 @@ public class ShowCleanSolution extends Activity {
     ArrayList<ArrayList<VolunteerDog>> cleanSolution;
     DBAdapter dbAdapter;
     ArrayList<VolunteerDog> cleanGridArray;
+    Boolean lastSolution;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lists_activity_show_clean_solution);
@@ -54,9 +55,19 @@ public class ShowCleanSolution extends Activity {
     public void ReadMakeListsParameters(Intent intent) {
         dbAdapter = new DBAdapter(this);
         nPaseos = getIntent().getIntExtra("nPaseos", 0);
-        volunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
-        nVolunteers = volunteers.size();
-        cleanGridArray = dbAdapter.GetCleanSolution(nPaseos, gridColumns);
+        lastSolution = getIntent().getBooleanExtra("LAST", false);
+
+        if(lastSolution)
+        {
+            volunteers = (ArrayList) dbAdapter.getAllSelectedVolunteersLast();
+            nVolunteers = volunteers.size();
+            cleanGridArray = dbAdapter.GetCleanSolutionLast(nPaseos, gridColumns);
+        }
+        else {
+            volunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
+            nVolunteers = volunteers.size();
+            cleanGridArray = dbAdapter.GetCleanSolution(nPaseos, gridColumns);
+        }
 
 
         /*dbAdapter = new DBAdapter(this);

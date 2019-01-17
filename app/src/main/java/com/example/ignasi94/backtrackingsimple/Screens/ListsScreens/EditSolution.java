@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.widget.TextViewCompat;
@@ -67,6 +68,7 @@ public class EditSolution extends Activity {
     View full;
     GridView dogGrid;
     GridView cleanGrid;
+    Boolean lastSolution;
 
     ArrayList<ArrayList<Dog>> listDogsPerCage;
 
@@ -131,7 +133,11 @@ public class EditSolution extends Activity {
             @Override
             public void onClick(View v) {
                 gridView.setVisibility(View.GONE);
-                cleanGridView.setVisibility(View.VISIBLE);
+
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) cleanGridView.getLayoutParams();
+                params.weight = 13;
+                cleanGridView.setLayoutParams(params);
+
                 buttonShowClean.setVisibility(View.GONE);
                 buttonShowPaseos.setVisibility(View.VISIBLE);
             }
@@ -143,7 +149,22 @@ public class EditSolution extends Activity {
             @Override
             public void onClick(View v) {
                 gridView.setVisibility(View.VISIBLE);
-                cleanGridView.setVisibility(View.GONE);
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) gridView.getLayoutParams();
+                if(buttonShowNotAssigned.getVisibility() == View.VISIBLE)
+                {
+                    params.weight = 16;
+                }
+                else
+                {
+                    params.weight = 23;
+                }
+
+                gridView.setLayoutParams(params);
+
+                params = (LinearLayout.LayoutParams) cleanGridView.getLayoutParams();
+                params.weight = 13;
+                cleanGridView.setLayoutParams(params);
+
                 buttonShowClean.setVisibility(View.VISIBLE);
                 buttonShowPaseos.setVisibility(View.GONE);
             }
@@ -162,6 +183,16 @@ public class EditSolution extends Activity {
                 ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) guideLine12.getLayoutParams();
                 params.guidePercent = 0.1f;
                 guideLine12.setLayoutParams(params);
+
+                float scale = getResources().getDisplayMetrics().density;
+                int dpAsPixels = (int) (65*scale + 0.5f);
+                dogGrid.setPadding(0,0,0, dpAsPixels);
+                cleanGrid.setPadding(0,0,0, dpAsPixels);
+
+                if(buttonShowClean.getVisibility() == View.VISIBLE) {
+                    buttonShowClean.callOnClick();
+                    buttonShowPaseos.callOnClick();
+                }
             }
         });
 
@@ -178,6 +209,17 @@ public class EditSolution extends Activity {
                 ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) guideLine12.getLayoutParams();
                 params.guidePercent = 0.4f;
                 guideLine12.setLayoutParams(params);
+
+                float scale = getResources().getDisplayMetrics().density;
+                int dpAsPixels = (int) (30*scale + 0.5f);
+                dogGrid.setPadding(0,0,0, dpAsPixels);
+                cleanGrid.setPadding(0,0,0, dpAsPixels);
+
+                if(buttonShowClean.getVisibility() == View.VISIBLE) {
+                    buttonShowClean.callOnClick();
+                    buttonShowPaseos.callOnClick();
+                }
+
             }
         });
 
@@ -185,24 +227,47 @@ public class EditSolution extends Activity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dbAdapter.CleanSolutionsTables();
-                dbAdapter.SaveWalkSolution(dogAdapter.matrixList);
-                dbAdapter.SaveCleanSolution(cleanDogAdapter.matrixList);
+                if(!lastSolution) {
+                    dbAdapter.CleanSolutionsTables();
+                    dbAdapter.SaveWalkSolution(dogAdapter.matrixList);
+                    dbAdapter.SaveCleanSolution(cleanDogAdapter.matrixList);
+                }
+                dbAdapter.CleanSolutionsTablesLast();
+                dbAdapter.SaveWalkSolutionLast(dogAdapter.matrixList);
+                dbAdapter.SaveCleanSolutionLast(cleanDogAdapter.matrixList);
                 finish();
             }
         });
+
+
+        buttonShowClean.callOnClick();
+        buttonHideNotAssigned.callOnClick();
+        buttonShowPaseos.callOnClick();
     }
 
     public void ReadMakeListsParameters(Intent intent) {
         dbAdapter = new DBAdapter(this);
         nPaseos = getIntent().getIntExtra("nPaseos", 0);
-        volunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
-        nVolunteers = volunteers.size();
-        walkSolutionArray = dbAdapter.GetWalkSolution(nVolunteers,nPaseos+1);
-        cleanGridArray = dbAdapter.GetCleanSolution(nPaseos, cleanGridColumns);
+        lastSolution = getIntent().getBooleanExtra("LAST", false);
 
+        List<Dog> allDogs = new ArrayList<Dog>();
         noAssignedDogsArray = new ArrayList<VolunteerDog>();
-        List<Dog> allDogs = dbAdapter.getAllDogs();
+        if(lastSolution)
+        {
+            volunteers = (ArrayList) dbAdapter.getAllSelectedVolunteersLast();
+            nVolunteers = volunteers.size();
+            walkSolutionArray = dbAdapter.GetWalkSolutionLast(nVolunteers, nPaseos + 1);
+            cleanGridArray = dbAdapter.GetCleanSolutionLast(nPaseos, cleanGridColumns);
+            allDogs = dbAdapter.getAllDogsLast();
+        }
+        else {
+            volunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
+            nVolunteers = volunteers.size();
+            walkSolutionArray = dbAdapter.GetWalkSolution(nVolunteers, nPaseos + 1);
+            cleanGridArray = dbAdapter.GetCleanSolution(nPaseos, cleanGridColumns);
+            allDogs = dbAdapter.getAllDogs();
+        }
+
         for(int i = 0; i < allDogs.size(); ++i)
         {
             Dog dog = allDogs.get(i);
@@ -713,7 +778,6 @@ public class EditSolution extends Activity {
                     }
                     break;
                 case DragEvent.ACTION_DRAG_ENTERED:
-                    //v.setBackgroundColor(Color.BLUE);
                     if(v.getTag().toString().contentEquals("button_limpieza")) {
                         buttonShowClean.callOnClick();
                     }
@@ -725,6 +789,17 @@ public class EditSolution extends Activity {
                     //v.setBackgroundColor(Color.RED);
                     cleanGridView.setVisibility(View.GONE);
                     cleanGridView.setVisibility(View.VISIBLE);
+                    /*View tmpView = (View) event.getLocalState();
+                    //Elemento arrastrado
+                    LinearLayout tmpOrigen = (LinearLayout) tmpView;
+                    //GridView origen
+                    GridView tmpGridViewOrigen = (GridView) tmpOrigen.getParent();
+                    String tmpGridOrigenName = tmpGridViewOrigen.getTag().toString();
+
+                    if(tmpGridOrigenName.contentEquals("grid_dogs") && gridView.getVisibility() == View.VISIBLE && !v.getTag().toString().contentEquals("button_limpieza"))
+                    {
+                        buttonShowPaseos.callOnClick();
+                    }*/
                     break;
                 case DragEvent.ACTION_DROP:
                     //Elemento arrastrado

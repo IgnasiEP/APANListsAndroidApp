@@ -45,14 +45,36 @@ public class TestsScreen extends Activity {
                 RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteerWalks);
                 ThreadGroup tg = new ThreadGroup("TestGroup1");
                 Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
+                Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+                    public void uncaughtException(Thread th, Throwable ex) {
+                    }
+                };
+                t.setUncaughtExceptionHandler(h);
                 t.start();
                 try {
-                    t.join();
-                    walks = rT.walksTable;
-                    clean = rT.cleanTable;
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    //Se para el algoritmo siempre a los 10 segundos
+                    t.join(10000);
+                    if(t.isAlive())
+                    {
+                        //Si el algoritmo no ha encontrado solución en 10 segundos devolvemos solución vacía
+                        t.interrupt();
+                        walks = new Dog[npaseos][volunteers.size()];
+                        clean = new ArrayList <ArrayList <Dog> >();
+                    }
+                    else {
+                        walks = rT.walksTable;
+                        clean = rT.cleanTable;
+                    }
+                } catch (Exception e){
+                }
+
+                if(walks == null)
+                {
+                    walks = new Dog[npaseos][volunteers.size()];
+                }
+                if(clean == null)
+                {
+                    clean = new ArrayList <ArrayList <Dog> >();
                 }
 
                 //Pasamos la solución de paseos a matriz de id's
@@ -83,14 +105,36 @@ public class TestsScreen extends Activity {
                 RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteerWalks);
                 ThreadGroup tg = new ThreadGroup("TestGroup1");
                 Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
+                Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+                    public void uncaughtException(Thread th, Throwable ex) {
+                    }
+                };
+                t.setUncaughtExceptionHandler(h);
                 t.start();
                 try {
-                    t.join();
-                    walks = rT.walksTable;
-                    clean = rT.cleanTable;
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    //Se para el algoritmo siempre a los 10 segundos
+                    t.join(10000);
+                    if(t.isAlive())
+                    {
+                        //Si el algoritmo no ha encontrado solución en 10 segundos devolvemos solución vacía
+                        t.interrupt();
+                        walks = new Dog[npaseos][volunteers.size()];
+                        clean = new ArrayList <ArrayList <Dog> >();
+                    }
+                    else {
+                        walks = rT.walksTable;
+                        clean = rT.cleanTable;
+                    }
+                } catch (Exception e){
+                }
+
+                if(walks == null)
+                {
+                    walks = new Dog[npaseos][volunteers.size()];
+                }
+                if(clean == null)
+                {
+                    clean = new ArrayList <ArrayList <Dog> >();
                 }
 
                 //Pasamos la solución de paseos a matriz de id's
@@ -125,14 +169,36 @@ public class TestsScreen extends Activity {
                 RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteerWalks);
                 ThreadGroup tg = new ThreadGroup("TestGroup1");
                 Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
+                Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+                    public void uncaughtException(Thread th, Throwable ex) {
+                    }
+                };
+                t.setUncaughtExceptionHandler(h);
                 t.start();
                 try {
-                    t.join();
-                    walks = rT.walksTable;
-                    clean = rT.cleanTable;
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    //Se para el algoritmo siempre a los 10 segundos
+                    t.join(10000);
+                    if(t.isAlive())
+                    {
+                        //Si el algoritmo no ha encontrado solución en 10 segundos devolvemos solución vacía
+                        t.interrupt();
+                        walks = new Dog[npaseos][volunteers.size()];
+                        clean = new ArrayList <ArrayList <Dog> >();
+                    }
+                    else {
+                        walks = rT.walksTable;
+                        clean = rT.cleanTable;
+                    }
+                } catch (Exception e){
+                }
+
+                if(walks == null)
+                {
+                    walks = new Dog[npaseos][volunteers.size()];
+                }
+                if(clean == null)
+                {
+                    clean = new ArrayList <ArrayList <Dog> >();
                 }
 
                 //Pasamos la solución de paseos a matriz de id's
@@ -165,14 +231,36 @@ public class TestsScreen extends Activity {
                 RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteerWalks);
                 ThreadGroup tg = new ThreadGroup("TestGroup1");
                 Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
+                Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+                    public void uncaughtException(Thread th, Throwable ex) {
+                    }
+                };
+                t.setUncaughtExceptionHandler(h);
                 t.start();
                 try {
-                    t.join();
-                    walks = rT.walksTable;
-                    clean = rT.cleanTable;
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    //Se para el algoritmo siempre a los 10 segundos
+                    t.join(10000);
+                    if(t.isAlive())
+                    {
+                        //Si el algoritmo no ha encontrado solución en 10 segundos devolvemos solución vacía
+                        t.interrupt();
+                        walks = new Dog[npaseos][volunteers.size()];
+                        clean = new ArrayList <ArrayList <Dog> >();
+                    }
+                    else {
+                        walks = rT.walksTable;
+                        clean = rT.cleanTable;
+                    }
+                } catch (Exception e){
+                }
+
+                if(walks == null)
+                {
+                    walks = new Dog[npaseos][volunteers.size()];
+                }
+                if(clean == null)
+                {
+                    clean = new ArrayList <ArrayList <Dog> >();
                 }
 
                 //Pasamos la solución de paseos a matriz de id's
@@ -304,9 +392,9 @@ public class TestsScreen extends Activity {
                     Dog jdog = dogs.get(j);
 
                     if (jdog.walktype == Constants.WT_INTERIOR) {
-                        int add = random.nextInt(2);
+                        int add = random.nextInt(4);
 
-                        if (add > 0) {
+                        if (add == 1) {
                             idog.friends.add(jdog);
                             jdog.friends.add(idog);
                         }

@@ -26,6 +26,7 @@ public class ListsScreen extends Activity {
     Button goConfigureListsButton;
     Button goEditConfigureListsButton;
     Button goMakeListsButton;
+    Button lastSolutionButton;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,14 +69,36 @@ public class ListsScreen extends Activity {
                 RunnableThread rT = new RunnableThread("Test", dogs, cages, volunteerWalks);
                 ThreadGroup tg = new ThreadGroup("TestGroup1");
                 Thread t = new Thread(tg,rT,rT.getName(), 128*1024*1024);
+                Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+                    public void uncaughtException(Thread th, Throwable ex) {
+                    }
+                };
+                t.setUncaughtExceptionHandler(h);
                 t.start();
                 try {
-                    t.join();
-                    walks = rT.walksTable;
-                    clean = rT.cleanTable;
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    //Se para el algoritmo siempre a los 10 segundos
+                    t.join(10000);
+                    if(t.isAlive())
+                    {
+                        //Si el algoritmo no ha encontrado solución en 10 segundos devolvemos solución vacía
+                        t.interrupt();
+                        walks = new Dog[npaseos][volunteers.size()];
+                        clean = new ArrayList <ArrayList <Dog> >();
+                    }
+                    else {
+                        walks = rT.walksTable;
+                        clean = rT.cleanTable;
+                    }
+                } catch (Exception e){
+                }
+
+                if(walks == null)
+                {
+                    walks = new Dog[npaseos][volunteers.size()];
+                }
+                if(clean == null)
+                {
+                    clean = new ArrayList <ArrayList <Dog> >();
                 }
 
                 //Pasamos la solución de paseos a matriz de id's
@@ -86,6 +109,13 @@ public class ListsScreen extends Activity {
                 dbAdapter.SaveWalkSolution(walks, volunteerWalks);
                 dbAdapter.SaveCleanSolution(clean);
                 startActivity(launchactivity);
+
+                dbAdapter.CleanSolutionsTablesLast();
+                dbAdapter.SaveDogsLast(dbAdapter.getAllDogs(true));
+                dbAdapter.SaveVolunteersLast(dbAdapter.getAllVolunteers());
+                dbAdapter.SaveSelectedVolunteersLast(volunteers);
+                dbAdapter.SaveWalkSolutionLast(walks, volunteerWalks);
+                dbAdapter.SaveCleanSolutionLast(clean);
             }
         });
 
@@ -106,10 +136,36 @@ public class ListsScreen extends Activity {
             @Override
             public void onClick(View v) {
                 Intent launchactivity= new Intent(ListsScreen.this,TestsScreen.class);
-                launchactivity.putExtra("NEW", false);
                 startActivity(launchactivity);
             }
         });
+
+        lastSolutionButton = (Button) findViewById(R.id.ver_ultima_lista_button);
+        lastSolutionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<VolunteerWalks> volunteers = dbAdapter.getAllSelectedVolunteersLast();
+                //TESTINTERIORSANDSPECIALS1(volunteers,dogs,dbAdapter);
+                int npaseos = volunteers.get(0).nPaseos;
+
+                Intent launchactivity= new Intent(ListsScreen.this,ShowSolution.class);
+                launchactivity.putExtra("LAST", true);
+                launchactivity.putExtra("nPaseos", npaseos);
+                startActivity(launchactivity);
+            }
+        });
+
+        List<VolunteerWalks> volunteersLast = dbAdapter.getAllSelectedVolunteersLast();
+        boolean lastSolutionEmpty = dbAdapter.isLastSolutionEmpty();
+        if(volunteers.size() > 0 && !lastSolutionEmpty)
+        {
+            lastSolutionButton.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            lastSolutionButton.setVisibility(View.INVISIBLE);
+        }
+
     }
 
     @Override
@@ -127,6 +183,17 @@ public class ListsScreen extends Activity {
         {
             goEditConfigureListsButton.setVisibility(View.VISIBLE);
             goMakeListsButton.setVisibility(View.VISIBLE);
+        }
+
+        List<VolunteerWalks> volunteersLast = dbAdapter.getAllSelectedVolunteersLast();
+        boolean lastSolutionEmpty = dbAdapter.isLastSolutionEmpty();
+        if(volunteers.size() > 0 && !lastSolutionEmpty)
+        {
+            lastSolutionButton.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            lastSolutionButton.setVisibility(View.INVISIBLE);
         }
     }
 

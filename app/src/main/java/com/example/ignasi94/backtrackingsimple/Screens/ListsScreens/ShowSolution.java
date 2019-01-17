@@ -31,6 +31,7 @@ public class ShowSolution extends Activity {
     ArrayList<VolunteerDog> walkSolutionArray;
     ArrayList<ArrayList<Integer>> cleanSolution;
     DBAdapter dbAdapter;
+    Boolean lastSolution;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,10 +85,21 @@ public class ShowSolution extends Activity {
     {
         dbAdapter = new DBAdapter(this);
         nPaseos = getIntent().getIntExtra("nPaseos", 0);
-        ArrayList<VolunteerWalks> selectedVolunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
-        volunteers = this.EraseCleaningVolunteers(selectedVolunteers);
-        nVolunteers = volunteers.size();
-        walkSolutionArray = dbAdapter.GetWalkSolution(nVolunteers,nPaseos+1);
+        lastSolution = getIntent().getBooleanExtra("LAST", false);
+
+        if(lastSolution)
+        {
+            ArrayList<VolunteerWalks> selectedVolunteers = (ArrayList) dbAdapter.getAllSelectedVolunteersLast();
+            volunteers = this.EraseCleaningVolunteers(selectedVolunteers);
+            nVolunteers = volunteers.size();
+            walkSolutionArray = dbAdapter.GetWalkSolutionLast(nVolunteers, nPaseos + 1);
+        }
+        else {
+            ArrayList<VolunteerWalks> selectedVolunteers = (ArrayList) dbAdapter.getAllSelectedVolunteers();
+            volunteers = this.EraseCleaningVolunteers(selectedVolunteers);
+            nVolunteers = volunteers.size();
+            walkSolutionArray = dbAdapter.GetWalkSolution(nVolunteers, nPaseos + 1);
+        }
     }
 
     public ArrayList<VolunteerWalks> EraseCleaningVolunteers(List<VolunteerWalks> volunteers)

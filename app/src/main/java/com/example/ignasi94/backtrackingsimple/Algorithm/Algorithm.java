@@ -67,7 +67,13 @@ public class Algorithm {
 
     public Algorithm(List<Dog> dogs, List<Cage> cages, List<VolunteerWalks> volunteers)
     {
-        SimpleBacktracking(dogs,cages,volunteers);
+        try {
+            SimpleBacktracking(dogs, cages, volunteers);
+        }
+        catch(Exception e)
+        {
+            throw new RuntimeException();
+        }
     }
 
     public void SimpleBacktracking(List<Dog> dogs, List<Cage> cages, List<VolunteerWalks> volunteers)
@@ -494,6 +500,7 @@ public class Algorithm {
             //Comprobamos si caben todos los perros de la jaula en el paseo
             ArrayList<Integer> cagesValidated = new ArrayList<Integer>();
             int totalDogsiRow = 0;
+            int xenilesCages = 0;
             for(int i = 0; i < this.walksTable[0].length; i++) {
                 if (this.walksTable[irow][i] != null) {
                     Dog assigned = this.walksTable[irow][i];
@@ -501,8 +508,17 @@ public class Algorithm {
                         cagesValidated.add(assigned.idCage);
                         int dogsInCage = this.GetExteriorDogs(assigned.idCage);
                         totalDogsiRow += dogsInCage;
+                        if(cages.get(assigned.idCage).zone == Constants.CAGE_ZONE_XENILES) {
+                            xenilesCages++;
+                        }
                     }
                 }
+            }
+
+            //No se permiten asignar más de 6 jaulas de xeniles por paseo
+            if(xenilesCages >= 7)
+            {
+                return false;
             }
             //Perros especialies (y exteriores) no asignados a la cleanTable. O sea, perros especiales
             //asignados o por asignar
