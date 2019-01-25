@@ -89,4 +89,32 @@ public final class MergeUtils {
             }
         }
     }
+
+    public static void MergeBySpecialFavourites(ArrayList<Dog> data) {
+        if (data.size() <= 1) return;               // Base case: just 1 elt
+
+        ArrayList<Dog> a = new ArrayList<Dog>();        // Split array into two
+        ArrayList<Dog> b = new ArrayList<Dog>(); //   halves, a and b
+        for (int i = 0; i < data.size(); i++) {
+            if (i < (data.size()/2)) a.add(data.get(i));
+            else b.add(data.get(i));
+        }
+
+        MergeBySpecialFavourites(a);                              // Recursively sort first
+        MergeBySpecialFavourites(b);                              //   and second half.
+
+        int ai = 0;                                // Merge halves: ai, bi
+        int bi = 0;                                //   track position in
+        while (ai + bi < data.size()) {             //   in each half.
+            if (bi >= b.size() || (ai < a.size() && a.get(ai).nVolunteersAsFavourite < b.get(bi).nVolunteersAsFavourite)) {
+                data.remove(ai+bi);
+                data.add(ai + bi,a.get(ai)); // (copy element of first array over)
+                ai++;
+            } else {
+                data.remove(ai+bi);
+                data.add(ai + bi,b.get(bi)); // (copy element of second array over)
+                bi++;
+            }
+        }
+    }
 }

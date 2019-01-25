@@ -913,27 +913,56 @@ public class Algorithm {
     public boolean AllSpecialDogsHaveAUniqueFavouriteVolunteer(ArrayList<Dog> specialDogsInWalkRow, int iRow)
     {
         ArrayList<VolunteerWalks> volunteersAssignediRow = this.GetVolunteersAssignedIRow(iRow, volunteers);
-        ArrayList<Dog> specialDogsAsFavourite = new ArrayList<Dog>();
-        for(int j = 0; j < specialDogsInWalkRow.size(); ++j)
+        ArrayList<VolunteerWalks> volunteersUnion = new ArrayList<VolunteerWalks>();
+
+        ArrayList<Dog> specialDogsOrderedByNumVolunteers = (ArrayList<Dog>) specialDogsInWalkRow.clone();
+        for(int i = 0; i < specialDogsOrderedByNumVolunteers.size(); ++i)
         {
-            Dog dog = specialDogsInWalkRow.get(j);
-            for(int i = 0; i < volunteersAssignediRow.size(); ++i)
+            Dog dog = specialDogsOrderedByNumVolunteers.get(i);
+            dog.nVolunteersAsFavourite = 0;
+            for(int j = 0; j < volunteersAssignediRow.size(); ++j)
             {
-                Volunteer volunteer = volunteersAssignediRow.get(i);
-                if(!specialDogsAsFavourite.contains(dog))
+                VolunteerWalks volunteer = volunteersAssignediRow.get(j);
+                for(int z = 0; z < volunteer.favouriteDogs.size(); ++z)
                 {
-                    for(int z = 0; z < volunteer.favouriteDogs.size(); ++z)
+                    Dog favourite = volunteer.favouriteDogs.get(z);
+                    if(favourite.id == dog.id)
                     {
-                        Dog favourite = volunteer.favouriteDogs.get(z);
-                        if(dog.id == favourite.id) {
-                            specialDogsAsFavourite.add(dog);
-                            break;
-                        }
+                        dog.nVolunteersAsFavourite++;
+                    }
+                    if(favourite.id == dog.id && !volunteersUnion.contains(volunteer))
+                    {
+                        volunteersUnion.add(volunteer);
                     }
                 }
             }
         }
-        return specialDogsInWalkRow.size() == specialDogsAsFavourite.size();
+
+        MergeUtils.MergeBySpecialFavourites(specialDogsOrderedByNumVolunteers);
+
+        for(int j = 0; j < specialDogsOrderedByNumVolunteers.size(); ++j)
+        {
+            Dog dog = specialDogsOrderedByNumVolunteers.get(j);
+            boolean assigned = false;
+            for(int i = 0; i < volunteersAssignediRow.size(); ++i)
+            {
+                Volunteer volunteer = volunteersAssignediRow.get(i);
+                for(int z = 0; z < volunteer.favouriteDogs.size(); ++z)
+                {
+                    Dog favourite = volunteer.favouriteDogs.get(z);
+                    if(favourite.id == dog.id)
+                    {
+                        assigned = true;
+                        volunteersUnion.remove(volunteer);
+                    }
+                }
+            }
+            if(!assigned)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public ArrayList<Dog> GetInteriorCommonFriends(int cageId)

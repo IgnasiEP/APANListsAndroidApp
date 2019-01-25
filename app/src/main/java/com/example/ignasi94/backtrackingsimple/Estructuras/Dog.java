@@ -16,6 +16,7 @@ public class Dog {
     public Short walktype;
     public String observations;
     public List<Dog> friends;
+    public int nVolunteersAsFavourite;
     //How to safe images
 
 

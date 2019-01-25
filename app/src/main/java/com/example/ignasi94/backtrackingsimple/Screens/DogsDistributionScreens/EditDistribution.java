@@ -292,7 +292,7 @@ public class EditDistribution extends Activity{
                 this.matrixList.remove((int)position);
                 this.matrixList.add(position, tmpCageDog);
                 this.matrixList.remove((int)tmpPosition);
-                this.matrixList.add(tmpPosition, tmpCageDog);
+                this.matrixList.add(tmpPosition, cageDog);
             }
             return tmpPosition;
         }
